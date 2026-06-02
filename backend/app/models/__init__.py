@@ -1,0 +1,1 @@
+"""EngineerCopilot AI — Pydantic Models."""

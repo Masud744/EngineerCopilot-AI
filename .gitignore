@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Environment
+.env
+.env.local
+.env.production.local
+.env.development.local
+
+# Build
+.next/
+out/
+dist/
+build/
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Generated files
+backend/app/generated/
+*.pdf
+*.tex
+!backend/latex_templates/*.tex.j2
+
+# Logs
+*.log
