@@ -1,0 +1,110 @@
+\documentclass[10pt,letterpaper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{charter} % Premium professional serif font
+
+\pagestyle{empty}
+\setlist[itemize]{leftmargin=*,noitemsep,topsep=2pt}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    urlcolor=blue,
+}
+
+\begin{document}
+
+% Header Section
+\begin{center}
+    {\huge \bf \VAR{name}} \\
+    \vspace{4pt}
+    \small
+    \VAR{location} \ | \ \VAR{phone} \ | \ \VAR{email} \\
+    \vspace{2pt}
+    \BLOCK{if linkedin}\href{\VAR{linkedin}}{LinkedIn} \ | \ \BLOCK{endif}
+    \BLOCK{if github}\href{\VAR{github}}{GitHub} \ | \ \BLOCK{endif}
+    \BLOCK{if portfolio}\href{\VAR{portfolio}}{Portfolio}\BLOCK{endif}
+\end{center}
+
+\vspace{6pt}
+
+% Skills Section
+\BLOCK{if skills}
+\noindent {\large \bf Technical Skills} \\
+\rule{\textwidth}{0.4pt} \\
+\vspace{-4pt}
+\noindent
+\VAR{", ".join(skills)} \\
+\vspace{8pt}
+\BLOCK{endif}
+
+% Experience Section
+\BLOCK{if experience}
+\noindent {\large \bf Professional Experience} \\
+\rule{\textwidth}{0.4pt} \\
+\vspace{-4pt}
+\BLOCK{for exp in experience}
+\noindent {\bf \VAR{exp.company}} \hfill \VAR{exp.start_date} -- \VAR{exp.end_date if exp.end_date else 'Present'} \\
+{\it \VAR{exp.title}} \hfill \VAR{exp.location if exp.location else ''} \\
+\BLOCK{if exp.description}
+\begin{itemize}
+    \BLOCK{for bullet in exp.description.split('\n')}
+    \BLOCK{if bullet.strip()}
+    \item \VAR{bullet.strip().lstrip('-* ')}
+    \BLOCK{endif}
+    \BLOCK{endfor}
+\end{itemize}
+\BLOCK{endif}
+\vspace{6pt}
+\BLOCK{endfor}
+\BLOCK{endif}
+
+% Projects Section
+\BLOCK{if projects}
+\noindent {\large \bf Key Projects} \\
+\rule{\textwidth}{0.4pt} \\
+\vspace{-4pt}
+\BLOCK{for proj in projects}
+\noindent {\bf \VAR{proj.title}} \BLOCK{if proj.technologies} \ | \ {\it \VAR{', '.join(proj.technologies)}}\BLOCK{endif} \hfill \VAR{proj.start_date if proj.start_date else ''} \BLOCK{if proj.end_date} -- \VAR{proj.end_date}\BLOCK{endif} \\
+\BLOCK{if proj.description}
+\begin{itemize}
+    \BLOCK{for bullet in proj.description.split('\n')}
+    \BLOCK{if bullet.strip()}
+    \item \VAR{bullet.strip().lstrip('-* ')}
+    \BLOCK{endif}
+    \BLOCK{endfor}
+\end{itemize}
+\BLOCK{endif}
+\vspace{6pt}
+\BLOCK{endfor}
+\BLOCK{endif}
+
+% Education Section
+\BLOCK{if education}
+\noindent {\large \bf Education} \\
+\rule{\textwidth}{0.4pt} \\
+\vspace{-4pt}
+\BLOCK{for edu in education}
+\noindent {\bf \VAR{edu.institution}} \hfill \VAR{edu.start_date} -- \VAR{edu.end_date if edu.end_date else 'Present'} \\
+{\it \VAR{edu.degree} \VAR{f'in ' + edu.field_of_study if edu.field_of_study else ''}} \hfill \VAR{edu.gpa if edu.gpa else ''} \\
+\BLOCK{if edu.description}
+\vspace{2pt}
+\small \VAR{edu.description} \\
+\BLOCK{endif}
+\vspace{6pt}
+\BLOCK{endfor}
+\BLOCK{endif}
+
+% Certifications Section
+\BLOCK{if certifications}
+\noindent {\large \bf Certifications} \\
+\rule{\textwidth}{0.4pt} \\
+\vspace{-4pt}
+\BLOCK{for cert in certifications}
+\noindent {\bf \VAR{cert.name}} \ | \ \VAR{cert.issuing_organization} \hfill \VAR{cert.issue_date} \\
+\BLOCK{endfor}
+\BLOCK{endif}
+
+\end{document}
