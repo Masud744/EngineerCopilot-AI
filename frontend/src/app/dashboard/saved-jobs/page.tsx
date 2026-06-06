@@ -1,16 +1,19 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { BookmarkX, ExternalLink, MapPin, Building2, Loader2, TrendingUp } from 'lucide-react';
+import { BookmarkX, MapPin, Building2, Loader2, TrendingUp } from 'lucide-react';
 
 export default function SavedJobsPage() {
+  const router = useRouter();
   const [saved, setSaved] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [removing, setRemoving] = useState<string | null>(null);
+  const [tracking, setTracking] = useState<string | null>(null);
 
   const fetchSaved = async () => {
     setLoading(true);
@@ -41,11 +44,14 @@ export default function SavedJobsPage() {
   };
 
   const startTracking = async (jobId: string) => {
+    setTracking(jobId);
     try {
       await api.post('/applications', { job_id: jobId, status: 'saved' });
-      alert('Application tracking started! Check the Applications page.');
+      router.push('/dashboard/applications');
     } catch {
       alert('Failed to start tracking. Make sure you are logged in.');
+    } finally {
+      setTracking(null);
     }
   };
 
@@ -123,8 +129,13 @@ export default function SavedJobsPage() {
                   className="h-8 w-8"
                   title="Start tracking this application"
                   onClick={() => startTracking(item.job_id)}
+                  disabled={tracking === item.job_id}
                 >
-                  <TrendingUp className="w-4 h-4" />
+                  {tracking === item.job_id ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <TrendingUp className="w-4 h-4" />
+                  )}
                 </Button>
                 <Button
                   variant="ghost"
