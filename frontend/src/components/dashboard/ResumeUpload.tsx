@@ -3,7 +3,6 @@ import { UploadCloud, FileText, CheckCircle, AlertCircle, Loader2 } from 'lucide
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { api } from '@/lib/api';
 
 export function ResumeUpload({ onUploadSuccess }: { onUploadSuccess?: (data: any) => void }) {
   const [file, setFile] = useState<File | null>(null);
@@ -12,6 +11,16 @@ export function ResumeUpload({ onUploadSuccess }: { onUploadSuccess?: (data: any
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  async function getToken() {
+    try {
+      const { createClient } = await import('@/lib/supabase/client');
+      const { data: { session } } = await createClient().auth.getSession();
+      return session?.access_token || '';
+    } catch {
+      return '';
+    }
+  }
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -25,7 +34,6 @@ export function ResumeUpload({ onUploadSuccess }: { onUploadSuccess?: (data: any
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
-    
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       validateAndSetFile(e.dataTransfer.files[0]);
     }
@@ -40,35 +48,38 @@ export function ResumeUpload({ onUploadSuccess }: { onUploadSuccess?: (data: any
   const validateAndSetFile = (selectedFile: File) => {
     setError(null);
     setSuccess(false);
-    
-    // Check file type
     const validTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
     if (!validTypes.includes(selectedFile.type)) {
       setError('Please upload a PDF or DOCX file.');
       return;
     }
-    
-    // Check file size (5MB limit)
     if (selectedFile.size > 5 * 1024 * 1024) {
       setError('File size must be less than 5MB.');
       return;
     }
-    
     setFile(selectedFile);
   };
 
   const handleUpload = async () => {
     if (!file) return;
-    
     setIsUploading(true);
     setError(null);
-    
     try {
-      const response = await api.upload('/resume/upload', file);
-      
+      const formData = new FormData();
+      formData.append('file', file);
+      const token = await getToken();
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'}/resume/upload`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData,
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.detail || 'Upload failed');
+      }
       setSuccess(true);
-      if (onUploadSuccess && response.parsed) {
-        onUploadSuccess(response.parsed);
+      if (onUploadSuccess && data.parsed) {
+        onUploadSuccess(data.parsed);
       }
     } catch (err: any) {
       setError(err.message || 'Failed to upload resume. Please try again.');
@@ -93,7 +104,7 @@ export function ResumeUpload({ onUploadSuccess }: { onUploadSuccess?: (data: any
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
-        
+
         {success && (
           <Alert className="mb-4 bg-green-500/15 text-green-500 border-green-500/50">
             <CheckCircle className="h-4 w-4" />
@@ -118,12 +129,12 @@ export function ResumeUpload({ onUploadSuccess }: { onUploadSuccess?: (data: any
             accept=".pdf,.docx"
             className="hidden"
           />
-          
+
           <div className="flex flex-col items-center justify-center gap-4 cursor-pointer">
             <div className="p-4 bg-primary/10 rounded-full text-primary">
               {file ? <FileText className="h-8 w-8" /> : <UploadCloud className="h-8 w-8" />}
             </div>
-            
+
             {file ? (
               <div className="space-y-1">
                 <p className="text-sm font-medium text-foreground">{file.name}</p>
