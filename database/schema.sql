@@ -1,10 +1,11 @@
 -- ============================================================
 -- EngineerCopilot AI — Idempotent Migration
--- Run this in Supabase SQL Editor
--- Safe to run multiple times, preserves existing data
+-- Run this in Supabase SQL Editor (safe to re-run)
 -- ============================================================
 
+-- ============================================================
 -- 1. PROFILES
+-- ============================================================
 CREATE TABLE IF NOT EXISTS profiles (
     id UUID REFERENCES auth.users(id) ON DELETE CASCADE PRIMARY KEY,
     email TEXT NOT NULL,
@@ -28,7 +29,7 @@ CREATE TABLE IF NOT EXISTS profiles (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Add missing columns to profiles if they don't exist
+-- Add missing columns if schema changed
 DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='profiles' AND column_name='preferred_categories') THEN
         ALTER TABLE profiles ADD COLUMN preferred_categories TEXT[] DEFAULT '{}';
@@ -50,7 +51,9 @@ DO $$ BEGIN
     END IF;
 END $$;
 
+-- ============================================================
 -- 2. USER SKILLS
+-- ============================================================
 CREATE TABLE IF NOT EXISTS user_skills (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
@@ -62,7 +65,9 @@ CREATE TABLE IF NOT EXISTS user_skills (
 );
 CREATE INDEX IF NOT EXISTS idx_user_skills_user_id ON user_skills(user_id);
 
+-- ============================================================
 -- 3. USER EDUCATION
+-- ============================================================
 CREATE TABLE IF NOT EXISTS user_education (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
@@ -78,7 +83,9 @@ CREATE TABLE IF NOT EXISTS user_education (
 );
 CREATE INDEX IF NOT EXISTS idx_user_education_user_id ON user_education(user_id);
 
+-- ============================================================
 -- 4. USER EXPERIENCE
+-- ============================================================
 CREATE TABLE IF NOT EXISTS user_experience (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
@@ -94,7 +101,9 @@ CREATE TABLE IF NOT EXISTS user_experience (
 );
 CREATE INDEX IF NOT EXISTS idx_user_experience_user_id ON user_experience(user_id);
 
+-- ============================================================
 -- 5. USER PROJECTS
+-- ============================================================
 CREATE TABLE IF NOT EXISTS user_projects (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
@@ -110,7 +119,9 @@ CREATE TABLE IF NOT EXISTS user_projects (
 );
 CREATE INDEX IF NOT EXISTS idx_user_projects_user_id ON user_projects(user_id);
 
+-- ============================================================
 -- 6. USER CERTIFICATIONS
+-- ============================================================
 CREATE TABLE IF NOT EXISTS user_certifications (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
@@ -124,7 +135,9 @@ CREATE TABLE IF NOT EXISTS user_certifications (
 );
 CREATE INDEX IF NOT EXISTS idx_user_certifications_user_id ON user_certifications(user_id);
 
+-- ============================================================
 -- 7. JOBS
+-- ============================================================
 CREATE TABLE IF NOT EXISTS jobs (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     title TEXT NOT NULL,
@@ -149,14 +162,24 @@ CREATE TABLE IF NOT EXISTS jobs (
     created_at TIMESTAMPTZ DEFAULT NOW(),
     UNIQUE(apply_url)
 );
+
 CREATE INDEX IF NOT EXISTS idx_jobs_source ON jobs(source);
 CREATE INDEX IF NOT EXISTS idx_jobs_is_active ON jobs(is_active);
 CREATE INDEX IF NOT EXISTS idx_jobs_fetched_at ON jobs(fetched_at DESC);
-CREATE INDEX IF NOT EXISTS idx_jobs_title_trgm ON jobs USING gin(title gin_trgm_ops);
-CREATE INDEX IF NOT EXISTS idx_jobs_company_trgm ON jobs USING gin(company gin_trgm_ops);
-CREATE INDEX IF NOT EXISTS idx_jobs_required_skills ON jobs USING gin(required_skills);
 
+-- Note: pg_trgm extension may not be available on all Supabase tiers.
+-- These GIN indexes are optional (for trigram search). Skipping if extension missing.
+DO $$ BEGIN
+    IF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_trgm') THEN
+        CREATE INDEX IF NOT EXISTS idx_jobs_title_trgm ON jobs USING gin(title gin_trgm_ops);
+        CREATE INDEX IF NOT EXISTS idx_jobs_company_trgm ON jobs USING gin(company gin_trgm_ops);
+        CREATE INDEX IF NOT EXISTS idx_jobs_required_skills ON jobs USING gin(required_skills);
+    END IF;
+END $$;
+
+-- ============================================================
 -- 8. JOB CATEGORIES
+-- ============================================================
 CREATE TABLE IF NOT EXISTS job_categories (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     job_id UUID REFERENCES jobs(id) ON DELETE CASCADE NOT NULL,
@@ -173,7 +196,9 @@ CREATE TABLE IF NOT EXISTS job_categories (
 CREATE INDEX IF NOT EXISTS idx_job_categories_category ON job_categories(category);
 CREATE INDEX IF NOT EXISTS idx_job_categories_job_id ON job_categories(job_id);
 
+-- ============================================================
 -- 9. APPLICATIONS
+-- ============================================================
 CREATE TABLE IF NOT EXISTS applications (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
@@ -193,7 +218,9 @@ CREATE TABLE IF NOT EXISTS applications (
 CREATE INDEX IF NOT EXISTS idx_applications_user_id ON applications(user_id);
 CREATE INDEX IF NOT EXISTS idx_applications_status ON applications(status);
 
+-- ============================================================
 -- 10. SAVED JOBS
+-- ============================================================
 CREATE TABLE IF NOT EXISTS saved_jobs (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
@@ -203,7 +230,9 @@ CREATE TABLE IF NOT EXISTS saved_jobs (
 );
 CREATE INDEX IF NOT EXISTS idx_saved_jobs_user_id ON saved_jobs(user_id);
 
+-- ============================================================
 -- 11. GENERATED RESUMES
+-- ============================================================
 CREATE TABLE IF NOT EXISTS generated_resumes (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
@@ -218,7 +247,9 @@ CREATE TABLE IF NOT EXISTS generated_resumes (
 );
 CREATE INDEX IF NOT EXISTS idx_generated_resumes_user_id ON generated_resumes(user_id);
 
+-- ============================================================
 -- 12. GENERATED COVER LETTERS
+-- ============================================================
 CREATE TABLE IF NOT EXISTS generated_cover_letters (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
@@ -230,7 +261,9 @@ CREATE TABLE IF NOT EXISTS generated_cover_letters (
 );
 CREATE INDEX IF NOT EXISTS idx_generated_cover_letters_user_id ON generated_cover_letters(user_id);
 
--- Auto-update trigger (idempotent)
+-- ============================================================
+-- TRIGGERS (idempotent)
+-- ============================================================
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -249,7 +282,7 @@ CREATE TRIGGER update_applications_updated_at
     BEFORE UPDATE ON applications
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
--- Auto-create profile on signup (idempotent)
+-- Auto-create profile on signup
 CREATE OR REPLACE FUNCTION handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
