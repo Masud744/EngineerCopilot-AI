@@ -1,8 +1,30 @@
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Building2, MapPin, DollarSign, ExternalLink, CalendarDays } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Building2, MapPin, DollarSign, ExternalLink, CalendarDays, Bookmark } from 'lucide-react';
 
-export function JobCard({ job }: { job: any }) {
+export function JobCard({ job, isSaved, onSaveToggle }: { job: any; isSaved?: boolean; onSaveToggle?: (jobId: string) => void }) {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const check = async () => {
+      try {
+        const { createClient } = await import('@/lib/supabase/client');
+        const { data: { session } } = await createClient().auth.getSession();
+        setIsLoggedIn(!!session);
+      } catch { setIsLoggedIn(false); }
+    };
+    check();
+  }, []);
+
+  const handleSaveClick = () => {
+    if (!onSaveToggle) return;
+    if (!isLoggedIn) {
+      window.location.href = '/login';
+      return;
+    }
+    onSaveToggle(job.id);
+  };
   const getCategoryColor = (category: string) => {
     const colors: Record<string, string> = {
       iot: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
@@ -24,6 +46,15 @@ export function JobCard({ job }: { job: any }) {
     if (diffDays === 1) return 'Yesterday';
     if (diffDays < 30) return `${diffDays} days ago`;
     return date.toLocaleDateString();
+  };
+
+  const handleSaveClick = () => {
+    if (!onSaveToggle) return;
+    if (!isLoggedIn) {
+      window.location.href = '/login';
+      return;
+    }
+    onSaveToggle(job.id);
   };
 
   return (
@@ -103,16 +134,27 @@ export function JobCard({ job }: { job: any }) {
         </div>
       </CardContent>
       
-      <div className="mt-auto pt-4 border-t">
+      <div className="mt-auto pt-4 border-t flex gap-2">
         <a
           href={job.apply_url}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-center gap-2 w-full h-10 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
+          className="flex items-center justify-center gap-2 flex-1 h-10 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
         >
           Apply Now
           <ExternalLink className="w-3.5 h-3.5" />
         </a>
+        {onSaveToggle && (
+          <Button
+            variant={isSaved ? "default" : "outline"}
+            size="icon"
+            onClick={() => onSaveToggle(job.id)}
+            title={isSaved ? "Unsave job" : "Save job"}
+            className="h-10 w-10"
+          >
+            <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-current' : ''}`} />
+          </Button>
+        )}
       </div>
     </Card>
   );

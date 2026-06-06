@@ -16,6 +16,8 @@ export default function JobsPage() {
   const [search, setSearch] = useState('');
   const [sourceFilter, setSourceFilter] = useState<string | null>(null);
   const [locationFilter, setLocationFilter] = useState<'all' | 'bd' | 'remote'>('all');
+  const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set());
+  const [savingJobId, setSavingJobId] = useState<string | null>(null);
 
   const fetchJobs = async () => {
     setLoading(true);
@@ -44,7 +46,42 @@ export default function JobsPage() {
 
   useEffect(() => {
     fetchJobs();
+    fetchSavedIds();
   }, []);
+
+  const fetchSavedIds = async () => {
+    try {
+      const data = await api.get('/saved-jobs');
+      setSavedJobIds(new Set((data || []).map((item: any) => item.job_id)));
+    } catch { /* ignore */ }
+  };
+
+  const handleSaveToggle = async (jobId: string) => {
+    const isCurrentlySaved = savedJobIds.has(jobId);
+    setSavingJobId(jobId);
+    try {
+      if (isCurrentlySaved) {
+        // Find the saved_job id and delete
+        const data = await api.get('/saved-jobs');
+        const savedItem = (data || []).find((item: any) => item.job_id === jobId);
+        if (savedItem) {
+          await api.delete(`/saved-jobs/${savedItem.id}`);
+        }
+        setSavedJobIds(prev => {
+          const next = new Set(prev);
+          next.delete(jobId);
+          return next;
+        });
+      } else {
+        await api.post('/saved-jobs', { job_id: jobId });
+        setSavedJobIds(prev => new Set(prev).add(jobId));
+      }
+    } catch (err) {
+      console.error('Failed to toggle save:', err);
+    } finally {
+      setSavingJobId(null);
+    }
+  };
 
   const handleSync = async () => {
     setSyncing(true);
@@ -207,7 +244,12 @@ export default function JobsPage() {
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {currentJobs.map((job) => (
-              <JobCard key={job.id} job={job} />
+              <JobCard
+                key={job.id}
+                job={job}
+                isSaved={savedJobIds.has(job.id)}
+                onSaveToggle={handleSaveToggle}
+              />
             ))}
           </div>
           

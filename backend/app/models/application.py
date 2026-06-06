@@ -127,3 +127,7 @@ class SavedJobResponse(BaseModel):
     job_company: Optional[str] = None
     job_location: Optional[str] = None
     job_source: Optional[str] = None
+
+
+class JobIdRequest(BaseModel):
+    job_id: str

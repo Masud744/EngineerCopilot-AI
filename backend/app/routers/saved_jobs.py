@@ -8,10 +8,10 @@ from __future__ import annotations
 
 import logging
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Body, HTTPException, status
 
 from app.dependencies import CurrentUser
-from app.models.application import SavedJobResponse
+from app.models.application import SavedJobResponse, JobIdRequest
 from app.utils.supabase import get_supabase_admin
 
 logger = logging.getLogger(__name__)
@@ -44,11 +44,11 @@ def list_saved_jobs(user: CurrentUser):
 
 
 @router.post("", response_model=SavedJobResponse, status_code=status.HTTP_201_CREATED)
-def save_job(job_id: str, user: CurrentUser):
+def save_job(data: JobIdRequest, user: CurrentUser):
     """Save a job for later."""
     record = {
         "user_id": user.user_id,
-        "job_id": job_id,
+        "job_id": data.job_id,
     }
     try:
         result = db().table("saved_jobs").insert(record).execute()
