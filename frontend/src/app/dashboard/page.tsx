@@ -216,7 +216,7 @@ export default function DashboardPage() {
                       <span className="text-sm text-muted-foreground">{row.value}</span>
                     </div>
                     <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-                    <div className={`h-full ${row.color} w-[${row.w}]`} />
+                      <div className={`h-full ${row.color}`} style={{ width: row.w }} />
                     </div>
                   </div>
                 </div>

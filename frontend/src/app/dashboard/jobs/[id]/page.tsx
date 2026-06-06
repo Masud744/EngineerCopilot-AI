@@ -18,12 +18,25 @@ export default function JobDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  const [tracking, setTracking] = useState(false);
+
+  const handleTrackApplication = async (status: string = 'saved') => {
+    setTracking(true);
+    try {
+      await api.post('/applications', { job_id: params.id as string, status });
+      alert('Application tracked! Check your Applications page.');
+      router.push('/dashboard/applications');
+    } catch {
+      alert('Failed to track application. Please try again.');
+    } finally {
+      setTracking(false);
+    }
+  };
+
   useEffect(() => {
     const fetchJobDetails = async () => {
       try {
-        // Fetch Job Details and Match Analysis simultaneously (if using the /match endpoint, it returns both!)
-        // Our backend POST /match returns { job, match }
-        const res = await api.post(`/jobs/match?job_id=${params.id}`);
+        const res = await api.post('/jobs/match', { job_id: params.id });
         if (res && res.job) {
           setJob(res.job);
           setMatchData(res.match);
@@ -232,6 +245,17 @@ export default function JobDetailsPage() {
                   </ul>
                 </div>
                 
+                {/* Track Application Button */}
+                <div className="pt-2">
+                  <Button
+                    className="w-full"
+                    onClick={() => handleTrackApplication('saved')}
+                    disabled={tracking}
+                  >
+                    {tracking ? 'Tracking...' : '📌 Track Application'}
+                  </Button>
+                </div>
+
                 {/* Apply Button */}
                 <div className="pt-2">
                   <a

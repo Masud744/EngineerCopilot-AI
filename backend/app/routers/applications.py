@@ -58,7 +58,7 @@ def list_applications(
 @router.post("", response_model=ApplicationResponse, status_code=status.HTTP_201_CREATED)
 def create_application(data: ApplicationCreate, user: CurrentUser):
     """
-    Create a new application (save/apply to a job).
+    Track a job application (saved, applied, etc.)
     """
     record = {
         **data.model_dump(exclude_none=True),
@@ -73,12 +73,12 @@ def create_application(data: ApplicationCreate, user: CurrentUser):
         if "duplicate" in str(exc).lower() or "unique" in str(exc).lower():
             raise HTTPException(
                 status_code=409,
-                detail="Application already exists for this job",
+                detail="You have already tracked this job",
             )
-        raise HTTPException(status_code=500, detail=f"Failed to create application: {exc}")
+        raise HTTPException(status_code=500, detail=f"Failed to track application: {exc}")
 
     if not result.data:
-        raise HTTPException(status_code=500, detail="Failed to create application")
+        raise HTTPException(status_code=500, detail="Failed to track application")
     return result.data[0]
 
 
