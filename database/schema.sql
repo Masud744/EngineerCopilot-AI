@@ -1,11 +1,10 @@
 -- ============================================================
 -- EngineerCopilot AI — Complete Database Schema
--- Target: Supabase PostgreSQL
+-- Target: Supabase PostgreSQL (uses uuid_generate_v4())
 -- ============================================================
 
--- Extensions (Supabase Free tier এ এগুলো আগে থেকেই enable থাকে)
--- CREATE EXTENSION IF NOT EXISTS pgcrypto;
--- CREATE EXTENSION IF NOT EXISTS pg_trgm;
+-- NOTE: In Supabase, pgcrypto is already enabled.
+-- If you get "function uuid_generate_v4() does not exist", use the migration_v2.sql instead.
 
 -- ============================================================
 -- 1. PROFILES (extends Supabase auth.users)
@@ -37,7 +36,7 @@ CREATE TABLE profiles (
 -- 2. USER SKILLS
 -- ============================================================
 CREATE TABLE user_skills (
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
     skill_name TEXT NOT NULL,
     proficiency TEXT CHECK (proficiency IN ('beginner', 'intermediate', 'advanced', 'expert')),
@@ -52,7 +51,7 @@ CREATE INDEX idx_user_skills_user_id ON user_skills(user_id);
 -- 3. USER EDUCATION
 -- ============================================================
 CREATE TABLE user_education (
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
     institution TEXT NOT NULL,
     degree TEXT NOT NULL,
@@ -71,7 +70,7 @@ CREATE INDEX idx_user_education_user_id ON user_education(user_id);
 -- 4. USER EXPERIENCE
 -- ============================================================
 CREATE TABLE user_experience (
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
     company TEXT NOT NULL,
     title TEXT NOT NULL,
@@ -90,7 +89,7 @@ CREATE INDEX idx_user_experience_user_id ON user_experience(user_id);
 -- 5. USER PROJECTS
 -- ============================================================
 CREATE TABLE user_projects (
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
     title TEXT NOT NULL,
     description TEXT,
@@ -109,7 +108,7 @@ CREATE INDEX idx_user_projects_user_id ON user_projects(user_id);
 -- 6. USER CERTIFICATIONS
 -- ============================================================
 CREATE TABLE user_certifications (
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
     name TEXT NOT NULL,
     issuing_organization TEXT,
@@ -126,7 +125,7 @@ CREATE INDEX idx_user_certifications_user_id ON user_certifications(user_id);
 -- 7. JOBS
 -- ============================================================
 CREATE TABLE jobs (
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     title TEXT NOT NULL,
     company TEXT NOT NULL,
     location TEXT,
@@ -162,7 +161,7 @@ CREATE INDEX IF NOT EXISTS idx_jobs_required_skills ON jobs USING gin(required_s
 -- 8. JOB CATEGORIES (multi-label classification)
 -- ============================================================
 CREATE TABLE job_categories (
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     job_id UUID REFERENCES jobs(id) ON DELETE CASCADE NOT NULL,
     category TEXT NOT NULL CHECK (category IN (
         'iot', 'embedded', 'firmware', 'robotics',
@@ -182,7 +181,7 @@ CREATE INDEX idx_job_categories_job_id ON job_categories(job_id);
 -- 9. APPLICATIONS
 -- ============================================================
 CREATE TABLE applications (
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
     job_id UUID REFERENCES jobs(id) ON DELETE CASCADE NOT NULL,
     status TEXT NOT NULL DEFAULT 'saved' CHECK (status IN (
@@ -205,7 +204,7 @@ CREATE INDEX idx_applications_status ON applications(status);
 -- 10. SAVED JOBS
 -- ============================================================
 CREATE TABLE saved_jobs (
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
     job_id UUID REFERENCES jobs(id) ON DELETE CASCADE NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -218,7 +217,7 @@ CREATE INDEX idx_saved_jobs_user_id ON saved_jobs(user_id);
 -- 11. GENERATED RESUMES
 -- ============================================================
 CREATE TABLE generated_resumes (
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
     job_id UUID REFERENCES jobs(id) ON DELETE SET NULL,
     template_name TEXT NOT NULL DEFAULT 'ats_classic',
@@ -236,7 +235,7 @@ CREATE INDEX idx_generated_resumes_user_id ON generated_resumes(user_id);
 -- 12. GENERATED COVER LETTERS
 -- ============================================================
 CREATE TABLE generated_cover_letters (
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
     job_id UUID REFERENCES jobs(id) ON DELETE SET NULL,
     content TEXT NOT NULL,
