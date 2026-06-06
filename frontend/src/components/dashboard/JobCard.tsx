@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -12,7 +13,9 @@ export function JobCard({ job, isSaved, onSaveToggle }: { job: any; isSaved?: bo
         const { createClient } = await import('@/lib/supabase/client');
         const { data: { session } } = await createClient().auth.getSession();
         setIsLoggedIn(!!session);
-      } catch { setIsLoggedIn(false); }
+      } catch {
+        setIsLoggedIn(false);
+      }
     };
     check();
   }, []);
@@ -23,8 +26,9 @@ export function JobCard({ job, isSaved, onSaveToggle }: { job: any; isSaved?: bo
       window.location.href = '/login';
       return;
     }
-    onSaveToggle(job.id);
+    onSaveToggle(job.id || job.job_id || '');
   };
+
   const getCategoryColor = (category: string) => {
     const colors: Record<string, string> = {
       iot: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
@@ -37,24 +41,16 @@ export function JobCard({ job, isSaved, onSaveToggle }: { job: any; isSaved?: bo
   };
 
   const formatDate = (dateString: string) => {
+    if (!dateString) return '';
     const date = new Date(dateString);
     const now = new Date();
     const diffTime = Math.abs(now.getTime() - date.getTime());
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays === 0) return 'Today';
     if (diffDays === 1) return 'Yesterday';
     if (diffDays < 30) return `${diffDays} days ago`;
     return date.toLocaleDateString();
-  };
-
-  const handleSaveClick = () => {
-    if (!onSaveToggle) return;
-    if (!isLoggedIn) {
-      window.location.href = '/login';
-      return;
-    }
-    onSaveToggle(job.id);
   };
 
   return (
@@ -79,8 +75,8 @@ export function JobCard({ job, isSaved, onSaveToggle }: { job: any; isSaved?: bo
             </div>
           </div>
           {job.match_score !== undefined && (
-            <Badge 
-              variant="outline" 
+            <Badge
+              variant="outline"
               className={`flex-shrink-0 font-bold ${
                 job.match_score >= 70 ? 'border-emerald-500 text-emerald-500 bg-emerald-500/10' :
                 job.match_score >= 40 ? 'border-amber-500 text-amber-500 bg-amber-500/10' :
@@ -92,10 +88,9 @@ export function JobCard({ job, isSaved, onSaveToggle }: { job: any; isSaved?: bo
           )}
         </div>
       </CardHeader>
-      
+
       <CardContent className="pb-4 flex-grow">
         <div className="space-y-4">
-          {/* Salary and Date */}
           <div className="flex items-center justify-between text-xs text-muted-foreground">
             <span className="flex items-center gap-1 font-medium text-foreground">
               <DollarSign className="w-3.5 h-3.5 text-green-500" />
@@ -107,19 +102,17 @@ export function JobCard({ job, isSaved, onSaveToggle }: { job: any; isSaved?: bo
             </span>
           </div>
 
-          {/* Categories / Tags */}
           <div className="flex flex-wrap gap-2">
             {job.is_remote && (
               <Badge variant="secondary" className="bg-sky-500/10 text-sky-500 border-sky-500/20">Remote</Badge>
             )}
-            
+
             {job.categories && job.categories.map((cat: any) => (
               <Badge key={cat.category} variant="secondary" className={getCategoryColor(cat.category)}>
                 {cat.category.replace('_', ' ').toUpperCase()}
               </Badge>
             ))}
-            
-            {/* Show up to 3 required skills */}
+
             {job.required_skills && job.required_skills.slice(0, 3).map((skill: string) => (
               <Badge key={skill} variant="outline" className="text-xs font-normal">
                 {skill}
@@ -133,7 +126,7 @@ export function JobCard({ job, isSaved, onSaveToggle }: { job: any; isSaved?: bo
           </div>
         </div>
       </CardContent>
-      
+
       <div className="mt-auto pt-4 border-t flex gap-2">
         <a
           href={job.apply_url}
@@ -148,7 +141,7 @@ export function JobCard({ job, isSaved, onSaveToggle }: { job: any; isSaved?: bo
           <Button
             variant={isSaved ? "default" : "outline"}
             size="icon"
-            onClick={() => onSaveToggle(job.id)}
+            onClick={handleSaveClick}
             title={isSaved ? "Unsave job" : "Save job"}
             className="h-10 w-10"
           >
