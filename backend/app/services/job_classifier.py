@@ -276,8 +276,9 @@ def classify_job(
 
         # Scan keywords
         for keyword in keywords:
-            # Match word boundary
-            pattern = rf"\b{re.escape(keyword)}\b"
+            # AMR note: some keywords like "amr" may appear with punctuation or adjacent chars.
+            # Use a more tolerant boundary: either start/end or non-word char around the token.
+            pattern = rf"(?:^|[^\\w]){re.escape(keyword)}(?:$|[^\\w])"
             matches_found = re.findall(pattern, text_to_search)
             if matches_found:
                 hits += len(matches_found)

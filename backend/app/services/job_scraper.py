@@ -156,6 +156,9 @@ async def fetch_linkedin_jobs() -> list[dict]:
     }
 
     async with httpx.AsyncClient(timeout=15, follow_redirects=True) as client:
+        # Limit detail-page fetches per sync to avoid rate limiting / slow runs
+        linkedin_detail_fetch_limit = 20
+        detail_fetch_count = 0
         for search in LINKEDIN_SEARCHES:
             for start_offset in [0, 25, 50]:  # Fetch 3 pages (75 jobs) per search
                 try:
@@ -211,18 +214,45 @@ async def fetch_linkedin_jobs() -> list[dict]:
                             if not should_keep_job(title, location, is_remote):
                                 continue
 
+                            # Fetch real description from job detail page (best-effort)
+                            full_desc = ""
+                            if detail_fetch_count < linkedin_detail_fetch_limit:
+                                full_desc = await fetch_linkedin_job_description(client, apply_url)
+                                if full_desc and full_desc.strip():
+                                    detail_fetch_count += 1
+
+                            # Fallback: enrich with available metadata
+                            description_fallback = (
+                                f"Role: {title}\n"
+                                f"Company: {company}\n"
+                                f"Location: {location or 'Remote'}\n"
+                                f"Source: LinkedIn\n\n"
+                                f"This is a {search['keywords']} role at {company}. "
+                                f"Candidates should have relevant experience in {search['keywords']} and related technologies."
+                            )
+
+                            description = full_desc.strip() if full_desc and full_desc.strip() else description_fallback
+
+                            # Minimal required_skills extraction from title/description
+                            text_blob = f"{title} {description}".lower()
+                            # Use engineering title keywords as a lightweight keyword list
+                            required_skills = [
+                                kw for kw in ENGINEERING_TITLE_KEYWORDS
+                                if kw.strip() and (kw.strip().lower() in text_blob)
+                            ]
+
                             jobs.append({
                                 "title": title,
                                 "company": company,
                                 "location": location or ("Remote" if is_remote else ""),
                                 "is_remote": is_remote,
                                 "remote_type": "remote" if is_remote else ("hybrid" if "hybrid" in location.lower() else "onsite"),
-                                "description": f"{title} at {company}. Location: {location or 'Remote'}.",
+                                "description": description,
                                 "apply_url": apply_url,
                                 "source": "LinkedIn",
                                 "source_job_id": apply_url.split("/")[-1] if "/" in apply_url else "",
                                 "posted_date": posted or datetime.now(timezone.utc).isoformat(),
-                                "required_skills": [],
+                                "required_skills": required_skills,
                             })
                         except Exception:
                             continue

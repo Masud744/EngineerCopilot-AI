@@ -17,7 +17,8 @@ from fastapi import APIRouter, File, HTTPException, UploadFile
 from app.dependencies import CurrentUser
 from app.models.application import ResumeGenerateRequest, ResumeGenerateResponse, ResumeParseResponse
 from app.services.resume_parser import parse_resume_file
-from app.utils.resume_pdf import generate_ats_resume_pdf
+from app.utils.resume_pdf import generate_ats_resume_pdf, ResumeContext
+
 from app.utils.supabase import get_supabase_admin
 
 logger = logging.getLogger(__name__)
@@ -112,7 +113,9 @@ async def parse_resume(file: UploadFile = File(...), user: CurrentUser = None):
 @router.get("/templates")
 def get_templates():
     """List available resume templates."""
-    return {"templates": list_templates()}
+    # Import inside handler so it never depends on module-level reload state.
+    from app.utils.resume_pdf import list_templates as templates_fn
+    return {"templates": templates_fn()}
 
 
 @router.post("/generate", response_model=ResumeGenerateResponse)

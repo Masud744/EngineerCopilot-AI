@@ -62,7 +62,13 @@ def generate_cover_letter(data: CoverLetterGenerateRequest, user: CurrentUser):
         "skills": [s["skill_name"] for s in (skills.data or [])],
         "experience": experience.data or [],
         "projects": projects.data or [],
-        "resume_text": profile.data.get("resume_parsed_data", {}).get("raw_text", ""),
+        # resume_parsed_data should be ResumeParseResponse.model_dump() saved by resume/upload.
+        # Fallback for unexpected shapes.
+        "resume_text": (
+            (profile.data.get("resume_parsed_data") or {}).get("raw_text", "")
+            if isinstance(profile.data.get("resume_parsed_data"), dict)
+            else ""
+        ),
     }
 
     # Generate cover letter

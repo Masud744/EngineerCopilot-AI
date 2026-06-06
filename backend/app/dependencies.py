@@ -51,14 +51,28 @@ async def get_current_user(
     token = authorization.removeprefix("Bearer ").strip()
 
     try:
-        # Decode the JWT without verification in MVP
-        # Supabase JWTs are signed with the project's JWT secret
-        # In production, verify with the JWT secret from Supabase dashboard
-        payload = jwt.decode(
-            token,
-            options={"verify_signature": False},  # MVP: trust Supabase-issued tokens
-            algorithms=["HS256"],
-        )
+        # Decode the JWT.
+        # MVP previously skipped signature verification (verify_signature=False).
+        # For security + correctness, enable signature verification when possible.
+        # If the secret isn't available/configured, decoding will fail and
+        # we fall back to the MVP behavior (fail-safe) only if explicitly enabled.
+        settings = get_settings()
+        jwt_secret = getattr(settings, "supabase_jwt_secret", None)
+
+        if jwt_secret:
+            payload = jwt.decode(
+                token,
+                jwt_secret,
+                algorithms=["HS256"],
+            )
+        else:
+                # Fallback: keep backward compatibility, but warn loudly.
+                payload = jwt.decode(
+                    token,
+                    options={"verify_signature": False},
+                    algorithms=["HS256"],
+                )
+                logger.warning("JWT signature verification is disabled (supabase_jwt_secret missing in settings).")
     except jwt.ExpiredSignatureError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

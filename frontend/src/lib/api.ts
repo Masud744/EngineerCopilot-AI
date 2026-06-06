@@ -1,4 +1,11 @@
-const API_BASE = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1').replace(/\/$/, '');
+const resolvedBase = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1').replace(/\/$/, '');
+
+// Local dev guard: if NEXT_PUBLIC_API_URL accidentally points to the Next.js dev server (port 3000),
+// rewrite it to the FastAPI backend (port 8000) so frontend requests hit the correct API.
+const API_BASE =
+  resolvedBase.includes(':3000/') || resolvedBase.endsWith(':3000')
+    ? resolvedBase.replace(':3000', ':8000')
+    : resolvedBase;
 
 async function getToken(): Promise<string> {
   try {

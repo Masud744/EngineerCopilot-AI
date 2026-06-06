@@ -4,16 +4,16 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { 
-  Briefcase, 
-  Cpu, 
-  FileText, 
-  Home, 
-  LogOut, 
-  Menu, 
-  Settings, 
-  User, 
+  Cpu,
+  FileText,
+  Home,
+  LogOut,
+  Menu,
+  Sparkles,
+  User,
   X,
-  Bookmark
+  Briefcase,
+  Bookmark,
 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
@@ -26,7 +26,6 @@ const SIDEBAR_ITEMS = [
   { name: 'Applications', href: '/dashboard/applications', icon: FileText },
   { name: 'Resume', href: '/dashboard/resume', icon: Sparkles },
   { name: 'Profile', href: '/dashboard/profile', icon: User },
-  { name: 'Settings', href: '/dashboard/settings', icon: Settings },
 ]
 
 export default function DashboardLayout({
