@@ -144,50 +144,50 @@ def generate_resume(data: ResumeGenerateRequest, user: CurrentUser):
         job_result = db().table("jobs").select("*").eq("id", data.job_id).single().execute()
         job_data = job_result.data
 
-    # Build resume context
+    # Build resume context (handle NULL DB values gracefully)
     ctx = ResumeContext(
-        name=profile.data.get("full_name", ""),
-        email=profile.data.get("email", ""),
-        phone=profile.data.get("phone", ""),
-        location=f"{profile.data.get('city', '')}, {profile.data.get('country', '')}",
-        linkedin=profile.data.get("linkedin_url", ""),
-        github=profile.data.get("github_url", ""),
-        portfolio=profile.data.get("portfolio_url", ""),
+        name=profile.data.get("full_name") or "",
+        email=profile.data.get("email") or "",
+        phone=profile.data.get("phone") or "",
+        location=f"{profile.data.get('city') or ''}, {profile.data.get('country') or ''}".strip(", "),
+        linkedin=profile.data.get("linkedin_url") or "",
+        github=profile.data.get("github_url") or "",
+        portfolio=profile.data.get("portfolio_url") or "",
         skills=[s.get("skill_name", "") for s in (skills.data or [])],
         experience=[
             {
-                "title": e.get("title", ""),
-                "company": e.get("company", ""),
-                "location": e.get("location", ""),
-                "description": e.get("description", ""),
-                "technologies": e.get("technologies", []),
-                "dates": f"{e.get('start_date', '')} - {e.get('end_date', '') or 'Present'}",
+                "title": e.get("title") or "",
+                "company": e.get("company") or "",
+                "location": e.get("location") or "",
+                "description": e.get("description") or "",
+                "technologies": e.get("technologies") or [],
+                "dates": f"{e.get('start_date', '') or ''} - {e.get('end_date', '') or 'Present'}",
             }
             for e in (experience.data or [])
         ],
         projects=[
             {
-                "title": p.get("title", ""),
-                "description": p.get("description", ""),
-                "technologies": p.get("technologies", []),
+                "title": p.get("title") or "",
+                "description": p.get("description") or "",
+                "technologies": p.get("technologies") or [],
             }
             for p in (projects.data or [])
         ],
         education=[
             {
-                "institution": e.get("institution", ""),
-                "degree": e.get("degree", ""),
-                "field_of_study": e.get("field_of_study", ""),
-                "start_date": str(e.get("start_date", "")) if e.get("start_date") else "",
-                "end_date": str(e.get("end_date", "")) if e.get("end_date") else "",
+                "institution": e.get("institution") or "",
+                "degree": e.get("degree") or "",
+                "field_of_study": e.get("field_of_study") or "",
+                "start_date": str(e.get("start_date")) if e.get("start_date") else "",
+                "end_date": str(e.get("end_date")) if e.get("end_date") else "",
             }
             for e in (education.data or [])
         ],
         certifications=[
             {
-                "name": c.get("name", ""),
-                "issuing_organization": c.get("issuing_organization", ""),
-                "issue_date": str(c.get("issue_date", "")) if c.get("issue_date") else "",
+                "name": c.get("name") or "",
+                "issuing_organization": c.get("issuing_organization") or "",
+                "issue_date": str(c.get("issue_date")) if c.get("issue_date") else "",
             }
             for c in (certifications.data or [])
         ],

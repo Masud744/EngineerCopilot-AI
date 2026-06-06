@@ -279,15 +279,27 @@ export default function ResumePage() {
                         <p className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleString()} {r.match_score ? `• Match: ${r.match_score}%` : ''}</p>
                       </div>
                       {r.pdf_file_path && (
-                        <a
-                          href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'}/resume/generated/${r.id}/download`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex h-8 items-center justify-center rounded-lg border border-border bg-background px-3 text-sm font-medium hover:bg-muted transition-colors"
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={async () => {
+                            try {
+                              const data: any = await api.get(`/resume/generated/${r.id}/download`);
+                              if (data?.url) {
+                                window.open(data.url, '_blank');
+                              } else if (data?.type === 'tex') {
+                                alert('PDF not available. LaTeX source available instead.');
+                              } else {
+                                alert('Download link not available');
+                              }
+                            } catch {
+                              alert('Failed to get download link. Make sure you are logged in.');
+                            }
+                          }}
                         >
                           <Download className="w-3.5 h-3.5 mr-1.5" />
                           PDF
-                        </a>
+                        </Button>
                       )}
                     </div>
                   ))}
