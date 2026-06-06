@@ -96,13 +96,20 @@ export default function ResumePage() {
     setGenerating(true);
     try {
       const body: any = { template_name: selectedTemplate };
-      if (useJob && jobId) body.job_id = jobId;
-      if (!useJob && customDesc) body.custom_job_description = customDesc;
+      if (useJob && jobId) {
+        body.job_id = jobId;
+      } else if (!useJob && customDesc) {
+        body.custom_job_description = customDesc;
+      } else {
+        throw new Error('Select a job or paste a job description first.');
+      }
       const data = await api.post('/resume/generate', body);
       setGeneratedResumes(prev => [data, ...prev]);
-      alert('Resume generated successfully!');
+      alert(`Resume generated successfully! Match score: ${data?.match_score ?? 'N/A'}%`);
     } catch (err: any) {
-      alert(err.message || 'Generation failed');
+      const msg = err?.message || 'Generation failed';
+      console.error('Resume generation error:', err);
+      alert(`Generation failed: ${msg}`);
     } finally {
       setGenerating(false);
     }
