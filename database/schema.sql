@@ -1,6 +1,7 @@
 -- ============================================================
--- EngineerCopilot AI — Idempotent Migration
--- Run this in Supabase SQL Editor (safe to re-run)
+-- EngineerCopilot AI — Complete Setup for Supabase
+-- Run this ENTIRE file in Supabase SQL Editor
+-- Safe to run multiple times (idempotent)
 -- ============================================================
 
 -- ============================================================
@@ -14,8 +15,8 @@ CREATE TABLE IF NOT EXISTS profiles (
     country TEXT DEFAULT 'Bangladesh',
     city TEXT,
     linkedin_url TEXT,
-    github_url TEXT,
-    portfolio_url TEXT,
+    github_url,
+    portfolio_url,
     preferred_categories TEXT[] DEFAULT '{}',
     preferred_locations TEXT[] DEFAULT '{}',
     expected_salary_min INTEGER,
@@ -29,7 +30,7 @@ CREATE TABLE IF NOT EXISTS profiles (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Add missing columns if schema changed
+-- Add missing columns if needed
 DO $$ BEGIN
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='profiles' AND column_name='preferred_categories') THEN
         ALTER TABLE profiles ADD COLUMN preferred_categories TEXT[] DEFAULT '{}';
@@ -52,7 +53,7 @@ DO $$ BEGIN
 END $$;
 
 -- ============================================================
--- 2. USER SKILLS
+-- 2-12. ALL OTHER TABLES
 -- ============================================================
 CREATE TABLE IF NOT EXISTS user_skills (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -65,9 +66,6 @@ CREATE TABLE IF NOT EXISTS user_skills (
 );
 CREATE INDEX IF NOT EXISTS idx_user_skills_user_id ON user_skills(user_id);
 
--- ============================================================
--- 3. USER EDUCATION
--- ============================================================
 CREATE TABLE IF NOT EXISTS user_education (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
@@ -83,9 +81,6 @@ CREATE TABLE IF NOT EXISTS user_education (
 );
 CREATE INDEX IF NOT EXISTS idx_user_education_user_id ON user_education(user_id);
 
--- ============================================================
--- 4. USER EXPERIENCE
--- ============================================================
 CREATE TABLE IF NOT EXISTS user_experience (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
@@ -101,9 +96,6 @@ CREATE TABLE IF NOT EXISTS user_experience (
 );
 CREATE INDEX IF NOT EXISTS idx_user_experience_user_id ON user_experience(user_id);
 
--- ============================================================
--- 5. USER PROJECTS
--- ============================================================
 CREATE TABLE IF NOT EXISTS user_projects (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
@@ -119,9 +111,6 @@ CREATE TABLE IF NOT EXISTS user_projects (
 );
 CREATE INDEX IF NOT EXISTS idx_user_projects_user_id ON user_projects(user_id);
 
--- ============================================================
--- 6. USER CERTIFICATIONS
--- ============================================================
 CREATE TABLE IF NOT EXISTS user_certifications (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
@@ -135,9 +124,6 @@ CREATE TABLE IF NOT EXISTS user_certifications (
 );
 CREATE INDEX IF NOT EXISTS idx_user_certifications_user_id ON user_certifications(user_id);
 
--- ============================================================
--- 7. JOBS
--- ============================================================
 CREATE TABLE IF NOT EXISTS jobs (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     title TEXT NOT NULL,
@@ -162,13 +148,11 @@ CREATE TABLE IF NOT EXISTS jobs (
     created_at TIMESTAMPTZ DEFAULT NOW(),
     UNIQUE(apply_url)
 );
-
 CREATE INDEX IF NOT EXISTS idx_jobs_source ON jobs(source);
 CREATE INDEX IF NOT EXISTS idx_jobs_is_active ON jobs(is_active);
 CREATE INDEX IF NOT EXISTS idx_jobs_fetched_at ON jobs(fetched_at DESC);
 
--- Note: pg_trgm extension may not be available on all Supabase tiers.
--- These GIN indexes are optional (for trigram search). Skipping if extension missing.
+-- Optional GIN indexes (only if pg_trgm extension exists)
 DO $$ BEGIN
     IF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_trgm') THEN
         CREATE INDEX IF NOT EXISTS idx_jobs_title_trgm ON jobs USING gin(title gin_trgm_ops);
@@ -177,18 +161,10 @@ DO $$ BEGIN
     END IF;
 END $$;
 
--- ============================================================
--- 8. JOB CATEGORIES
--- ============================================================
 CREATE TABLE IF NOT EXISTS job_categories (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     job_id UUID REFERENCES jobs(id) ON DELETE CASCADE NOT NULL,
-    category TEXT NOT NULL CHECK (category IN (
-        'iot', 'embedded', 'firmware', 'robotics',
-        'ai', 'ml', 'deep_learning', 'computer_vision', 'edge_ai',
-        'backend', 'full_stack', 'devops', 'cloud',
-        'cybersecurity', 'data_engineering'
-    )),
+    category TEXT NOT NULL,
     confidence NUMERIC(3,2) DEFAULT 1.0,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     UNIQUE(job_id, category)
@@ -196,17 +172,11 @@ CREATE TABLE IF NOT EXISTS job_categories (
 CREATE INDEX IF NOT EXISTS idx_job_categories_category ON job_categories(category);
 CREATE INDEX IF NOT EXISTS idx_job_categories_job_id ON job_categories(job_id);
 
--- ============================================================
--- 9. APPLICATIONS
--- ============================================================
 CREATE TABLE IF NOT EXISTS applications (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
     job_id UUID REFERENCES jobs(id) ON DELETE CASCADE NOT NULL,
-    status TEXT NOT NULL DEFAULT 'saved' CHECK (status IN (
-        'saved', 'applied', 'assessment', 'interview',
-        'final_interview', 'offer', 'rejected', 'withdrawn'
-    )),
+    status TEXT NOT NULL DEFAULT 'saved',
     applied_date TIMESTAMPTZ,
     notes TEXT,
     resume_used UUID,
@@ -218,9 +188,6 @@ CREATE TABLE IF NOT EXISTS applications (
 CREATE INDEX IF NOT EXISTS idx_applications_user_id ON applications(user_id);
 CREATE INDEX IF NOT EXISTS idx_applications_status ON applications(status);
 
--- ============================================================
--- 10. SAVED JOBS
--- ============================================================
 CREATE TABLE IF NOT EXISTS saved_jobs (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
@@ -230,9 +197,6 @@ CREATE TABLE IF NOT EXISTS saved_jobs (
 );
 CREATE INDEX IF NOT EXISTS idx_saved_jobs_user_id ON saved_jobs(user_id);
 
--- ============================================================
--- 11. GENERATED RESUMES
--- ============================================================
 CREATE TABLE IF NOT EXISTS generated_resumes (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
@@ -247,9 +211,6 @@ CREATE TABLE IF NOT EXISTS generated_resumes (
 );
 CREATE INDEX IF NOT EXISTS idx_generated_resumes_user_id ON generated_resumes(user_id);
 
--- ============================================================
--- 12. GENERATED COVER LETTERS
--- ============================================================
 CREATE TABLE IF NOT EXISTS generated_cover_letters (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
@@ -260,6 +221,125 @@ CREATE TABLE IF NOT EXISTS generated_cover_letters (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 CREATE INDEX IF NOT EXISTS idx_generated_cover_letters_user_id ON generated_cover_letters(user_id);
+
+-- ============================================================
+-- RLS POLICIES (wrapped in DO blocks to skip if already exists)
+-- ============================================================
+
+-- Enable RLS on all user-owned tables
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_skills ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_education ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_experience ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_projects ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_certifications ENABLE ROW LEVEL SECURITY;
+ALTER TABLE applications ENABLE ROW LEVEL SECURITY;
+ALTER TABLE saved_jobs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE generated_resumes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE generated_cover_letters ENABLE ROW LEVEL SECURITY;
+
+-- Drop existing policies to avoid conflicts
+DO $$ BEGIN
+    DROP POLICY IF EXISTS "profiles_select_own" ON profiles;
+    DROP POLICY IF EXISTS "profiles_insert_own" ON profiles;
+    DROP POLICY IF EXISTS "profiles_update_own" ON profiles;
+    DROP POLICY IF EXISTS "user_skills_select_own" ON user_skills;
+    DROP POLICY IF EXISTS "user_skills_insert_own" ON user_skills;
+    DROP POLICY IF EXISTS "user_skills_update_own" ON user_skills;
+    DROP POLICY IF EXISTS "user_skills_delete_own" ON user_skills;
+    DROP POLICY IF EXISTS "user_education_select_own" ON user_education;
+    DROP POLICY IF EXISTS "user_education_insert_own" ON user_education;
+    DROP POLICY IF EXISTS "user_education_update_own" ON user_education;
+    DROP POLICY IF EXISTS "user_education_delete_own" ON user_education;
+    DROP POLICY IF EXISTS "user_experience_select_own" ON user_experience;
+    DROP POLICY IF EXISTS "user_experience_insert_own" ON user_experience;
+    DROP POLICY IF EXISTS "user_experience_update_own" ON user_experience;
+    DROP POLICY IF EXISTS "user_experience_delete_own" ON user_experience;
+    DROP POLICY IF EXISTS "user_projects_select_own" ON user_projects;
+    DROP POLICY IF EXISTS "user_projects_insert_own" ON user_projects;
+    DROP POLICY IF EXISTS "user_projects_update_own" ON user_projects;
+    DROP POLICY IF EXISTS "user_projects_delete_own" ON user_projects;
+    DROP POLICY IF EXISTS "user_certifications_select_own" ON user_certifications;
+    DROP POLICY IF EXISTS "user_certifications_insert_own" ON user_certifications;
+    DROP POLICY IF EXISTS "user_certifications_update_own" ON user_certifications;
+    DROP POLICY IF EXISTS "user_certifications_delete_own" ON user_certifications;
+    DROP POLICY IF EXISTS "applications_select_own" ON applications;
+    DROP POLICY IF EXISTS "applications_insert_own" ON applications;
+    DROP POLICY IF EXISTS "applications_update_own" ON applications;
+    DROP POLICY IF EXISTS "applications_delete_own" ON applications;
+    DROP POLICY IF EXISTS "saved_jobs_select_own" ON saved_jobs;
+    DROP POLICY IF EXISTS "saved_jobs_insert_own" ON saved_jobs;
+    DROP POLICY IF EXISTS "saved_jobs_delete_own" ON saved_jobs;
+    DROP POLICY IF EXISTS "generated_resumes_select_own" ON generated_resumes;
+    DROP POLICY IF EXISTS "generated_resumes_insert_own" ON generated_resumes;
+    DROP POLICY IF EXISTS "generated_resumes_delete_own" ON generated_resumes;
+    DROP POLICY IF EXISTS "generated_cover_letters_select_own" ON generated_cover_letters;
+    DROP POLICY IF EXISTS "generated_cover_letters_insert_own" ON generated_cover_letters;
+    DROP POLICY IF EXISTS "generated_cover_letters_delete_own" ON generated_cover_letters;
+    DROP POLICY IF EXISTS "Users can upload own resumes" ON storage.objects;
+    DROP POLICY IF EXISTS "Users can read own resumes" ON storage.objects;
+    DROP POLICY IF EXISTS "Users can upload own pdfs" ON storage.objects;
+    DROP POLICY IF EXISTS "Users can read own pdfs" ON storage.objects;
+    DROP POLICY IF EXISTS "Service role full access" ON storage.objects;
+END $$;
+
+-- Re-create all policies
+CREATE POLICY "profiles_select_own" ON profiles FOR SELECT USING (auth.uid() = id);
+CREATE POLICY "profiles_insert_own" ON profiles FOR INSERT WITH CHECK (auth.uid() = id);
+CREATE POLICY "profiles_update_own" ON profiles FOR UPDATE USING (auth.uid() = id);
+
+CREATE POLICY "user_skills_select_own" ON user_skills FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "user_skills_insert_own" ON user_skills FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "user_skills_update_own" ON user_skills FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "user_skills_delete_own" ON user_skills FOR DELETE USING (auth.uid() = user_id);
+
+CREATE POLICY "user_education_select_own" ON user_education FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "user_education_insert_own" ON user_education FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "user_education_update_own" ON user_education FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "user_education_delete_own" ON user_education FOR DELETE USING (auth.uid() = user_id);
+
+CREATE POLICY "user_experience_select_own" ON user_experience FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "user_experience_insert_own" ON user_experience FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "user_experience_update_own" ON user_experience FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "user_experience_delete_own" ON user_experience FOR DELETE USING (auth.uid() = user_id);
+
+CREATE POLICY "user_projects_select_own" ON user_projects FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "user_projects_insert_own" ON user_projects FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "user_projects_update_own" ON user_projects FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "user_projects_delete_own" ON user_projects FOR DELETE USING (auth.uid() = user_id);
+
+CREATE POLICY "user_certifications_select_own" ON user_certifications FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "user_certifications_insert_own" ON user_certifications FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "user_certifications_update_own" ON user_certifications FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "user_certifications_delete_own" ON user_certifications FOR DELETE USING (auth.uid() = user_id);
+
+CREATE POLICY "applications_select_own" ON applications FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "applications_insert_own" ON applications FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "applications_update_own" ON applications FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "applications_delete_own" ON applications FOR DELETE USING (auth.uid() = user_id);
+
+CREATE POLICY "saved_jobs_select_own" ON saved_jobs FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "saved_jobs_insert_own" ON saved_jobs FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "saved_jobs_delete_own" ON saved_jobs FOR DELETE USING (auth.uid() = user_id);
+
+CREATE POLICY "generated_resumes_select_own" ON generated_resumes FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "generated_resumes_insert_own" ON generated_resumes FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "generated_resumes_delete_own" ON generated_resumes FOR DELETE USING (auth.uid() = user_id);
+
+CREATE POLICY "generated_cover_letters_select_own" ON generated_cover_letters FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "generated_cover_letters_insert_own" ON generated_cover_letters FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "generated_cover_letters_delete_own" ON generated_cover_letters FOR DELETE USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can upload own resumes" ON storage.objects
+    FOR INSERT WITH CHECK (bucket_id = 'resumes' AND auth.uid()::text = (storage.foldername(name))[1]);
+CREATE POLICY "Users can read own resumes" ON storage.objects
+    FOR SELECT USING (bucket_id = 'resumes' AND auth.uid()::text = (storage.foldername(name))[1]);
+CREATE POLICY "Users can upload own pdfs" ON storage.objects
+    FOR INSERT WITH CHECK (bucket_id = 'generated-pdfs' AND auth.uid()::text = (storage.foldername(name))[1]);
+CREATE POLICY "Users can read own pdfs" ON storage.objects
+    FOR SELECT USING (bucket_id = 'generated-pdfs' AND auth.uid()::text = (storage.foldername(name))[1]);
+CREATE POLICY "Service role full access" ON storage.objects
+    FOR ALL USING (auth.role() = 'service_role');
 
 -- ============================================================
 -- TRIGGERS (idempotent)
@@ -273,27 +353,19 @@ END;
 $$ LANGUAGE plpgsql;
 
 DROP TRIGGER IF EXISTS update_profiles_updated_at ON profiles;
-CREATE TRIGGER update_profiles_updated_at
-    BEFORE UPDATE ON profiles
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_profiles_updated_at BEFORE UPDATE ON profiles FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 DROP TRIGGER IF EXISTS update_applications_updated_at ON applications;
-CREATE TRIGGER update_applications_updated_at
-    BEFORE UPDATE ON applications
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_applications_updated_at BEFORE UPDATE ON applications FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
--- Auto-create profile on signup
 CREATE OR REPLACE FUNCTION handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-    INSERT INTO public.profiles (id, email)
-    VALUES (NEW.id, NEW.email)
+    INSERT INTO public.profiles (id, email) VALUES (NEW.id, NEW.email)
     ON CONFLICT (id) DO UPDATE SET email = EXCLUDED.email;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
-CREATE TRIGGER on_auth_user_created
-    AFTER INSERT ON auth.users
-    FOR EACH ROW EXECUTE FUNCTION handle_new_user();
+CREATE TRIGGER on_auth_user_created AFTER INSERT ON auth.users FOR EACH ROW EXECUTE FUNCTION handle_new_user();
