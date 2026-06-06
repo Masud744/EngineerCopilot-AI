@@ -19,6 +19,7 @@ export default function ResumePage() {
   const [templates, setTemplates] = useState<{ id: string; name: string }[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState('ats_classic');
   const [generatedResumes, setGeneratedResumes] = useState<any[]>([]);
+  const [availableJobs, setAvailableJobs] = useState<{ id: string; title: string }[]>([]);
 
   // form state for generate
   const [useJob, setUseJob] = useState(true);
@@ -28,7 +29,15 @@ export default function ResumePage() {
   useEffect(() => {
     fetchTemplates();
     fetchGenerated();
+    fetchAvailableJobs();
   }, []);
+
+  const fetchAvailableJobs = async () => {
+    try {
+      const data = await api.get('/jobs?limit=50');
+      setAvailableJobs((data?.items || []).map((j: any) => ({ id: j.id, title: j.title })));
+    } catch { /* ignore */ }
+  };
 
   const fetchTemplates = async () => {
     try {
@@ -217,8 +226,8 @@ export default function ResumePage() {
                     className="w-full border rounded-lg px-3 py-2 text-sm bg-background"
                   >
                     <option value="">-- Select a job --</option>
-                    {generatedResumes.map((r: any) => (
-                      <option key={r.id} value={r.job_id || ''}>Job</option>
+                    {availableJobs.map((j) => (
+                      <option key={j.id} value={j.id}>{j.title}</option>
                     ))}
                   </select>
                 )}
@@ -263,11 +272,15 @@ export default function ResumePage() {
                         <p className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleString()} {r.match_score ? `• Match: ${r.match_score}%` : ''}</p>
                       </div>
                       {r.pdf_file_path && (
-                        <Button variant="outline" size="sm" asChild>
-                          <a href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'}/resume/generated/${r.id}/download`} target="_blank">
-                            <Download className="w-4 h-4 mr-1" /> PDF
-                          </a>
-                        </Button>
+                        <a
+                          href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'}/resume/generated/${r.id}/download`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex h-8 items-center justify-center rounded-lg border border-border bg-background px-3 text-sm font-medium hover:bg-muted transition-colors"
+                        >
+                          <Download className="w-3.5 h-3.5 mr-1.5" />
+                          PDF
+                        </a>
                       )}
                     </div>
                   ))}

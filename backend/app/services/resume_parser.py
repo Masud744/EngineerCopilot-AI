@@ -128,11 +128,11 @@ async def parse_resume_file(file_bytes: bytes, file_ext: str) -> ResumeParseResp
         content = response.content.strip()
         if content.startswith("```json"):
             content = content[7:]
-        if content.startswith("```"):
+        elif content.startswith("```"):
             content = content[3:]
         if content.endswith("```"):
             content = content[:-3]
-        
+
         parsed_json = json.loads(content.strip())
         
         return ResumeParseResponse(
