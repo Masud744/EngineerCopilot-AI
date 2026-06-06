@@ -5,7 +5,7 @@ import { api } from '@/lib/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { BookmarkX, ExternalLink, MapPin, Building2, Loader2 } from 'lucide-react';
+import { BookmarkX, ExternalLink, MapPin, Building2, Loader2, TrendingUp } from 'lucide-react';
 
 export default function SavedJobsPage() {
   const [saved, setSaved] = useState<any[]>([]);
@@ -37,6 +37,15 @@ export default function SavedJobsPage() {
       // ignore
     } finally {
       setRemoving(null);
+    }
+  };
+
+  const startTracking = async (jobId: string) => {
+    try {
+      await api.post('/applications', { job_id: jobId, status: 'saved' });
+      alert('Application tracking started! Check the Applications page.');
+    } catch {
+      alert('Failed to start tracking. Make sure you are logged in.');
     }
   };
 
@@ -110,11 +119,19 @@ export default function SavedJobsPage() {
                   View Details
                 </a>
                 <Button
+                  size="icon"
+                  className="h-8 w-8"
+                  title="Start tracking this application"
+                  onClick={() => startTracking(item.job_id)}
+                >
+                  <TrendingUp className="w-4 h-4" />
+                </Button>
+                <Button
                   variant="ghost"
-                  size="sm"
+                  size="icon"
+                  className="h-8 w-8 text-destructive"
                   onClick={() => unsave(item.id)}
                   disabled={removing === item.id}
-                  className="text-destructive hover:text-destructive"
                 >
                   {removing === item.id ? (
                     <Loader2 className="w-4 h-4 animate-spin" />

@@ -52,6 +52,9 @@ export default function ApplicationsPage() {
     try {
       await api.patch(`/applications/${appId}`, { status });
       setApps(prev => prev.map(a => a.id === appId ? { ...a, status } : a));
+      // Refresh stats after status change
+      const statsData = await api.get('/applications/stats');
+      setStats(statsData);
     } catch {
       // ignore
     }
