@@ -134,23 +134,28 @@ export default function ResumeStudioPage() {
           return;
         }
         // Match specific job
-        const matchData = await api.post(`/jobs/${selectedJobId}/match`);
+        const matchData = await api.post<any>(`/jobs/${selectedJobId}/match`);
         const targetJob = jobs.find((j) => j.id === selectedJobId);
+        const matchObj = matchData?.match || matchData || {};
+        const score = matchObj.overall_score ?? matchData.overall_score ?? 0;
+        const matching = matchObj.matching_skills || matchData.matching_skills || [];
+        const missing = matchObj.missing_skills || matchData.missing_skills || [];
+
         setScanResult({
           title: targetJob?.title || 'Selected Job',
           company: targetJob?.company || 'Target Company',
           match: {
-            overall_score: matchData.overall_score || 0,
-            skill_match: matchData.skill_match || 0,
-            project_match: matchData.project_match || 0,
-            education_match: matchData.education_match || 0,
-            location_match: matchData.location_match || 0,
-            explanation: matchData.explanation || [],
-            matching_skills: matchData.matching_skills || [],
-            missing_skills: matchData.missing_skills || [],
+            overall_score: score,
+            skill_match: matchObj.skill_match ?? matchData.skill_match ?? 0,
+            project_match: matchObj.project_match ?? matchData.project_match ?? 0,
+            education_match: matchObj.education_match ?? matchData.education_match ?? 0,
+            location_match: matchObj.location_match ?? matchData.location_match ?? 0,
+            explanation: matchObj.explanation || matchData.explanation || [],
+            matching_skills: matching,
+            missing_skills: missing,
           },
-          matching_skills: matchData.matching_skills || [],
-          missing_skills: matchData.missing_skills || [],
+          matching_skills: matching,
+          missing_skills: missing,
         });
         return;
       } else {

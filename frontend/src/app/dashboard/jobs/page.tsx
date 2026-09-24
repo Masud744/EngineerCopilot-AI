@@ -39,14 +39,36 @@ export default function JobsPage() {
 
   // Instant Job Analyzer State
   const [showAnalyzer, setShowAnalyzer] = useState(false);
+  const [selectedDbJobId, setSelectedDbJobId] = useState('');
   const [customTitle, setCustomTitle] = useState('');
   const [customCompany, setCustomCompany] = useState('');
   const [customLocation, setCustomLocation] = useState('Remote');
   const [customDesc, setCustomDesc] = useState('');
   const [customUrl, setCustomUrl] = useState('');
   const [analyzing, setAnalyzing] = useState(false);
+  const [analysisStep, setAnalysisStep] = useState('');
   const [analysisResult, setAnalysisResult] = useState<CustomJobAnalyzeResponse | null>(null);
   const [analyzerError, setAnalyzerError] = useState<string | null>(null);
+
+  const handleSelectDbJob = (jobId: string) => {
+    setSelectedDbJobId(jobId);
+    if (!jobId) {
+      setCustomTitle('');
+      setCustomCompany('');
+      setCustomLocation('Remote');
+      setCustomDesc('');
+      setCustomUrl('');
+      return;
+    }
+    const target = jobs.find((j) => j.id === jobId);
+    if (target) {
+      setCustomTitle(target.title || '');
+      setCustomCompany(target.company || '');
+      setCustomLocation(target.location || 'Remote');
+      setCustomDesc(target.description || target.requirements || '');
+      setCustomUrl(target.apply_url || '');
+    }
+  };
 
   const fetchJobs = async (
     loc: 'all' | 'bd' | 'remote' = locationFilter,
@@ -158,6 +180,16 @@ export default function JobsPage() {
 
     setAnalyzing(true);
     setAnalyzerError(null);
+    setAnalysisStep('1/3: Extracting technical requirements & role domain...');
+
+    const timer1 = setTimeout(() => {
+      setAnalysisStep('2/3: Comparing skills & experience with Master Resume...');
+    }, 900);
+
+    const timer2 = setTimeout(() => {
+      setAnalysisStep('3/3: Evaluating ATS compatibility & score breakdown...');
+    }, 1800);
+
     try {
       const result = await api.post<CustomJobAnalyzeResponse>('/jobs/analyze', {
         title: customTitle.trim(),
@@ -175,7 +207,10 @@ export default function JobsPage() {
       console.error('Job analysis failed:', err);
       setAnalyzerError(err?.message || 'Failed to analyze job. Please ensure you are logged in and profile is set up.');
     } finally {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
       setAnalyzing(false);
+      setAnalysisStep('');
     }
   };
 
@@ -282,7 +317,7 @@ export default function JobsPage() {
 
       {/* ── Instant Job Analyzer Panel ── */}
       {showAnalyzer && (
-        <Card className="border-primary/30 shadow-lg bg-card/90 backdrop-blur animate-in fade-in slide-in-from-top-3 duration-300">
+        <Card className="border-primary/30 shadow-lg bg-card/90 backdrop-blur animate-in fade-in slide-in-from-top-3 duration-300 select-text">
           <CardHeader className="pb-3 border-b border-border/50">
             <div className="flex items-center justify-between">
               <div>
@@ -291,7 +326,7 @@ export default function JobsPage() {
                   Instant Job Analyzer & ATS Matcher
                 </CardTitle>
                 <CardDescription>
-                  Paste any job description from LinkedIn, BDjobs, or company portals to get an instant candidate match analysis.
+                  Select any active job from our database or paste custom job requirements to get an instant match evaluation.
                 </CardDescription>
               </div>
               <Button variant="ghost" size="icon" onClick={() => setShowAnalyzer(false)}>
@@ -299,8 +334,39 @@ export default function JobsPage() {
               </Button>
             </div>
           </CardHeader>
-          <CardContent className="pt-4">
+          <CardContent className="pt-4 select-text">
             <form onSubmit={handleAnalyzeJob} className="space-y-4">
+              {/* Quick Select from Database */}
+              <div className="p-3 bg-muted/30 border border-border/60 rounded-xl space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                    <BriefcaseBusiness className="w-3.5 h-3.5 text-primary" />
+                    Quick Fill from Current Jobs:
+                  </label>
+                  {selectedDbJobId && (
+                    <button
+                      type="button"
+                      onClick={() => handleSelectDbJob('')}
+                      className="text-[11px] text-muted-foreground hover:text-foreground underline cursor-pointer"
+                    >
+                      Clear & Write Custom
+                    </button>
+                  )}
+                </div>
+                <select
+                  className="w-full bg-background border border-input rounded-lg px-3 py-2 text-xs text-foreground focus:ring-1 focus:ring-primary focus:outline-none"
+                  value={selectedDbJobId}
+                  onChange={(e) => handleSelectDbJob(e.target.value)}
+                >
+                  <option value="">-- Choose from active jobs (or type custom role below) --</option>
+                  {jobs.map((j) => (
+                    <option key={j.id} value={j.id}>
+                      {j.title} — {j.company} ({j.location || 'Remote'})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
                   <label className="text-xs font-semibold text-muted-foreground block mb-1">
@@ -340,13 +406,26 @@ export default function JobsPage() {
                   Job Description & Requirements *
                 </label>
                 <textarea
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring min-h-[140px]"
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring min-h-[140px] font-mono text-xs select-text"
                   placeholder="Paste the full job post requirements, responsibilities, and qualifications here..."
                   value={customDesc}
                   onChange={(e) => setCustomDesc(e.target.value)}
                   required
                 />
               </div>
+
+              {/* Progress step bar during analysis */}
+              {analyzing && analysisStep && (
+                <div className="p-3 rounded-lg border border-primary/30 bg-primary/5 space-y-2 animate-in fade-in">
+                  <div className="flex items-center gap-2 text-xs font-semibold text-primary">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>{analysisStep}</span>
+                  </div>
+                  <div className="h-1.5 w-full bg-primary/20 rounded-full overflow-hidden">
+                    <div className="h-full bg-primary animate-pulse w-3/4" />
+                  </div>
+                </div>
+              )}
 
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-1">
                 <Input

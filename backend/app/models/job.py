@@ -105,6 +105,14 @@ class MatchResponse(BaseModel):
     """Full match response with job data and scores."""
     job: JobResponse
     match: MatchScore
+    overall_score: Optional[int] = None
+    skill_match: Optional[int] = None
+    project_match: Optional[int] = None
+    education_match: Optional[int] = None
+    location_match: Optional[int] = None
+    matching_skills: list[str] = Field(default_factory=list)
+    missing_skills: list[str] = Field(default_factory=list)
+    explanation: list[str] = Field(default_factory=list)
 
 
 class CustomJobAnalyzeRequest(BaseModel):

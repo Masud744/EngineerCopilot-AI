@@ -43,6 +43,12 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
+    user-select: text;
+    -webkit-user-select: text;
+  }
+  ::selection {
+    background-color: hsl(var(--primary) / 0.4);
+    color: hsl(var(--foreground));
   }
 }
 

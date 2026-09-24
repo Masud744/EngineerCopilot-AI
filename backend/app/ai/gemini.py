@@ -26,7 +26,7 @@ class GeminiProvider(BaseLLMProvider):
             rate_limit=TokenBucket(max_tokens=15, refill_rate=0.25),
         )
         genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel("gemini-2.5-flash")
+        self.model = genai.GenerativeModel("gemini-3.5-flash-lite")
 
     async def complete(
         self,
@@ -39,27 +39,29 @@ class GeminiProvider(BaseLLMProvider):
 
         async def _call():
             full_prompt = f"{system_prompt}\n\n{prompt}" if system_prompt else prompt
+            is_json = "json" in (system_prompt + prompt).lower()
+
+            config_kwargs = {
+                "temperature": temperature,
+                "max_output_tokens": max_tokens,
+            }
+            if is_json:
+                config_kwargs["response_mime_type"] = "application/json"
 
             try:
                 response = await asyncio.to_thread(
                     self.model.generate_content,
                     full_prompt,
-                    generation_config=genai.types.GenerationConfig(
-                        temperature=temperature,
-                        max_output_tokens=max_tokens,
-                    ),
+                    generation_config=genai.types.GenerationConfig(**config_kwargs),
                 )
             except Exception as e:
-                # If gemini-2.5-flash has an issue, fallback to gemini-flash-latest
-                logger.warning("gemini-2.5-flash error (%s), trying gemini-flash-latest", e)
-                fallback_model = genai.GenerativeModel("gemini-flash-latest")
+                # If gemini-3.5-flash-lite has an issue, fallback to gemini-2.5-flash
+                logger.warning("gemini-3.5-flash-lite error (%s), trying gemini-2.5-flash", e)
+                fallback_model = genai.GenerativeModel("gemini-2.5-flash")
                 response = await asyncio.to_thread(
                     fallback_model.generate_content,
                     full_prompt,
-                    generation_config=genai.types.GenerationConfig(
-                        temperature=temperature,
-                        max_output_tokens=max_tokens,
-                    ),
+                    generation_config=genai.types.GenerationConfig(**config_kwargs),
                 )
 
             usage = {}

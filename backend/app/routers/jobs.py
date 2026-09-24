@@ -15,6 +15,7 @@ from fastapi import APIRouter, BackgroundTasks, HTTPException, Query
 from app.dependencies import CurrentUser
 from app.models.job import (
     JobListResponse,
+    MatchRequest,
     MatchResponse,
     MatchScore,
     CustomJobAnalyzeRequest,
@@ -240,11 +241,8 @@ def _get_user_candidate_context(user_id: str):
     return profile.data, skill_list, project_list, edu_list
 
 
-@router.post("/match", response_model=MatchResponse)
-async def match_job(job_id: str, user: CurrentUser):
-    """
-    Calculate match score between the current user's profile and a job.
-    """
+async def _perform_job_match(job_id: str, user_id: str) -> dict:
+    """Core logic to match a job against a candidate profile."""
     # Fetch job
     job_result = (
         db()
@@ -259,7 +257,7 @@ async def match_job(job_id: str, user: CurrentUser):
     job = job_result.data
     job["categories"] = job.pop("job_categories", []) or []
 
-    profile_data, skill_list, project_list, edu_list = _get_user_candidate_context(user.user_id)
+    profile_data, skill_list, project_list, edu_list = _get_user_candidate_context(user_id)
 
     # Calculate match scores via True AI
     from app.ai.matcher import generate_match_score
@@ -268,18 +266,26 @@ async def match_job(job_id: str, user: CurrentUser):
         profile=profile_data,
         skills=skill_list,
         projects=project_list,
-        education=edu_list
+        education=edu_list,
     )
 
     if ai_match:
         return {
             "job": job,
-            "match": ai_match
+            "match": ai_match,
+            "overall_score": ai_match.get("overall_score", 0),
+            "skill_match": ai_match.get("skill_match", 0),
+            "project_match": ai_match.get("project_match", 0),
+            "education_match": ai_match.get("education_match", 0),
+            "location_match": ai_match.get("location_match", 0),
+            "matching_skills": ai_match.get("matching_skills", []),
+            "missing_skills": ai_match.get("missing_skills", []),
+            "explanation": ai_match.get("explanation", []),
         }
 
     # FALLBACK to heuristic if AI fails
-    user_skills = {s.get("skill_name", "").lower() for s in skill_list}
-    job_skills = {s.lower() for s in (job.get("required_skills") or [])}
+    user_skills = {s.get("skill_name", "").lower() for s in skill_list if s.get("skill_name")}
+    job_skills = {s.lower() for s in (job.get("required_skills") or []) if s}
 
     if user_skills or job_skills:
         intersection = user_skills & job_skills
@@ -289,7 +295,7 @@ async def match_job(job_id: str, user: CurrentUser):
         skill_score = 50
 
     user_tech = set()
-    for p in (projects.data or []):
+    for p in project_list:
         user_tech.update(t.lower() for t in (p.get("technologies") or []))
     if user_tech and job_skills:
         tech_overlap = user_tech & job_skills
@@ -299,14 +305,13 @@ async def match_job(job_id: str, user: CurrentUser):
 
     education_score = 50
     job_desc = (job.get("description") or "").lower()
-    for edu in (education.data or []):
+    for edu in edu_list:
         field = (edu.get("field_of_study") or "").lower()
         if field and any(word in job_desc for word in field.split()):
             education_score = 80
             break
 
     location_score = 50
-    profile_data = profile.data
     preferred_locations = [loc.lower() for loc in (profile_data.get("preferred_locations") or [])]
     job_location = (job.get("location") or "").lower()
     if job.get("is_remote"):
@@ -318,10 +323,13 @@ async def match_job(job_id: str, user: CurrentUser):
 
     overall = int(skill_score * 0.40 + project_score * 0.25 + education_score * 0.15 + location_score * 0.20)
 
+    matched_skills = sorted(list(user_skills & job_skills))
+    missing_skills = sorted(list(job_skills - user_skills))
+
     explanation = []
-    if user_skills & job_skills:
-        matched = ", ".join(sorted(user_skills & job_skills)[:5])
-        explanation.append(f"{skill_score}% skill overlap: {matched}")
+    if matched_skills:
+        matched_str = ", ".join(matched_skills[:5])
+        explanation.append(f"{skill_score}% skill overlap: {matched_str}")
     else:
         explanation.append(f"{skill_score}% skill match (add more skills to improve)")
     explanation.append(f"{project_score}% project relevance")
@@ -330,17 +338,52 @@ async def match_job(job_id: str, user: CurrentUser):
     elif location_score >= 70:
         explanation.append(f"Location '{job.get('location')}' matches your preferences")
 
+    heuristic_match = {
+        "overall_score": min(overall, 100),
+        "skill_match": skill_score,
+        "project_match": project_score,
+        "education_match": education_score,
+        "location_match": location_score,
+        "matching_skills": matched_skills,
+        "missing_skills": missing_skills,
+        "explanation": explanation,
+    }
+
     return {
         "job": job,
-        "match": {
-            "overall_score": min(overall, 100),
-            "skill_match": skill_score,
-            "project_match": project_score,
-            "education_match": education_score,
-            "location_match": location_score,
-            "explanation": explanation,
-        },
+        "match": heuristic_match,
+        "overall_score": heuristic_match["overall_score"],
+        "skill_match": heuristic_match["skill_match"],
+        "project_match": heuristic_match["project_match"],
+        "education_match": heuristic_match["education_match"],
+        "location_match": heuristic_match["location_match"],
+        "matching_skills": matched_skills,
+        "missing_skills": missing_skills,
+        "explanation": explanation,
     }
+
+
+@router.post("/{job_id}/match", response_model=MatchResponse)
+async def match_job_by_path(job_id: str, user: CurrentUser):
+    """Calculate match score using job_id path parameter."""
+    return await _perform_job_match(job_id, user.user_id)
+
+
+@router.post("/match", response_model=MatchResponse)
+async def match_job(
+    user: CurrentUser,
+    data: Optional[MatchRequest] = None,
+    job_id: Optional[str] = Query(default=None),
+):
+    """
+    Calculate match score between the current user's profile and a job.
+    Accepts job_id in body { job_id: "..." } or query parameter ?job_id=...
+    """
+    target_id = (data.job_id if data else None) or job_id
+    if not target_id:
+        raise HTTPException(status_code=400, detail="job_id is required either in request body or query parameter")
+    return await _perform_job_match(target_id, user.user_id)
+
 
 
 @router.post("/analyze", response_model=CustomJobAnalyzeResponse)
