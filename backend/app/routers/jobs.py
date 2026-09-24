@@ -10,7 +10,7 @@ from __future__ import annotations
 import logging
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Query
 
 from app.dependencies import CurrentUser
 from app.models.job import (
@@ -28,17 +28,34 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/jobs", tags=["jobs"])
 
 db = get_supabase_admin
+_sync_running = False
 
 
 @router.post("/sync")
-async def trigger_sync():
+async def trigger_sync(background_tasks: BackgroundTasks):
     """Trigger the background job scraper to fetch latest engineering jobs."""
-    try:
-        result = await sync_jobs()
-        return result
-    except Exception as e:
-        logger.error(f"Sync failed: {e}")
-        raise HTTPException(status_code=500, detail="Failed to sync jobs")
+    global _sync_running
+    if _sync_running:
+        return {"status": "in_progress", "message": "Job sync is already active in the background."}
+
+    async def _do_sync():
+        global _sync_running
+        _sync_running = True
+        try:
+            await sync_jobs()
+        except Exception as exc:
+            logger.error("Background job sync failed: %s", exc)
+        finally:
+            _sync_running = False
+
+    background_tasks.add_task(_do_sync)
+    return {"status": "started", "message": "Job sync started in background. New jobs will appear shortly."}
+
+
+@router.get("/sync/status")
+def get_sync_status():
+    global _sync_running
+    return {"is_syncing": _sync_running}
 
 
 @router.get("", response_model=JobListResponse)
@@ -70,7 +87,21 @@ def list_jobs(
         # Use PostgreSQL text search on title and company
         query = query.or_(f"title.ilike.%{keyword}%,company.ilike.%{keyword}%,description.ilike.%{keyword}%")
     if location:
-        query = query.ilike("location", f"%{location}%")
+        loc_clean = location.lower().strip()
+        if loc_clean in ("bangladesh", "bd", "dhaka"):
+            query = query.or_(
+                "location.ilike.%bangladesh%,"
+                "location.ilike.%dhaka%,"
+                "location.ilike.%chittagong%,"
+                "location.ilike.%chattogram%,"
+                "location.ilike.%sylhet%,"
+                "location.ilike.%rajshahi%,"
+                "location.ilike.%khulna%,"
+                "location.ilike.%mymensingh%,"
+                "location.ilike.%gazipur%"
+            )
+        else:
+            query = query.ilike("location", f"%{location}%")
     if source:
         query = query.eq("source", source)
     if remote_only:

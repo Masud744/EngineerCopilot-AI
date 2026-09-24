@@ -48,12 +48,28 @@ export default function JobsPage() {
   const [analysisResult, setAnalysisResult] = useState<CustomJobAnalyzeResponse | null>(null);
   const [analyzerError, setAnalyzerError] = useState<string | null>(null);
 
-  const fetchJobs = async () => {
+  const fetchJobs = async (
+    loc: 'all' | 'bd' | 'remote' = locationFilter,
+    src: string | null = sourceFilter,
+    query: string = search
+  ) => {
     setLoading(true);
     setErrorMsg(null);
     try {
-      // Fetch 30 jobs at a time for sub-second response
-      const response = await api.get('/jobs', { limit: 30 });
+      const params: Record<string, any> = { limit: 60 };
+      if (loc === 'bd') {
+        params.location = 'bangladesh';
+      } else if (loc === 'remote') {
+        params.remote_only = true;
+      }
+      if (src) {
+        params.source = src;
+      }
+      if (query.trim()) {
+        params.keyword = query.trim();
+      }
+
+      const response = await api.get('/jobs', params);
       if (response && response.items) {
         setJobs(response.items);
       } else {
@@ -71,6 +87,17 @@ export default function JobsPage() {
     fetchJobs();
     fetchSavedIds();
   }, []);
+
+  const handleLocationFilter = (newLoc: 'all' | 'bd' | 'remote') => {
+    setLocationFilter(newLoc);
+    fetchJobs(newLoc, sourceFilter, search);
+  };
+
+  const handleSourceFilter = (newSrc: string | null) => {
+    const nextSrc = sourceFilter === newSrc ? null : newSrc;
+    setSourceFilter(nextSrc);
+    fetchJobs(locationFilter, nextSrc, search);
+  };
 
   const fetchSavedIds = async () => {
     try {
@@ -108,13 +135,16 @@ export default function JobsPage() {
     setSyncing(true);
     setSyncResult(null);
     try {
-      const result = await fetch('http://localhost:8000/api/v1/jobs/sync', { method: 'POST' });
-      const data = await result.json();
+      const data = await api.post('/jobs/sync');
       setSyncResult(data);
-      await fetchJobs();
-    } catch (error) {
+      // Wait briefly for background ingestion, then refresh
+      setTimeout(async () => {
+        await fetchJobs(locationFilter, sourceFilter, search);
+        setSyncing(false);
+      }, 2500);
+    } catch (error: any) {
       console.error('Failed to sync jobs:', error);
-    } finally {
+      setSyncResult({ status: 'error', message: 'Failed to trigger job sync' });
       setSyncing(false);
     }
   };
@@ -164,9 +194,16 @@ export default function JobsPage() {
       const loc = (job.location || '').toLowerCase();
       matchesLocation =
         loc.includes('bangladesh') ||
+        loc.includes('bd') ||
         loc.includes('dhaka') ||
         loc.includes('chittagong') ||
-        loc.includes('chattogram');
+        loc.includes('chattogram') ||
+        loc.includes('sylhet') ||
+        loc.includes('rajshahi') ||
+        loc.includes('khulna') ||
+        loc.includes('mymensingh') ||
+        loc.includes('gazipur') ||
+        loc.includes('bogra');
     } else if (locationFilter === 'remote') {
       matchesLocation = job.is_remote === true;
     }
@@ -496,10 +533,15 @@ export default function JobsPage() {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search roles by title, company, or location..."
+            placeholder="Search roles by title, company, or location (Press Enter to search)..."
             className="pl-9"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                fetchJobs(locationFilter, sourceFilter, search);
+              }
+            }}
           />
         </div>
 
@@ -511,21 +553,21 @@ export default function JobsPage() {
           <Badge
             variant={locationFilter === 'all' ? 'default' : 'outline'}
             className="cursor-pointer"
-            onClick={() => setLocationFilter('all')}
+            onClick={() => handleLocationFilter('all')}
           >
             All
           </Badge>
           <Badge
             variant={locationFilter === 'bd' ? 'default' : 'outline'}
             className="cursor-pointer"
-            onClick={() => setLocationFilter('bd')}
+            onClick={() => handleLocationFilter('bd')}
           >
             <MapPin className="w-3 h-3 mr-1" /> Bangladesh
           </Badge>
           <Badge
             variant={locationFilter === 'remote' ? 'default' : 'outline'}
             className="cursor-pointer"
-            onClick={() => setLocationFilter('remote')}
+            onClick={() => handleLocationFilter('remote')}
           >
             <Globe className="w-3 h-3 mr-1" /> Remote
           </Badge>
@@ -536,7 +578,7 @@ export default function JobsPage() {
           <Badge
             variant={!sourceFilter ? 'default' : 'outline'}
             className="cursor-pointer"
-            onClick={() => setSourceFilter(null)}
+            onClick={() => handleSourceFilter(null)}
           >
             All Sources
           </Badge>
@@ -545,7 +587,7 @@ export default function JobsPage() {
               key={src}
               variant={sourceFilter === src ? 'default' : 'outline'}
               className="cursor-pointer"
-              onClick={() => setSourceFilter(sourceFilter === src ? null : src)}
+              onClick={() => handleSourceFilter(src)}
             >
               {src}
             </Badge>

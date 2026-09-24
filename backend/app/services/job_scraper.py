@@ -171,6 +171,9 @@ async def fetch_linkedin_jobs() -> list[dict]:
                     )
 
                     resp = await client.get(url, headers=headers)
+                    if resp.status_code == 429:
+                        logger.warning(f"LinkedIn 429 rate limit reached for '{search['keywords']}'. Ending search.")
+                        break
                     if resp.status_code != 200:
                         logger.warning(f"LinkedIn {resp.status_code} for '{search['keywords']}' at start={start_offset}")
                         break  # Stop pagination if error
@@ -214,15 +217,7 @@ async def fetch_linkedin_jobs() -> list[dict]:
                             if not should_keep_job(title, location, is_remote):
                                 continue
 
-                            # Fetch real description from job detail page (best-effort)
-                            full_desc = ""
-                            if detail_fetch_count < linkedin_detail_fetch_limit:
-                                full_desc = await fetch_linkedin_job_description(client, apply_url)
-                                if full_desc and full_desc.strip():
-                                    detail_fetch_count += 1
-
-                            # Fallback: enrich with available metadata
-                            description_fallback = (
+                            description = (
                                 f"Role: {title}\n"
                                 f"Company: {company}\n"
                                 f"Location: {location or 'Remote'}\n"
@@ -230,8 +225,6 @@ async def fetch_linkedin_jobs() -> list[dict]:
                                 f"This is a {search['keywords']} role at {company}. "
                                 f"Candidates should have relevant experience in {search['keywords']} and related technologies."
                             )
-
-                            description = full_desc.strip() if full_desc and full_desc.strip() else description_fallback
 
                             # Minimal required_skills extraction from title/description
                             text_blob = f"{title} {description}".lower()
@@ -387,11 +380,10 @@ async def sync_jobs() -> dict:
                 src = job.get("source", "Unknown")
                 source_counts[src] = source_counts.get(src, 0) + 1
 
-                for cat, conf in categories:
+                if categories:
                     try:
-                        db.table("job_categories").insert({
-                            "job_id": job_id, "category": cat, "confidence": conf
-                        }).execute()
+                        cat_rows = [{"job_id": job_id, "category": cat, "confidence": conf} for cat, conf in categories]
+                        db.table("job_categories").upsert(cat_rows, on_conflict="job_id,category").execute()
                     except Exception:
                         pass
 
