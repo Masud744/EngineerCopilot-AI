@@ -17,23 +17,30 @@ async function getToken(): Promise<string> {
   }
 }
 
-async function request<T>(
+async function request<T = any>(
   path: string,
   options: { method?: string; headers?: Record<string, string>; body?: unknown } = {}
 ): Promise<T> {
   const token = await getToken();
   const url = `${API_BASE}${path}`;
 
+  const isFormData = options.body instanceof FormData;
+  const reqHeaders: Record<string, string> = {
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...(options.headers || {}),
+  };
+  if (!isFormData) {
+    reqHeaders['Content-Type'] = 'application/json';
+  }
+
   const res = await fetch(url, {
     ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...(options.headers || {}),
-    },
-    ...(options.body instanceof FormData
-      ? { body: options.body, headers: { Authorization: `Bearer ${token}` } }
-      : { body: options.body ? JSON.stringify(options.body) : undefined }),
+    headers: reqHeaders,
+    body: isFormData
+      ? (options.body as FormData)
+      : options.body !== undefined
+      ? JSON.stringify(options.body)
+      : undefined,
   });
 
   const contentType = res.headers.get('content-type');
@@ -50,7 +57,7 @@ async function request<T>(
 }
 
 export const api = {
-  async get<T>(path: string, params?: Record<string, string | number | undefined>): Promise<T> {
+  async get<T = any>(path: string, params?: Record<string, string | number | undefined>): Promise<T> {
     const qs = params
       ? '?' + new URLSearchParams(
           Object.fromEntries(Object.entries(params).filter(([, v]) => v !== undefined).map(([k, v]) => [k, String(v)]))
@@ -59,11 +66,11 @@ export const api = {
     return request<T>(path + qs, { method: 'GET' });
   },
 
-  async post<T>(path: string, body: unknown): Promise<T> {
+  async post<T = any>(path: string, body?: unknown): Promise<T> {
     return request<T>(path, { method: 'POST', body });
   },
 
-  async patch<T>(path: string, body: unknown): Promise<T> {
+  async patch<T = any>(path: string, body?: unknown): Promise<T> {
     return request<T>(path, { method: 'PATCH', body });
   },
 

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowRight, Bot, Code, Cpu, Database, Server, Shield, Zap } from 'lucide-react'
+import { ArrowRight, Bot, Code, Cpu, Database, Server, Zap } from 'lucide-react'
 
 export default function LandingPage() {
   return (

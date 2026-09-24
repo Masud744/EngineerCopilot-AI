@@ -97,9 +97,31 @@ class MatchScore(BaseModel):
     education_match: int = Field(..., ge=0, le=100)
     location_match: int = Field(..., ge=0, le=100)
     explanation: list[str] = Field(default_factory=list)
+    matching_skills: list[str] = Field(default_factory=list)
+    missing_skills: list[str] = Field(default_factory=list)
 
 
 class MatchResponse(BaseModel):
     """Full match response with job data and scores."""
     job: JobResponse
     match: MatchScore
+
+
+class CustomJobAnalyzeRequest(BaseModel):
+    """Request to analyze an external or custom job description."""
+    title: str
+    company: Optional[str] = "Unknown"
+    description: str
+    location: Optional[str] = "Remote"
+    apply_url: Optional[str] = None
+    save_to_jobs: bool = True
+
+
+class CustomJobAnalyzeResponse(BaseModel):
+    """Response from analyzing a custom job description."""
+    title: str
+    company: str
+    location: Optional[str] = None
+    match: MatchScore
+    job_id: Optional[str] = None
+    saved_job_id: Optional[str] = None

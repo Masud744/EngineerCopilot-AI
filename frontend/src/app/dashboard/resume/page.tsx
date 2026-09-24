@@ -1,16 +1,17 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Upload, FileText, Download, Trash2, Sparkles, ChevronDown } from 'lucide-react';
+import { Loader2, Upload, FileText, Download, Sparkles } from 'lucide-react';
 
 type Tab = 'upload' | 'generate';
 
 export default function ResumePage() {
+  const router = useRouter();
   const [tab, setTab] = useState<Tab>('upload');
   const [uploading, setUploading] = useState(false);
   const [generating, setGenerating] = useState(false);
@@ -92,7 +93,20 @@ export default function ResumePage() {
     }
   }
 
+  const [showProfileWarning, setShowProfileWarning] = useState(false);
+
   const handleGenerate = async () => {
+    if (!showProfileWarning) {
+      const hasProfile = confirm(
+        '⚠️ Your profile appears to be empty. A resume with no personal data will look blank.\n\nDo you still want to continue?\n\n(Cancel to go fill your profile first)'
+      );
+      if (!hasProfile) {
+        router.push('/dashboard/profile');
+        return;
+      }
+      setShowProfileWarning(true);
+    }
+
     setGenerating(true);
     try {
       const body: any = { template_name: selectedTemplate };
@@ -105,7 +119,7 @@ export default function ResumePage() {
       }
       const data = await api.post('/resume/generate', body);
       setGeneratedResumes(prev => [data, ...prev]);
-      alert(`Resume generated successfully! Match score: ${data?.match_score ?? 'N/A'}%`);
+      alert(`Resume generated! Match score: ${data?.match_score ?? 'N/A'}%`);
     } catch (err: any) {
       const msg = err?.message || 'Generation failed';
       console.error('Resume generation error:', err);
@@ -275,7 +289,7 @@ export default function ResumePage() {
                   {generatedResumes.map((r: any) => (
                     <div key={r.id} className="flex items-center justify-between p-3 border rounded-lg">
                       <div>
-                        <p className="text-sm font-medium">{r.template_name?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</p>
+                        <p className="text-sm font-medium">{r.template_name?.replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}</p>
                         <p className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleString()} {r.match_score ? `• Match: ${r.match_score}%` : ''}</p>
                       </div>
                       {r.pdf_file_path && (

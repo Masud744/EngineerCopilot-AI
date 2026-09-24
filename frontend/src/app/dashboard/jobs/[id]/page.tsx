@@ -8,7 +8,6 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ArrowLeft, Building2, MapPin, DollarSign, ExternalLink, CalendarDays, CheckCircle2, AlertTriangle, BriefcaseBusiness } from 'lucide-react';
-import Link from 'next/link';
 
 export default function JobDetailsPage() {
   const params = useParams();
@@ -88,12 +87,6 @@ export default function JobDetailsPage() {
     if (score >= 80) return 'text-emerald-500';
     if (score >= 50) return 'text-amber-500';
     return 'text-red-500';
-  };
-
-  const getScoreBg = (score: number) => {
-    if (score >= 80) return 'bg-emerald-500/10 border-emerald-500/20 text-emerald-500';
-    if (score >= 50) return 'bg-amber-500/10 border-amber-500/20 text-amber-500';
-    return 'bg-red-500/10 border-red-500/20 text-red-500';
   };
 
   return (

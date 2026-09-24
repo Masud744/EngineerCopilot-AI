@@ -13,7 +13,13 @@ from typing import Optional
 from fastapi import APIRouter, HTTPException, Query
 
 from app.dependencies import CurrentUser
-from app.models.job import JobListResponse, MatchResponse, MatchScore
+from app.models.job import (
+    JobListResponse,
+    MatchResponse,
+    MatchScore,
+    CustomJobAnalyzeRequest,
+    CustomJobAnalyzeResponse,
+)
 from app.utils.supabase import get_supabase_admin
 
 from app.services.job_scraper import sync_jobs
@@ -51,7 +57,13 @@ def list_jobs(
     List jobs with optional filtering.
     No authentication required — jobs are public.
     """
-    query = db().table("jobs").select("*, job_categories(category, confidence)", count="exact")
+    card_fields = (
+        "id, title, company, location, is_remote, remote_type, "
+        "experience_level, salary_min, salary_max, salary_currency, "
+        "required_skills, apply_url, source, source_job_id, posted_date, "
+        "is_active, fetched_at, created_at, job_categories(category, confidence)"
+    )
+    query = db().table("jobs").select(card_fields, count="exact")
     query = query.eq("is_active", True)
 
     if keyword:
@@ -158,6 +170,45 @@ def get_job(job_id: str):
     return job
 
 
+def _get_user_candidate_context(user_id: str):
+    """Fetch user profile, skills, projects, and education for AI matching."""
+    profile = db().table("profiles").select("*").eq("id", user_id).single().execute()
+    skills = db().table("user_skills").select("skill_name").eq("user_id", user_id).execute()
+    projects = db().table("user_projects").select("technologies").eq("user_id", user_id).execute()
+    education = db().table("user_education").select("field_of_study, degree").eq("user_id", user_id).execute()
+
+    if not profile.data:
+        raise HTTPException(status_code=404, detail="Profile not found. Complete your profile first.")
+
+    parsed = profile.data.get("resume_parsed_data") or {}
+
+    skill_list = skills.data or []
+    if not skill_list and parsed.get("skills"):
+        raw_skills = parsed.get("skills")
+        if isinstance(raw_skills, list) and len(raw_skills) > 0 and isinstance(raw_skills[0], str):
+            skill_list = [{"skill_name": s} for s in raw_skills]
+        elif isinstance(raw_skills, list) and len(raw_skills) > 0 and isinstance(raw_skills[0], dict):
+            skill_list = [{"skill_name": s.get("skill_name", str(s))} for s in raw_skills]
+
+    project_list = projects.data or []
+    if not project_list and (parsed.get("experience") or parsed.get("projects")):
+        project_list = []
+        for exp in (parsed.get("experience") or []):
+            techs = exp.get("technologies") or []
+            desc = exp.get("description") or ""
+            project_list.append({"technologies": techs, "description": desc, "title": exp.get("title", "")})
+        for proj in (parsed.get("projects") or []):
+            techs = proj.get("technologies") or []
+            desc = proj.get("description") or ""
+            project_list.append({"technologies": techs, "description": desc, "title": proj.get("title", "")})
+
+    edu_list = education.data or []
+    if not edu_list and parsed.get("education"):
+        edu_list = parsed["education"]
+
+    return profile.data, skill_list, project_list, edu_list
+
+
 @router.post("/match", response_model=MatchResponse)
 async def match_job(job_id: str, user: CurrentUser):
     """
@@ -177,58 +228,18 @@ async def match_job(job_id: str, user: CurrentUser):
     job = job_result.data
     job["categories"] = job.pop("job_categories", []) or []
 
-    # Fetch user profile + skills + projects
-    profile = db().table("profiles").select("*").eq("id", user.user_id).single().execute()
-    skills = db().table("user_skills").select("skill_name").eq("user_id", user.user_id).execute()
-    projects = db().table("user_projects").select("technologies").eq("user_id", user.user_id).execute()
-    education = db().table("user_education").select("field_of_study, degree").eq("user_id", user.user_id).execute()
-
-    if not profile.data:
-        raise HTTPException(status_code=404, detail="Profile not found. Complete your profile first.")
-
-    # Fallback to resume_parsed_data if DB tables are empty
-    parsed = profile.data.get("resume_parsed_data") or {}
-    
-    # Safely extract skills
-    skill_list = skills.data or []
-    if not skill_list and parsed.get("skills"):
-        # Ensure it's a list of strings and mapped correctly
-        raw_skills = parsed.get("skills")
-        if isinstance(raw_skills, list) and len(raw_skills) > 0 and isinstance(raw_skills[0], str):
-            skill_list = [{"skill_name": s} for s in raw_skills]
-        elif isinstance(raw_skills, list) and len(raw_skills) > 0 and isinstance(raw_skills[0], dict):
-            # Already formatted somehow?
-            skill_list = [{"skill_name": s.get("skill_name", str(s))} for s in raw_skills]
-        
-    project_list = projects.data or []
-    if not project_list and (parsed.get("experience") or parsed.get("projects")):
-        project_list = []
-        # Safely extract from experience
-        for exp in (parsed.get("experience") or []):
-            techs = exp.get("technologies") or []
-            desc = exp.get("description") or ""
-            # If no tech, just use description as a project context fallback
-            project_list.append({"technologies": techs, "description": desc, "title": exp.get("title", "")})
-        # Safely extract from projects
-        for proj in (parsed.get("projects") or []):
-            techs = proj.get("technologies") or []
-            desc = proj.get("description") or ""
-            project_list.append({"technologies": techs, "description": desc, "title": proj.get("title", "")})
-            
-    edu_list = education.data or []
-    if not edu_list and parsed.get("education"):
-        edu_list = parsed["education"]
+    profile_data, skill_list, project_list, edu_list = _get_user_candidate_context(user.user_id)
 
     # Calculate match scores via True AI
     from app.ai.matcher import generate_match_score
     ai_match = await generate_match_score(
         job=job,
-        profile=profile.data,
+        profile=profile_data,
         skills=skill_list,
         projects=project_list,
         education=edu_list
     )
-    
+
     if ai_match:
         return {
             "job": job,
@@ -299,6 +310,74 @@ async def match_job(job_id: str, user: CurrentUser):
             "explanation": explanation,
         },
     }
+
+
+@router.post("/analyze", response_model=CustomJobAnalyzeResponse)
+async def analyze_custom_job(data: CustomJobAnalyzeRequest, user: CurrentUser):
+    """
+    Analyze any external job description (e.g. pasted from LinkedIn or BDjobs)
+    against the candidate's profile to extract match scores, missing skills, and insights.
+    """
+    profile_data, skill_list, project_list, edu_list = _get_user_candidate_context(user.user_id)
+
+    custom_job = {
+        "title": data.title,
+        "company": data.company or "Unknown",
+        "description": data.description,
+        "location": data.location or "Remote",
+        "is_remote": "remote" in (data.location or "").lower() or True,
+        "required_skills": [],
+    }
+
+    from app.ai.matcher import generate_match_score
+    ai_match = await generate_match_score(
+        job=custom_job,
+        profile=profile_data,
+        skills=skill_list,
+        projects=project_list,
+        education=edu_list,
+    )
+
+    job_id = None
+    saved_job_id = None
+
+    if data.save_to_jobs:
+        try:
+            import uuid
+            new_id = str(uuid.uuid4())
+            custom_apply_url = data.apply_url or f"https://custom-job.local/{new_id}"
+
+            insert_data = {
+                "id": new_id,
+                "title": data.title,
+                "company": data.company or "External Opportunity",
+                "location": data.location or "Remote",
+                "is_remote": "remote" in (data.location or "").lower() or True,
+                "description": data.description,
+                "apply_url": custom_apply_url,
+                "source": "Custom",
+                "is_active": True,
+            }
+            res = db().table("jobs").upsert(insert_data, on_conflict="apply_url").execute()
+            if res.data:
+                job_id = res.data[0]["id"]
+                save_res = db().table("saved_jobs").upsert({
+                    "user_id": user.user_id,
+                    "job_id": job_id
+                }).execute()
+                if save_res.data:
+                    saved_job_id = save_res.data[0]["id"]
+        except Exception as e:
+            logger.warning(f"Could not save custom job to database: {e}")
+
+    return CustomJobAnalyzeResponse(
+        title=data.title,
+        company=data.company or "External Opportunity",
+        location=data.location,
+        match=MatchScore(**ai_match),
+        job_id=job_id,
+        saved_job_id=saved_job_id,
+    )
 
 
 @router.get("/recommendations/for-me")

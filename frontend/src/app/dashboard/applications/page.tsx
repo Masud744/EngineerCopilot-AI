@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { api } from '@/lib/api';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
   Briefcase, Bookmark, TrendingUp, CheckCircle2, XCircle,
@@ -11,7 +10,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 
-const STATUS_CONFIG: Record<string, { label: string; bg: string; text: string; icon: any }> = {
+const STATUS_CONFIG: Record<string, { label: string; bg: string; text: string; icon: React.ComponentType<{ className?: string }> }> = {
   saved:           { label: 'Saved',           bg: 'bg-slate-100',      text: 'text-slate-700',   icon: Bookmark },
   applied:         { label: 'Applied',         bg: 'bg-blue-100',       text: 'text-blue-700',    icon: Clock },
   assessment:      { label: 'Assessment',      bg: 'bg-purple-100',     text: 'text-purple-700',  icon: Clock },
