@@ -18,15 +18,18 @@ export default function JobDetailsPage() {
   const [error, setError] = useState('');
 
   const [tracking, setTracking] = useState(false);
+  const [trackMsg, setTrackMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const handleTrackApplication = async (status: string = 'saved') => {
     setTracking(true);
+    setTrackMsg(null);
     try {
       await api.post('/applications', { job_id: params.id as string, status });
-      alert('Application tracked! Check your Applications page.');
-      router.push('/dashboard/applications');
-    } catch {
-      alert('Failed to track application. Please try again.');
+      setTrackMsg({ type: 'success', text: `Job ${status === 'applied' ? 'marked as Applied' : 'saved to pipeline'}! Redirecting...` });
+      setTimeout(() => router.push('/dashboard/applications'), 1200);
+    } catch (err: any) {
+      const msg = err?.message || 'Failed to track application.';
+      setTrackMsg({ type: 'error', text: msg.includes('already') ? 'Already tracked! Check your Applications page.' : msg });
     } finally {
       setTracking(false);
     }
@@ -238,28 +241,48 @@ export default function JobDetailsPage() {
                   </ul>
                 </div>
                 
-                {/* Track Application Button */}
-                <div className="pt-2">
+                {/* Track Application Buttons */}
+                {trackMsg && (
+                  <div className={`p-3 rounded-lg text-sm border ${
+                    trackMsg.type === 'success'
+                      ? 'bg-emerald-950/30 border-emerald-800 text-emerald-300'
+                      : 'bg-red-950/30 border-red-800 text-red-300'
+                  }`}>
+                    {trackMsg.text}
+                  </div>
+                )}
+
+                <div className="flex gap-2 pt-2">
                   <Button
-                    className="w-full"
+                    variant="outline"
+                    className="flex-1"
                     onClick={() => handleTrackApplication('saved')}
                     disabled={tracking}
                   >
-                    {tracking ? 'Tracking...' : '📌 Track Application'}
+                    {tracking ? 'Saving...' : '📌 Save'}
+                  </Button>
+                  <Button
+                    className="flex-1"
+                    onClick={() => handleTrackApplication('applied')}
+                    disabled={tracking}
+                  >
+                    {tracking ? 'Tracking...' : '✅ Mark Applied'}
                   </Button>
                 </div>
 
                 {/* Apply Button */}
-                <div className="pt-2">
-                  <a
-                    href={job.apply_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex h-10 w-full items-center justify-center rounded-lg border border-transparent bg-primary px-4 text-sm font-medium text-primary-foreground transition-all hover:bg-primary/80 disabled:pointer-events-none disabled:opacity-50"
-                  >
-                    Apply on {job.source} <ExternalLink className="w-4 h-4 ml-2" />
-                  </a>
-                </div>
+                {job.apply_url && (
+                  <div className="pt-2">
+                    <a
+                      href={job.apply_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex h-10 w-full items-center justify-center rounded-lg border border-primary/30 bg-primary/10 px-4 text-sm font-medium text-primary transition-all hover:bg-primary/20"
+                    >
+                      Apply on {job.source} <ExternalLink className="w-4 h-4 ml-2" />
+                    </a>
+                  </div>
+                )}
               </CardContent>
             ) : (
               <CardContent className="text-center py-6 text-muted-foreground">
