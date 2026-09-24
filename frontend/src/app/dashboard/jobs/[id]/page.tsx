@@ -229,12 +229,38 @@ export default function JobDetailsPage() {
                       {c.category.replace('_', ' ').toUpperCase()}
                     </Badge>
                   ))}
-                <Badge variant="outline" className="capitalize text-muted-foreground">
-                  Source: {job.source}
+                <Badge
+                  variant="outline"
+                  className={`capitalize font-medium ${
+                    job.source === 'BD Govt Jobs'
+                      ? 'border-emerald-500/40 text-emerald-400 bg-emerald-500/10'
+                      : job.source === 'Bdjobs'
+                      ? 'border-orange-500/40 text-orange-400 bg-orange-500/10'
+                      : job.source === 'Jobicy'
+                      ? 'border-cyan-500/40 text-cyan-400 bg-cyan-500/10'
+                      : 'text-muted-foreground'
+                  }`}
+                >
+                  {job.source === 'BD Govt Jobs' ? '🏛️ BD Govt Jobs' : `Source: ${job.source}`}
                 </Badge>
               </div>
             </CardHeader>
           </Card>
+
+          {/* Government Circular Alert Banner */}
+          {job.source === 'BD Govt Jobs' && (
+            <div className="p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 flex items-start gap-3">
+              <span className="text-xl">🏛️</span>
+              <div className="space-y-1">
+                <h4 className="font-semibold text-sm text-emerald-200">
+                  গণপ্রজাতন্ত্রী বাংলাদেশ সরকার — সরকারি নিয়োগ বিজ্ঞপ্তি
+                </h4>
+                <p className="text-xs text-emerald-300/80 leading-relaxed">
+                  এটি বাংলাদেশ সরকারের মন্ত্রণালয়, অধিদপ্তর, স্বায়ত্তশাসিত বা সরকারি প্রতিষ্ঠানের নিয়োগ সার্কুলার। নিয়োগের শর্তাবলী, শিক্ষাগত যোগ্যতা, বয়সসীমা ও নির্দেশনাবলী দেখতে নিচে অথবা সাইডবারের লিংকে ক্লিক করে মূল সার্কুলার ও Teletalk পোর্টালে যান।
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Description Card */}
           <Card className="select-text">
@@ -448,9 +474,14 @@ export default function JobDetailsPage() {
                   href={job.apply_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex h-9 w-full items-center justify-center rounded-lg border border-primary/30 bg-primary/10 px-4 text-xs font-semibold text-primary transition-all hover:bg-primary/20"
+                  className={`inline-flex h-9 w-full items-center justify-center rounded-lg px-4 text-xs font-semibold transition-all ${
+                    job.source === 'BD Govt Jobs'
+                      ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm'
+                      : 'border border-primary/30 bg-primary/10 text-primary hover:bg-primary/20'
+                  }`}
                 >
-                  Apply on {job.source} <ExternalLink className="w-3.5 h-3.5 ml-1.5" />
+                  {job.source === 'BD Govt Jobs' ? 'মূল সার্কুলার ও আবেদন লিংক' : `Apply on ${job.source}`}{' '}
+                  <ExternalLink className="w-3.5 h-3.5 ml-1.5" />
                 </a>
               )}
             </CardContent>

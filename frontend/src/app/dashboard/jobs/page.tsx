@@ -34,7 +34,7 @@ export default function JobsPage() {
   const [syncResult, setSyncResult] = useState<any>(null);
   const [search, setSearch] = useState('');
   const [sourceFilter, setSourceFilter] = useState<string | null>(null);
-  const [locationFilter, setLocationFilter] = useState<'all' | 'bd' | 'remote'>('all');
+  const [locationFilter, setLocationFilter] = useState<'all' | 'bd' | 'remote' | 'govt'>('all');
   const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set());
 
   // Instant Job Analyzer State
@@ -71,18 +71,20 @@ export default function JobsPage() {
   };
 
   const fetchJobs = async (
-    loc: 'all' | 'bd' | 'remote' = locationFilter,
+    loc: 'all' | 'bd' | 'remote' | 'govt' = locationFilter,
     src: string | null = sourceFilter,
     query: string = search
   ) => {
     setLoading(true);
     setErrorMsg(null);
     try {
-      const params: Record<string, any> = { limit: 60 };
+      const params: Record<string, any> = { limit: 100 };
       if (loc === 'bd') {
         params.location = 'bangladesh';
       } else if (loc === 'remote') {
         params.remote_only = true;
+      } else if (loc === 'govt') {
+        params.source = 'BD Govt Jobs';
       }
       if (src) {
         params.source = src;
@@ -110,7 +112,7 @@ export default function JobsPage() {
     fetchSavedIds();
   }, []);
 
-  const handleLocationFilter = (newLoc: 'all' | 'bd' | 'remote') => {
+  const handleLocationFilter = (newLoc: 'all' | 'bd' | 'remote' | 'govt') => {
     setLocationFilter(newLoc);
     fetchJobs(newLoc, sourceFilter, search);
   };
@@ -241,6 +243,12 @@ export default function JobsPage() {
         loc.includes('bogra');
     } else if (locationFilter === 'remote') {
       matchesLocation = job.is_remote === true;
+    } else if (locationFilter === 'govt') {
+      matchesLocation =
+        job.source === 'BD Govt Jobs' ||
+        (job.categories || job.job_categories || []).some(
+          (c: any) => c.category === 'government'
+        );
     }
 
     return matchesSearch && matchesSource && matchesLocation;
@@ -361,6 +369,7 @@ export default function JobsPage() {
                   <option value="">-- Choose from active jobs (or type custom role below) --</option>
                   {jobs.map((j) => (
                     <option key={j.id} value={j.id}>
+                      {j.source === 'BD Govt Jobs' ? '[🏛️ GOVT] ' : `[${j.source || 'Active'}] `}
                       {j.title} — {j.company} ({j.location || 'Remote'})
                     </option>
                   ))}
@@ -628,7 +637,7 @@ export default function JobsPage() {
         <div className="flex flex-wrap gap-2 items-center">
           <Filter className="h-4 w-4 text-muted-foreground" />
 
-          {/* Location Filter */}
+          {/* Location & Domain Filter */}
           <Badge
             variant={locationFilter === 'all' ? 'default' : 'outline'}
             className="cursor-pointer"
@@ -641,14 +650,25 @@ export default function JobsPage() {
             className="cursor-pointer"
             onClick={() => handleLocationFilter('bd')}
           >
-            <MapPin className="w-3 h-3 mr-1" /> Bangladesh
+            <MapPin className="w-3 h-3 mr-1" /> Bangladesh Tech
           </Badge>
           <Badge
             variant={locationFilter === 'remote' ? 'default' : 'outline'}
             className="cursor-pointer"
             onClick={() => handleLocationFilter('remote')}
           >
-            <Globe className="w-3 h-3 mr-1" /> Remote
+            <Globe className="w-3 h-3 mr-1" /> Remote Worldwide
+          </Badge>
+          <Badge
+            variant={locationFilter === 'govt' ? 'default' : 'outline'}
+            className={`cursor-pointer transition-colors ${
+              locationFilter === 'govt'
+                ? 'bg-emerald-600 hover:bg-emerald-500 text-white font-semibold'
+                : 'border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10'
+            }`}
+            onClick={() => handleLocationFilter('govt')}
+          >
+            🏛️ Govt Jobs (সরকারি চাকরি)
           </Badge>
 
           <span className="text-muted-foreground text-xs mx-2">|</span>
@@ -661,16 +681,32 @@ export default function JobsPage() {
           >
             All Sources
           </Badge>
-          {sources.map((src) => (
-            <Badge
-              key={src}
-              variant={sourceFilter === src ? 'default' : 'outline'}
-              className="cursor-pointer"
-              onClick={() => handleSourceFilter(src)}
-            >
-              {src}
-            </Badge>
-          ))}
+          {sources.map((src) => {
+            const isGovt = src === 'BD Govt Jobs';
+            const isBdjobs = src === 'Bdjobs';
+            const isJobicy = src === 'Jobicy';
+            const isSelected = sourceFilter === src;
+            return (
+              <Badge
+                key={src}
+                variant={isSelected ? 'default' : 'outline'}
+                className={`cursor-pointer transition-colors ${
+                  isSelected
+                    ? ''
+                    : isGovt
+                    ? 'border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10'
+                    : isBdjobs
+                    ? 'border-orange-500/40 text-orange-400 hover:bg-orange-500/10'
+                    : isJobicy
+                    ? 'border-cyan-500/40 text-cyan-400 hover:bg-cyan-500/10'
+                    : ''
+                }`}
+                onClick={() => handleSourceFilter(src)}
+              >
+                {isGovt ? '🏛️ ' : ''}{src}
+              </Badge>
+            );
+          })}
 
           <span className="text-muted-foreground text-xs ml-auto">
             {filteredJobs.length} jobs available

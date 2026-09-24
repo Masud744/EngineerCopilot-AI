@@ -54,13 +54,37 @@ export function JobCard({
 
   const getCategoryColor = (category: string) => {
     const colors: Record<string, string> = {
+      government: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30 font-medium',
       iot: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
       embedded: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
-      ai: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+      ai: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
       backend: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
-      full_stack: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
+      full_stack: 'bg-pink-500/10 text-pink-400 border-pink-500/20',
+      devops: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
+      cloud: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
     };
     return colors[category] || 'bg-primary/10 text-primary border-primary/20';
+  };
+
+  const getSourceBadgeClass = (source: string) => {
+    switch (source) {
+      case 'BD Govt Jobs':
+        return 'border-emerald-500/40 text-emerald-400 bg-emerald-500/10 font-semibold';
+      case 'Bdjobs':
+        return 'border-orange-500/40 text-orange-400 bg-orange-500/10 font-medium';
+      case 'NextJobz':
+        return 'border-purple-500/40 text-purple-400 bg-purple-500/10 font-medium';
+      case 'Jobicy':
+        return 'border-cyan-500/40 text-cyan-400 bg-cyan-500/10 font-medium';
+      case 'WeWorkRemotely':
+        return 'border-rose-500/40 text-rose-400 bg-rose-500/10 font-medium';
+      case 'LinkedIn':
+        return 'border-blue-500/40 text-blue-400 bg-blue-500/10 font-medium';
+      case 'RemoteOK':
+        return 'border-amber-500/40 text-amber-400 bg-amber-500/10 font-medium';
+      default:
+        return 'border-border/40 text-muted-foreground/80 bg-muted/20 font-mono';
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -137,9 +161,9 @@ export function JobCard({
           ) : (
             <Badge
               variant="outline"
-              className="flex-shrink-0 text-[10px] uppercase tracking-wider text-muted-foreground/80 border-border/40 font-mono"
+              className={`flex-shrink-0 text-[10px] tracking-wider uppercase ${getSourceBadgeClass(job.source)}`}
             >
-              {job.source || 'Active'}
+              {job.source === 'BD Govt Jobs' ? '🏛️ BD GOVT' : job.source || 'Active'}
             </Badge>
           )}
         </div>
@@ -210,10 +234,14 @@ export function JobCard({
             href={job.apply_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center h-9 px-3 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors"
+            className={`flex items-center justify-center h-9 px-3 rounded-lg text-xs font-medium transition-colors ${
+              job.source === 'BD Govt Jobs'
+                ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm'
+                : 'bg-primary text-primary-foreground hover:bg-primary/90'
+            }`}
             title="Open application link in new tab"
           >
-            Apply <ExternalLink className="w-3 h-3 ml-1" />
+            {job.source === 'BD Govt Jobs' ? 'সার্কুলার / Apply' : 'Apply'} <ExternalLink className="w-3 h-3 ml-1" />
           </a>
         )}
 
