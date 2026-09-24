@@ -610,7 +610,7 @@ export default function JobsPage() {
           <AlertTriangle className="h-8 w-8 text-destructive mx-auto mb-2" />
           <h3 className="font-semibold text-foreground">Could not load jobs</h3>
           <p className="text-xs text-muted-foreground mt-1 mb-4">{errorMsg}</p>
-          <Button onClick={fetchJobs} size="sm" variant="outline">
+          <Button onClick={() => fetchJobs()} size="sm" variant="outline">
             <RefreshCw className="w-3.5 h-3.5 mr-1.5" /> Retry
           </Button>
         </div>

@@ -65,6 +65,8 @@ export interface CustomJobAnalyzeResponse {
   company: string;
   location?: string;
   match: MatchScore;
+  matching_skills?: string[];
+  missing_skills?: string[];
   job_id?: string;
   saved_job_id?: string;
 }

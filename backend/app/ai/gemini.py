@@ -26,7 +26,7 @@ class GeminiProvider(BaseLLMProvider):
             rate_limit=TokenBucket(max_tokens=15, refill_rate=0.25),
         )
         genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel("gemini-1.5-flash")
+        self.model = genai.GenerativeModel("gemini-2.5-flash")
 
     async def complete(
         self,
@@ -40,14 +40,27 @@ class GeminiProvider(BaseLLMProvider):
         async def _call():
             full_prompt = f"{system_prompt}\n\n{prompt}" if system_prompt else prompt
 
-            response = await asyncio.to_thread(
-                self.model.generate_content,
-                full_prompt,
-                generation_config=genai.types.GenerationConfig(
-                    temperature=temperature,
-                    max_output_tokens=max_tokens,
-                ),
-            )
+            try:
+                response = await asyncio.to_thread(
+                    self.model.generate_content,
+                    full_prompt,
+                    generation_config=genai.types.GenerationConfig(
+                        temperature=temperature,
+                        max_output_tokens=max_tokens,
+                    ),
+                )
+            except Exception as e:
+                # If gemini-2.5-flash has an issue, fallback to gemini-flash-latest
+                logger.warning("gemini-2.5-flash error (%s), trying gemini-flash-latest", e)
+                fallback_model = genai.GenerativeModel("gemini-flash-latest")
+                response = await asyncio.to_thread(
+                    fallback_model.generate_content,
+                    full_prompt,
+                    generation_config=genai.types.GenerationConfig(
+                        temperature=temperature,
+                        max_output_tokens=max_tokens,
+                    ),
+                )
 
             usage = {}
             if hasattr(response, "usage_metadata") and response.usage_metadata:
@@ -59,7 +72,7 @@ class GeminiProvider(BaseLLMProvider):
 
             return LLMResponse(
                 content=response.text,
-                model="gemini-1.5-flash",
+                model="gemini-2.5-flash",
                 provider="gemini",
                 usage=usage,
             )

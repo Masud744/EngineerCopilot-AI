@@ -47,9 +47,12 @@ async function request<T = any>(
   const isJson = contentType?.includes('application/json');
 
   if (!res.ok) {
-    const detail = isJson
+    let detail = isJson
       ? (await res.json()).detail
       : await res.text();
+    if (res.status === 401 || (typeof detail === 'string' && detail.toLowerCase().includes('field required'))) {
+      detail = 'Please sign in to continue.';
+    }
     throw new Error(detail || `Request failed: ${res.status}`);
   }
 

@@ -1,325 +1,926 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, useRef } from 'react';
 import { api } from '@/lib/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Upload, FileText, Download, Sparkles } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import {
+  Loader2,
+  Upload,
+  FileText,
+  Download,
+  Sparkles,
+  CheckCircle2,
+  AlertTriangle,
+  Copy,
+  Check,
+  TrendingUp,
+  Briefcase,
+  GraduationCap,
+  Layers,
+  Wand2,
+  Search,
+} from 'lucide-react';
+import type { MasterResumeData, BulletEnhanceResponse } from '@/types/application';
+import type { CustomJobAnalyzeResponse } from '@/types/job';
 
-type Tab = 'upload' | 'generate';
+type ActiveTab = 'overview' | 'scanner' | 'bullet_optimizer';
 
-export default function ResumePage() {
-  const router = useRouter();
-  const [tab, setTab] = useState<Tab>('upload');
+export default function ResumeStudioPage() {
+  const [activeTab, setActiveTab] = useState<ActiveTab>('overview');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Master Resume Data State
+  const [resumeData, setResumeData] = useState<MasterResumeData | null>(null);
+  const [loadingResume, setLoadingResume] = useState(true);
   const [uploading, setUploading] = useState(false);
-  const [generating, setGenerating] = useState(false);
-  const [parseResult, setParseResult] = useState<any>(null);
-  const [uploadMsg, setUploadMsg] = useState('');
-  const [templates, setTemplates] = useState<{ id: string; name: string }[]>([]);
-  const [selectedTemplate, setSelectedTemplate] = useState('ats_classic');
-  const [generatedResumes, setGeneratedResumes] = useState<any[]>([]);
-  const [availableJobs, setAvailableJobs] = useState<{ id: string; title: string }[]>([]);
+  const [uploadMsg, setUploadMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  // form state for generate
-  const [useJob, setUseJob] = useState(true);
-  const [jobId, setJobId] = useState('');
-  const [customDesc, setCustomDesc] = useState('');
+  // ATS Scanner State
+  const [jobs, setJobs] = useState<{ id: string; title: string; company?: string }[]>([]);
+  const [scanMode, setScanMode] = useState<'saved' | 'custom'>('saved');
+  const [selectedJobId, setSelectedJobId] = useState('');
+  const [customJobTitle, setCustomJobTitle] = useState('');
+  const [customJobCompany, setCustomJobCompany] = useState('');
+  const [customJobDesc, setCustomJobDesc] = useState('');
+  const [scanning, setScanning] = useState(false);
+  const [scanResult, setScanResult] = useState<CustomJobAnalyzeResponse | null>(null);
+  const [scanError, setScanError] = useState<string | null>(null);
+
+  // Bullet Optimizer State
+  const [rawBullet, setRawBullet] = useState('');
+  const [targetRole, setTargetRole] = useState('');
+  const [targetKeywords, setTargetKeywords] = useState('');
+  const [optimizing, setOptimizing] = useState(false);
+  const [bulletResult, setBulletResult] = useState<BulletEnhanceResponse | null>(null);
+  const [bulletError, setBulletError] = useState<string | null>(null);
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
   useEffect(() => {
-    fetchTemplates();
-    fetchGenerated();
+    fetchCurrentResume();
     fetchAvailableJobs();
   }, []);
+
+  const fetchCurrentResume = async () => {
+    setLoadingResume(true);
+    try {
+      const data = await api.get<MasterResumeData>('/resume/current');
+      setResumeData(data);
+    } catch (err) {
+      console.error('Failed to load current resume:', err);
+    } finally {
+      setLoadingResume(false);
+    }
+  };
 
   const fetchAvailableJobs = async () => {
     try {
       const data = await api.get('/jobs?limit=50');
-      setAvailableJobs((data?.items || []).map((j: any) => ({ id: j.id, title: j.title })));
-    } catch { /* ignore */ }
+      setJobs(
+        (data?.items || []).map((j: any) => ({
+          id: j.id,
+          title: j.title,
+          company: j.company,
+        }))
+      );
+    } catch {
+      /* ignore */
+    }
   };
 
-  const fetchTemplates = async () => {
-    try {
-      const data = await api.get('/resume/templates');
-      setTemplates(data.templates || []);
-    } catch { /* ignore */ }
-  };
 
-  const fetchGenerated = async () => {
-    try {
-      const data = await api.get('/resume/generated');
-      setGeneratedResumes(data.items || []);
-    } catch { /* ignore */ }
-  };
-
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleUploadResume = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      setUploadMsg({ type: 'error', text: 'Resume file size cannot exceed 5MB.' });
+      e.target.value = '';
+      return;
+    }
+
     setUploading(true);
-    setUploadMsg('');
-    setParseResult(null);
+    setUploadMsg(null);
+
     try {
       const formData = new FormData();
       formData.append('file', file);
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'}/resume/upload`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${await getToken()}` },
-        body: formData,
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setUploadMsg('Resume uploaded and parsed successfully!');
-        setParseResult(data.parsed);
-      } else {
-        setUploadMsg(data.detail || 'Upload failed');
-      }
-    } catch {
-      setUploadMsg('Upload failed');
+
+      await api.post('/resume/upload', formData);
+      setUploadMsg({ type: 'success', text: 'Master resume uploaded and parsed successfully!' });
+      await fetchCurrentResume();
+    } catch (err: any) {
+      setUploadMsg({ type: 'error', text: err?.message || 'Resume upload failed. Please ensure you are logged in.' });
     } finally {
       setUploading(false);
       e.target.value = '';
     }
   };
 
-  async function getToken() {
+  const handleRunScan = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setScanning(true);
+    setScanError(null);
+    setScanResult(null);
+
     try {
-      const { createClient } = await import('@/lib/supabase/client');
-      const { data: { session } } = await createClient().auth.getSession();
-      return session?.access_token || '';
-    } catch {
-      return '';
-    }
-  }
-
-  const [showProfileWarning, setShowProfileWarning] = useState(false);
-
-  const handleGenerate = async () => {
-    if (!showProfileWarning) {
-      const hasProfile = confirm(
-        '⚠️ Your profile appears to be empty. A resume with no personal data will look blank.\n\nDo you still want to continue?\n\n(Cancel to go fill your profile first)'
-      );
-      if (!hasProfile) {
-        router.push('/dashboard/profile');
+      let payload: any = { save_to_jobs: false };
+      if (scanMode === 'saved') {
+        if (!selectedJobId) {
+          setScanError('Please select a job from the dropdown.');
+          setScanning(false);
+          return;
+        }
+        // Match specific job
+        const matchData = await api.post(`/jobs/${selectedJobId}/match`);
+        const targetJob = jobs.find((j) => j.id === selectedJobId);
+        setScanResult({
+          title: targetJob?.title || 'Selected Job',
+          company: targetJob?.company || 'Target Company',
+          match: {
+            overall_score: matchData.overall_score || 0,
+            skill_match: matchData.skill_match || 0,
+            project_match: matchData.project_match || 0,
+            education_match: matchData.education_match || 0,
+            location_match: matchData.location_match || 0,
+            explanation: matchData.explanation || [],
+            matching_skills: matchData.matching_skills || [],
+            missing_skills: matchData.missing_skills || [],
+          },
+          matching_skills: matchData.matching_skills || [],
+          missing_skills: matchData.missing_skills || [],
+        });
         return;
-      }
-      setShowProfileWarning(true);
-    }
-
-    setGenerating(true);
-    try {
-      const body: any = { template_name: selectedTemplate };
-      if (useJob && jobId) {
-        body.job_id = jobId;
-      } else if (!useJob && customDesc) {
-        body.custom_job_description = customDesc;
       } else {
-        throw new Error('Select a job or paste a job description first.');
+        if (!customJobTitle.trim() || !customJobDesc.trim()) {
+          setScanError('Job Title and Job Description are required.');
+          setScanning(false);
+          return;
+        }
+        payload = {
+          title: customJobTitle.trim(),
+          company: customJobCompany.trim() || 'Target Company',
+          location: 'Remote',
+          description: customJobDesc.trim(),
+          save_to_jobs: false,
+        };
+        const result = await api.post<CustomJobAnalyzeResponse>('/jobs/analyze', payload);
+        setScanResult(result);
       }
-      const data = await api.post('/resume/generate', body);
-      setGeneratedResumes(prev => [data, ...prev]);
-      alert(`Resume generated! Match score: ${data?.match_score ?? 'N/A'}%`);
     } catch (err: any) {
-      const msg = err?.message || 'Generation failed';
-      console.error('Resume generation error:', err);
-      alert(`Generation failed: ${msg}`);
+      console.error('ATS scan failed:', err);
+      setScanError(err?.message || 'Failed to scan job against master resume. Ensure profile is configured.');
     } finally {
-      setGenerating(false);
+      setScanning(false);
     }
   };
 
-  const renderParsed = (data: any) => {
-    if (!data) return null;
-    const sections: { label: string; items: string[] }[] = [];
-    if (data.skills?.length) sections.push({ label: 'Skills', items: data.skills });
-    if (data.education?.length) sections.push({ label: 'Education', items: data.education.map((e: any) => `${e.degree || ''} ${e.field_of_study || ''} @ ${e.institution || ''}`) });
-    if (data.experience?.length) sections.push({ label: 'Experience', items: data.experience.map((e: any) => `${e.title || ''} @ ${e.company || ''}`) });
-    if (data.projects?.length) sections.push({ label: 'Projects', items: data.projects.map((p: any) => p.title || '') });
-    return sections.map(s => (
-      <div key={s.label} className="mb-3">
-        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">{s.label}</p>
-        <div className="flex flex-wrap gap-1.5">
-          {s.items.map((item, i) => (
-            <Badge key={i} variant="outline" className="text-xs">{item}</Badge>
-          ))}
-        </div>
-      </div>
-    ));
+  const handleOptimizeBullet = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!rawBullet.trim()) {
+      setBulletError('Please enter a bullet point to optimize.');
+      return;
+    }
+
+    setOptimizing(true);
+    setBulletError(null);
+    setBulletResult(null);
+
+    try {
+      const skillsArr = targetKeywords
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
+
+      const result = await api.post<BulletEnhanceResponse>('/resume/enhance-bullet', {
+        bullet_point: rawBullet.trim(),
+        target_role: targetRole.trim() || undefined,
+        target_skills: skillsArr.length > 0 ? skillsArr : undefined,
+      });
+
+      setBulletResult(result);
+    } catch (err: any) {
+      console.error('Bullet optimization failed:', err);
+      setBulletError(err?.message || 'Failed to optimize bullet point. Please try again.');
+    } finally {
+      setOptimizing(false);
+    }
   };
+
+  const copyToClipboard = (text: string, index: number) => {
+    navigator.clipboard.writeText(text);
+    setCopiedIndex(index);
+    setTimeout(() => setCopiedIndex(null), 2000);
+  };
+
+  const parsed = resumeData?.parsed;
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto py-8">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Resume Studio</h1>
-        <p className="text-muted-foreground mt-2">Upload, parse, and generate ATS-optimized resumes.</p>
+    <div className="space-y-8 max-w-6xl mx-auto py-8 px-4 sm:px-6">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border/50 pb-6">
+        <div>
+          <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-2">
+            <Layers className="w-8 h-8 text-primary" />
+            Resume Studio & ATS Optimizer
+          </h1>
+          <p className="text-muted-foreground mt-1 text-sm">
+            Keep your real Master Resume stored, scan any job for keyword gaps, and optimize experience bullets.
+          </p>
+        </div>
+
+        {/* Status Pill */}
+        <div className="flex items-center gap-3">
+          {resumeData?.has_resume ? (
+            <Badge variant="outline" className="border-emerald-500/50 bg-emerald-500/10 text-emerald-400 py-1.5 px-3">
+              <CheckCircle2 className="w-4 h-4 mr-1.5 text-emerald-400" />
+              Master Resume Active
+            </Badge>
+          ) : (
+            <Badge variant="outline" className="border-amber-500/50 bg-amber-500/10 text-amber-400 py-1.5 px-3">
+              <AlertTriangle className="w-4 h-4 mr-1.5 text-amber-400" />
+              No Master Resume Uploaded
+            </Badge>
+          )}
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            className="hidden"
+            onChange={handleUploadResume}
+            disabled={uploading}
+          />
+          <Button
+            size="sm"
+            disabled={uploading}
+            className="shadow-sm"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            {uploading ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> Uploading & Parsing...
+              </>
+            ) : (
+              <>
+                <Upload className="w-4 h-4 mr-1.5" /> Upload Resume
+              </>
+            )}
+          </Button>
+        </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-2 border-b">
-        <button
-          onClick={() => setTab('upload')}
-          className={`pb-2 px-3 text-sm font-medium border-b-2 transition-colors ${tab === 'upload' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground'}`}
+      {/* Upload Feedback */}
+      {uploadMsg && (
+        <div
+          className={`p-4 rounded-lg text-sm flex items-center justify-between border ${
+            uploadMsg.type === 'success'
+              ? 'bg-emerald-950/30 border-emerald-800 text-emerald-300'
+              : 'bg-red-950/30 border-red-800 text-red-300'
+          }`}
         >
-          Upload & Parse
-        </button>
-        <button
-          onClick={() => setTab('generate')}
-          className={`pb-2 px-3 text-sm font-medium border-b-2 transition-colors ${tab === 'generate' ? 'border-primary text-primary' : 'border-transparent text-muted-foreground'}`}
-        >
-          Generate Resume
-        </button>
-      </div>
-
-      {tab === 'upload' && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Upload */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2"><Upload className="w-4 h-4" /> Upload Resume</CardTitle>
-              <CardDescription>PDF or DOCX, max 5MB</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <label className="flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-lg cursor-pointer hover:border-primary/50 transition-colors">
-                <FileText className="w-10 h-10 text-muted-foreground mb-3" />
-                <p className="text-sm font-medium">Click to upload or drag & drop</p>
-                <p className="text-xs text-muted-foreground mt-1">PDF, DOCX</p>
-                <input type="file" accept=".pdf,.docx" className="hidden" onChange={handleUpload} disabled={uploading} />
-              </label>
-              {uploading && <p className="text-sm text-muted-foreground mt-3 flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Uploading & parsing...</p>}
-              {uploadMsg && <p className="text-sm mt-3 text-emerald-600">{uploadMsg}</p>}
-            </CardContent>
-          </Card>
-
-          {/* Parsed Result */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Parsed Data</CardTitle>
-              <CardDescription>Extracted from your resume</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {parseResult ? (
-                renderParsed(parseResult)
-              ) : (
-                <p className="text-sm text-muted-foreground py-8 text-center">Upload a resume to see parsed data here.</p>
-              )}
-            </CardContent>
-          </Card>
+          <span>{uploadMsg.text}</span>
+          <button onClick={() => setUploadMsg(null)} className="text-xs hover:underline ml-4">
+            Dismiss
+          </button>
         </div>
       )}
 
-      {tab === 'generate' && (
+      {/* Tab Navigation */}
+      <div className="flex gap-2 border-b border-border/50">
+        <button
+          onClick={() => setActiveTab('overview')}
+          className={`pb-3 px-4 text-sm font-semibold border-b-2 transition-all flex items-center gap-2 ${
+            activeTab === 'overview'
+              ? 'border-primary text-primary'
+              : 'border-transparent text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          <FileText className="w-4 h-4" /> Master Resume Profile
+        </button>
+        <button
+          onClick={() => setActiveTab('scanner')}
+          className={`pb-3 px-4 text-sm font-semibold border-b-2 transition-all flex items-center gap-2 ${
+            activeTab === 'scanner'
+              ? 'border-primary text-primary'
+              : 'border-transparent text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          <Search className="w-4 h-4" /> ATS Job Scanner & Gap Analysis
+        </button>
+        <button
+          onClick={() => setActiveTab('bullet_optimizer')}
+          className={`pb-3 px-4 text-sm font-semibold border-b-2 transition-all flex items-center gap-2 ${
+            activeTab === 'bullet_optimizer'
+              ? 'border-primary text-primary'
+              : 'border-transparent text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          <Wand2 className="w-4 h-4" /> Google XYZ Bullet Enhancer
+        </button>
+      </div>
+
+      {/* ─── TAB 1: MASTER RESUME OVERVIEW ─── */}
+      {activeTab === 'overview' && (
         <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2"><Sparkles className="w-4 h-4" /> ATS Resume Generator</CardTitle>
-              <CardDescription>Select a template and target job to generate a tailored resume.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <label className="text-sm font-medium mb-1.5 block">Template</label>
-                <select
-                  value={selectedTemplate}
-                  onChange={(e) => setSelectedTemplate(e.target.value)}
-                  className="w-full border rounded-lg px-3 py-2 text-sm bg-background"
+          {loadingResume ? (
+            <div className="flex items-center justify-center py-16">
+              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            </div>
+          ) : !resumeData?.has_resume ? (
+            <Card className="border-dashed border-2 border-border/70 bg-card/40">
+              <CardContent className="py-16 text-center">
+                <div className="w-16 h-16 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto mb-4">
+                  <FileText className="w-8 h-8" />
+                </div>
+                <h3 className="text-xl font-bold">No Master Resume on File</h3>
+                <p className="text-muted-foreground text-sm max-w-md mx-auto mt-2">
+                  Upload your existing PDF or DOCX resume. Our parser will extract your real skills, roles, and
+                  projects so you can run ATS scans and target keyword gaps.
+                </p>
+                <Button
+                  className="mt-6 shadow-lg"
+                  disabled={uploading}
+                  onClick={() => fileInputRef.current?.click()}
                 >
-                  {templates.map(t => (
-                    <option key={t.id} value={t.id}>{t.name}</option>
-                  ))}
-                </select>
+                  {uploading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Uploading & Parsing...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-4 h-4 mr-2" /> Upload Your Resume (PDF/DOCX)
+                    </>
+                  )}
+                </Button>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Left Column: Metadata & Quick Actions */}
+              <div className="space-y-6">
+                <Card className="border-border/60">
+                  <CardHeader>
+                    <CardTitle className="text-base font-semibold flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-primary" /> Master File Info
+                    </CardTitle>
+                    <CardDescription>Your active base resume</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Candidate</p>
+                      <p className="text-sm font-medium mt-0.5">{resumeData.profile?.name || 'Candidate'}</p>
+                      {resumeData.profile?.email && (
+                        <p className="text-xs text-muted-foreground">{resumeData.profile.email}</p>
+                      )}
+                      {resumeData.profile?.location && (
+                        <p className="text-xs text-muted-foreground mt-0.5">📍 {resumeData.profile.location}</p>
+                      )}
+                    </div>
+
+                    <div className="pt-2 border-t border-border/50">
+                      <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Parsed Stats</p>
+                      <div className="grid grid-cols-3 gap-2 mt-2 text-center">
+                        <div className="p-2 rounded bg-muted/50 border border-border/40">
+                          <p className="text-lg font-bold text-primary">{parsed?.skills?.length || 0}</p>
+                          <p className="text-[10px] text-muted-foreground uppercase">Skills</p>
+                        </div>
+                        <div className="p-2 rounded bg-muted/50 border border-border/40">
+                          <p className="text-lg font-bold text-primary">{parsed?.experience?.length || 0}</p>
+                          <p className="text-[10px] text-muted-foreground uppercase">Roles</p>
+                        </div>
+                        <div className="p-2 rounded bg-muted/50 border border-border/40">
+                          <p className="text-lg font-bold text-primary">{parsed?.projects?.length || 0}</p>
+                          <p className="text-[10px] text-muted-foreground uppercase">Projects</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {resumeData.download_url && (
+                      <div className="pt-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full"
+                          onClick={() => window.open(resumeData.download_url!, '_blank')}
+                        >
+                          <Download className="w-4 h-4 mr-2" /> Download Original PDF
+                        </Button>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* ATS Optimization Shortcut */}
+                <Card className="border-primary/20 bg-primary/5">
+                  <CardContent className="pt-6">
+                    <h4 className="text-sm font-bold flex items-center gap-1.5 text-primary">
+                      <Sparkles className="w-4 h-4" /> Ready to Apply?
+                    </h4>
+                    <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
+                      Before sending your resume to a recruiter, run an ATS scan against the job posting to ensure your
+                      keywords align.
+                    </p>
+                    <Button
+                      size="sm"
+                      onClick={() => setActiveTab('scanner')}
+                      className="w-full mt-4 bg-primary text-primary-foreground"
+                    >
+                      Scan Against a Job Posting ➔
+                    </Button>
+                  </CardContent>
+                </Card>
               </div>
 
-              <div>
-                <label className="text-sm font-medium mb-1.5 block">Target Job</label>
-                <div className="flex items-center gap-3 mb-2">
+              {/* Right Column: Parsed Resume Details */}
+              <div className="lg:col-span-2 space-y-6">
+                {/* Skills */}
+                <Card className="border-border/60">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base font-semibold flex items-center justify-between">
+                      <span className="flex items-center gap-2">
+                        <Sparkles className="w-4 h-4 text-primary" /> Parsed Technical Skills
+                      </span>
+                      <Badge variant="secondary" className="text-xs">
+                        {parsed?.skills?.length || 0} extracted
+                      </Badge>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {parsed?.skills && parsed.skills.length > 0 ? (
+                      <div className="flex flex-wrap gap-1.5">
+                        {parsed.skills.map((skill, i) => (
+                          <Badge key={i} variant="outline" className="text-xs bg-muted/40">
+                            {skill}
+                          </Badge>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-muted-foreground italic">No skills extracted.</p>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Work Experience */}
+                <Card className="border-border/60">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base font-semibold flex items-center gap-2">
+                      <Briefcase className="w-4 h-4 text-primary" /> Work History
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {parsed?.experience && parsed.experience.length > 0 ? (
+                      parsed.experience.map((exp, i) => (
+                        <div key={i} className="border-l-2 border-primary/40 pl-4 py-1">
+                          <p className="text-sm font-bold text-foreground">
+                            {exp.title || 'Role'} <span className="text-muted-foreground font-normal">at</span>{' '}
+                            {exp.company || 'Company'}
+                          </p>
+                          {(exp.start_date || exp.end_date) && (
+                            <p className="text-xs text-muted-foreground">
+                              {exp.start_date || ''} – {exp.end_date || 'Present'}
+                            </p>
+                          )}
+                          {exp.description && (
+                            <p className="text-xs text-muted-foreground mt-1.5 line-clamp-3 leading-relaxed">
+                              {exp.description}
+                            </p>
+                          )}
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-xs text-muted-foreground italic">No work experience extracted.</p>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Projects */}
+                <Card className="border-border/60">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base font-semibold flex items-center gap-2">
+                      <Layers className="w-4 h-4 text-primary" /> Projects
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {parsed?.projects && parsed.projects.length > 0 ? (
+                      parsed.projects.map((proj, i) => (
+                        <div key={i} className="border-l-2 border-cyan-500/40 pl-4 py-1">
+                          <p className="text-sm font-bold text-foreground">{proj.title || 'Project'}</p>
+                          {proj.technologies && proj.technologies.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-1">
+                              {proj.technologies.map((t, idx) => (
+                                <Badge key={idx} variant="secondary" className="text-[10px] py-0 px-1.5">
+                                  {t}
+                                </Badge>
+                              ))}
+                            </div>
+                          )}
+                          {proj.description && (
+                            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{proj.description}</p>
+                          )}
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-xs text-muted-foreground italic">No projects listed.</p>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Education */}
+                {parsed?.education && parsed.education.length > 0 && (
+                  <Card className="border-border/60">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base font-semibold flex items-center gap-2">
+                        <GraduationCap className="w-4 h-4 text-primary" /> Education
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      {parsed.education.map((edu, i) => (
+                        <div key={i} className="text-xs">
+                          <p className="font-semibold text-foreground">
+                            {edu.degree} {edu.field_of_study ? `in ${edu.field_of_study}` : ''}
+                          </p>
+                          <p className="text-muted-foreground">{edu.institution}</p>
+                        </div>
+                      ))}
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ─── TAB 2: ATS SCANNER & GAP ANALYSIS ─── */}
+      {activeTab === 'scanner' && (
+        <div className="space-y-6">
+          <Card className="border-border/60">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Search className="w-5 h-5 text-primary" /> Target Job ATS Scanner & Keyword Gap Analysis
+              </CardTitle>
+              <CardDescription>
+                Compare your uploaded Master Resume with any job posting to evaluate your ATS Match Score and discover
+                missing keywords to add.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-5">
+              {/* Scan Mode Toggle */}
+              <div className="flex gap-4 border-b border-border/50 pb-3">
+                <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
                   <input
                     type="radio"
-                    id="use_job"
-                    checked={useJob}
-                    onChange={() => setUseJob(true)}
+                    name="scanMode"
+                    checked={scanMode === 'saved'}
+                    onChange={() => setScanMode('saved')}
                   />
-                  <label htmlFor="use_job" className="text-sm">Use a saved job from database</label>
-                </div>
-                {useJob && (
+                  Select from Job Database
+                </label>
+                <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
+                  <input
+                    type="radio"
+                    name="scanMode"
+                    checked={scanMode === 'custom'}
+                    onChange={() => setScanMode('custom')}
+                  />
+                  Paste Any Job Description (LinkedIn / BDjobs)
+                </label>
+              </div>
+
+              {scanMode === 'saved' ? (
+                <div>
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">
+                    Choose Target Job
+                  </label>
                   <select
-                    value={jobId}
-                    onChange={(e) => setJobId(e.target.value)}
-                    className="w-full border rounded-lg px-3 py-2 text-sm bg-background"
+                    value={selectedJobId}
+                    onChange={(e) => setSelectedJobId(e.target.value)}
+                    className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                   >
-                    <option value="">-- Select a job --</option>
-                    {availableJobs.map((j) => (
-                      <option key={j.id} value={j.id}>{j.title}</option>
+                    <option value="">-- Select a job to evaluate --</option>
+                    {jobs.map((j) => (
+                      <option key={j.id} value={j.id}>
+                        {j.title} {j.company ? `(${j.company})` : ''}
+                      </option>
                     ))}
                   </select>
-                )}
-                <div className="flex items-center gap-3 mt-2">
-                  <input
-                    type="radio"
-                    id="use_custom"
-                    checked={!useJob}
-                    onChange={() => setUseJob(false)}
-                  />
-                  <label htmlFor="use_custom" className="text-sm">Paste job description</label>
                 </div>
-                {!useJob && (
-                  <textarea
-                    value={customDesc}
-                    onChange={(e) => setCustomDesc(e.target.value)}
-                    placeholder="Paste job description here..."
-                    rows={4}
-                    className="mt-2 w-full border rounded-lg px-3 py-2 text-sm bg-background"
-                  />
-                )}
-              </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">
+                        Job Title *
+                      </label>
+                      <Input
+                        placeholder="e.g. Senior Backend Engineer"
+                        value={customJobTitle}
+                        onChange={(e) => setCustomJobTitle(e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">
+                        Company Name
+                      </label>
+                      <Input
+                        placeholder="e.g. Brain Station 23 / Automattic"
+                        value={customJobCompany}
+                        onChange={(e) => setCustomJobCompany(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">
+                      Job Description & Requirements *
+                    </label>
+                    <textarea
+                      rows={5}
+                      placeholder="Paste the required skills, responsibilities, and qualifications..."
+                      value={customJobDesc}
+                      onChange={(e) => setCustomJobDesc(e.target.value)}
+                      className="w-full bg-background border border-border rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary font-mono text-xs"
+                    />
+                  </div>
+                </div>
+              )}
 
-              <Button onClick={handleGenerate} disabled={generating || (useJob ? !jobId : !customDesc)} className="w-full">
-                {generating ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Generating...</> : <><Sparkles className="w-4 h-4 mr-2" /> Generate ATS Resume</>}
+              {scanError && <p className="text-sm text-red-400">{scanError}</p>}
+
+              <Button onClick={handleRunScan} disabled={scanning} className="w-full sm:w-auto shadow-md">
+                {scanning ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Calculating 4-Factor ATS Score...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4 mr-2" /> Run ATS Gap Analysis
+                  </>
+                )}
               </Button>
             </CardContent>
           </Card>
 
-          {/* Generated Resumes History */}
-          {generatedResumes.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Generated Resumes</CardTitle>
+          {/* Scan Results Panel */}
+          {scanResult && (
+            <Card className="border-border/80 bg-card/60 shadow-xl overflow-hidden">
+              <CardHeader className="border-b border-border/50 bg-muted/20">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <CardTitle className="text-xl flex items-center gap-2">
+                      <TrendingUp className="w-5 h-5 text-primary" /> ATS Match Results
+                    </CardTitle>
+                    <CardDescription>
+                      Evaluation based on Skills (45%), Projects (35%), Location (10%), and Education (10%).
+                    </CardDescription>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <span className="text-3xl font-black text-primary">{scanResult.match?.overall_score || 0}%</span>
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">
+                        Overall ATS Match
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {generatedResumes.map((r: any) => (
-                    <div key={r.id} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div>
-                        <p className="text-sm font-medium">{r.template_name?.replace(/_/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())}</p>
-                        <p className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleString()} {r.match_score ? `• Match: ${r.match_score}%` : ''}</p>
-                      </div>
-                      {r.pdf_file_path && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={async () => {
-                            try {
-                              const data: any = await api.get(`/resume/generated/${r.id}/download`);
-                              if (data?.url) {
-                                window.open(data.url, '_blank');
-                              } else if (data?.type === 'tex') {
-                                alert('PDF not available. LaTeX source available instead.');
-                              } else {
-                                alert('Download link not available');
-                              }
-                            } catch {
-                              alert('Failed to get download link. Make sure you are logged in.');
-                            }
-                          }}
-                        >
-                          <Download className="w-3.5 h-3.5 mr-1.5" />
-                          PDF
-                        </Button>
+
+              <CardContent className="p-6 space-y-6">
+                {/* 4-Factor Score Breakdown */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div className="p-3 rounded-lg bg-muted/40 border border-border/50">
+                    <p className="text-xs text-muted-foreground font-semibold">Skills (45%)</p>
+                    <p className="text-xl font-bold text-foreground mt-1">{scanResult.match?.skill_match || 0}%</p>
+                  </div>
+                  <div className="p-3 rounded-lg bg-muted/40 border border-border/50">
+                    <p className="text-xs text-muted-foreground font-semibold">Projects (35%)</p>
+                    <p className="text-xl font-bold text-foreground mt-1">{scanResult.match?.project_match || 0}%</p>
+                  </div>
+                  <div className="p-3 rounded-lg bg-muted/40 border border-border/50">
+                    <p className="text-xs text-muted-foreground font-semibold">Location (10%)</p>
+                    <p className="text-xl font-bold text-foreground mt-1">{scanResult.match?.location_match || 0}%</p>
+                  </div>
+                  <div className="p-3 rounded-lg bg-muted/40 border border-border/50">
+                    <p className="text-xs text-muted-foreground font-semibold">Education (10%)</p>
+                    <p className="text-xl font-bold text-foreground mt-1">{scanResult.match?.education_match || 0}%</p>
+                  </div>
+                </div>
+
+                {/* Keyword Gaps Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                  {/* Matched Keywords */}
+                  <div className="space-y-3 p-4 rounded-xl bg-emerald-950/20 border border-emerald-800/40">
+                    <h4 className="text-sm font-bold text-emerald-400 flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4" />
+                      Matching Keywords in Your Resume ({scanResult.matching_skills?.length || 0})
+                    </h4>
+                    <p className="text-xs text-emerald-400/80">
+                      These requirements are already recognized in your profile. Keep them prominent.
+                    </p>
+                    <div className="flex flex-wrap gap-1.5 pt-1">
+                      {scanResult.matching_skills && scanResult.matching_skills.length > 0 ? (
+                        scanResult.matching_skills.map((skill, i) => (
+                          <Badge
+                            key={i}
+                            variant="outline"
+                            className="text-xs border-emerald-600/60 bg-emerald-900/30 text-emerald-200"
+                          >
+                            ✓ {skill}
+                          </Badge>
+                        ))
+                      ) : (
+                        <p className="text-xs text-muted-foreground italic">No direct keyword overlap found.</p>
                       )}
                     </div>
-                  ))}
+                  </div>
+
+                  {/* Missing Keywords (The Gap) */}
+                  <div className="space-y-3 p-4 rounded-xl bg-amber-950/20 border border-amber-800/40">
+                    <h4 className="text-sm font-bold text-amber-400 flex items-center gap-2">
+                      <AlertTriangle className="w-4 h-4" />
+                      Missing Keywords to Add (The Gap) ({scanResult.missing_skills?.length || 0})
+                    </h4>
+                    <p className="text-xs text-amber-400/80">
+                      Recruiters and ATS filters look for these terms. Add relevant ones to your resume.
+                    </p>
+                    <div className="flex flex-wrap gap-1.5 pt-1">
+                      {scanResult.missing_skills && scanResult.missing_skills.length > 0 ? (
+                        scanResult.missing_skills.map((skill, i) => (
+                          <Badge
+                            key={i}
+                            variant="outline"
+                            className="text-xs border-amber-600/60 bg-amber-900/30 text-amber-200"
+                          >
+                            + {skill}
+                          </Badge>
+                        ))
+                      ) : (
+                        <p className="text-xs text-emerald-400 italic font-medium">
+                          No missing critical skills detected! Unicorn match.
+                        </p>
+                      )}
+                    </div>
+                  </div>
                 </div>
+
+                {/* Recruiter Feedback Bullets */}
+                {scanResult.match?.explanation && scanResult.match.explanation.length > 0 && (
+                  <div className="p-4 rounded-xl bg-muted/30 border border-border/50 space-y-2">
+                    <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                      Recruiter & ATS Insights
+                    </h4>
+                    <ul className="space-y-1.5">
+                      {scanResult.match.explanation.map((item, idx) => (
+                        <li key={idx} className="text-xs text-foreground/90 flex items-start gap-2">
+                          <span className="text-primary font-bold mt-0.5">•</span>
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </CardContent>
             </Card>
+          )}
+        </div>
+      )}
+
+      {/* ─── TAB 3: GOOGLE XYZ BULLET ENHANCER ─── */}
+      {activeTab === 'bullet_optimizer' && (
+        <div className="space-y-6">
+          <Card className="border-border/60">
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Wand2 className="w-5 h-5 text-primary" /> Google XYZ Bullet Point Optimizer
+              </CardTitle>
+              <CardDescription>
+                Top engineering recruiters evaluate experience bullets using Google’s XYZ formula:
+                <span className="text-primary font-semibold block mt-1">
+                  “Accomplished [X], as measured by [Y], by doing [Z]”
+                </span>
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">
+                  Your Current Rough Bullet Point *
+                </label>
+                <textarea
+                  rows={3}
+                  placeholder="e.g. Worked on the backend APIs using Python and Docker for customer management."
+                  value={rawBullet}
+                  onChange={(e) => setRawBullet(e.target.value)}
+                  className="w-full bg-background border border-border rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">
+                    Target Role (optional)
+                  </label>
+                  <Input
+                    placeholder="e.g. Senior Backend Engineer"
+                    value={targetRole}
+                    onChange={(e) => setTargetRole(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">
+                    Skills to Infuse (comma separated, optional)
+                  </label>
+                  <Input
+                    placeholder="e.g. FastAPI, PostgreSQL, Redis, Kubernetes"
+                    value={targetKeywords}
+                    onChange={(e) => setTargetKeywords(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              {bulletError && <p className="text-sm text-red-400">{bulletError}</p>}
+
+              <Button onClick={handleOptimizeBullet} disabled={optimizing} className="shadow-md">
+                {optimizing ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Rewriting with Google XYZ...
+                  </>
+                ) : (
+                  <>
+                    <Wand2 className="w-4 h-4 mr-2" /> Optimize with Google XYZ Formula
+                  </>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Bullet Enhancer Results */}
+          {bulletResult && (
+            <div className="space-y-4">
+              {/* Primary Recommendation */}
+              <Card className="border-primary/40 bg-card/80 shadow-lg">
+                <CardHeader className="pb-3 border-b border-border/40">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-primary uppercase tracking-wider flex items-center gap-1.5">
+                      <Sparkles className="w-4 h-4" /> Top Recommendation (Google XYZ)
+                    </span>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-8 text-xs"
+                      onClick={() => copyToClipboard(bulletResult.optimized_bullet, 0)}
+                    >
+                      {copiedIndex === 0 ? (
+                        <>
+                          <Check className="w-3.5 h-3.5 mr-1 text-emerald-400" /> Copied!
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3.5 h-3.5 mr-1" /> Copy Line
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent className="pt-4 space-y-3">
+                  <p className="text-base font-medium text-foreground leading-relaxed pl-3 border-l-2 border-primary">
+                    “{bulletResult.optimized_bullet}”
+                  </p>
+                  <div className="p-3 rounded-lg bg-muted/40 text-xs text-muted-foreground">
+                    💡 <strong className="text-foreground">Why this wins:</strong> {bulletResult.impact_explanation}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Alternative Variations */}
+              {bulletResult.alternatives && bulletResult.alternatives.length > 0 && (
+                <div className="space-y-3">
+                  <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-1">
+                    Alternative Variations
+                  </h4>
+                  {bulletResult.alternatives.map((alt, idx) => (
+                    <Card key={idx} className="border-border/60 bg-muted/20">
+                      <CardContent className="py-3 px-4 flex items-center justify-between gap-4">
+                        <p className="text-xs text-foreground/90 leading-relaxed">“{alt}”</p>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-8 text-xs shrink-0"
+                          onClick={() => copyToClipboard(alt, idx + 1)}
+                        >
+                          {copiedIndex === idx + 1 ? (
+                            <Check className="w-3.5 h-3.5 text-emerald-400" />
+                          ) : (
+                            <Copy className="w-3.5 h-3.5" />
+                          )}
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
           )}
         </div>
       )}

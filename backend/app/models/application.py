@@ -131,3 +131,18 @@ class SavedJobResponse(BaseModel):
 
 class JobIdRequest(BaseModel):
     job_id: str
+
+
+# ── Bullet Point Enhancer ───────────────────────────────────
+
+class BulletEnhanceRequest(BaseModel):
+    bullet_point: str
+    target_role: Optional[str] = None
+    target_skills: Optional[list[str]] = Field(default_factory=list)
+
+
+class BulletEnhanceResponse(BaseModel):
+    original_bullet: str
+    optimized_bullet: str
+    impact_explanation: str
+    alternatives: list[str] = Field(default_factory=list)

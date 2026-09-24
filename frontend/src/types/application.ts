@@ -55,3 +55,39 @@ export interface GeneratedCoverLetter {
   ai_model: string;
   created_at: string;
 }
+
+export interface BulletEnhanceRequest {
+  bullet_point: string;
+  target_role?: string;
+  target_skills?: string[];
+}
+
+export interface BulletEnhanceResponse {
+  original_bullet: string;
+  optimized_bullet: string;
+  impact_explanation: string;
+  alternatives: string[];
+}
+
+export interface MasterResumeData {
+  has_resume: boolean;
+  file_path?: string | null;
+  download_url?: string | null;
+  parsed?: {
+    skills?: string[];
+    experience?: Array<{ title?: string; company?: string; start_date?: string; end_date?: string; description?: string }>;
+    projects?: Array<{ title?: string; description?: string; technologies?: string[] }>;
+    education?: Array<{ degree?: string; institution?: string; field_of_study?: string }>;
+    raw_text?: string;
+  } | null;
+  profile?: {
+    name?: string;
+    email?: string;
+    phone?: string;
+    location?: string;
+    linkedin?: string;
+    github?: string;
+    portfolio?: string;
+  };
+  updated_at?: string;
+}
