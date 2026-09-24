@@ -26,6 +26,21 @@ import {
 } from 'lucide-react';
 import { CustomJobAnalyzeResponse } from '@/types/job';
 
+interface SourceInfo {
+  source: string;
+  count?: number;
+}
+
+const DEFAULT_SOURCES: SourceInfo[] = [
+  { source: 'BD Govt Jobs', count: 49 },
+  { source: 'Bdjobs', count: 97 },
+  { source: 'LinkedIn', count: 173 },
+  { source: 'Jobicy', count: 48 },
+  { source: 'NextJobz', count: 5 },
+  { source: 'WeWorkRemotely', count: 33 },
+  { source: 'RemoteOK', count: 39 },
+];
+
 export default function JobsPage() {
   const [jobs, setJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -35,6 +50,7 @@ export default function JobsPage() {
   const [search, setSearch] = useState('');
   const [sourceFilter, setSourceFilter] = useState<string | null>(null);
   const [locationFilter, setLocationFilter] = useState<'all' | 'bd' | 'remote' | 'govt'>('all');
+  const [allSources, setAllSources] = useState<SourceInfo[]>(DEFAULT_SOURCES);
   const [savedJobIds, setSavedJobIds] = useState<Set<string>>(new Set());
 
   // Instant Job Analyzer State
@@ -70,6 +86,17 @@ export default function JobsPage() {
     }
   };
 
+  const fetchSources = async () => {
+    try {
+      const data = await api.get<SourceInfo[]>('/jobs/sources');
+      if (data && Array.isArray(data) && data.length > 0) {
+        setAllSources(data.filter((s) => s.source && s.source !== 'Custom'));
+      }
+    } catch {
+      /* fallback to DEFAULT_SOURCES */
+    }
+  };
+
   const fetchJobs = async (
     loc: 'all' | 'bd' | 'remote' | 'govt' = locationFilter,
     src: string | null = sourceFilter,
@@ -78,16 +105,15 @@ export default function JobsPage() {
     setLoading(true);
     setErrorMsg(null);
     try {
-      const params: Record<string, any> = { limit: 100 };
-      if (loc === 'bd') {
+      const params: Record<string, any> = { limit: 120 };
+      if (src) {
+        params.source = src;
+      } else if (loc === 'bd') {
         params.location = 'bangladesh';
       } else if (loc === 'remote') {
         params.remote_only = true;
       } else if (loc === 'govt') {
         params.source = 'BD Govt Jobs';
-      }
-      if (src) {
-        params.source = src;
       }
       if (query.trim()) {
         params.keyword = query.trim();
@@ -110,17 +136,28 @@ export default function JobsPage() {
   useEffect(() => {
     fetchJobs();
     fetchSavedIds();
+    fetchSources();
   }, []);
 
   const handleLocationFilter = (newLoc: 'all' | 'bd' | 'remote' | 'govt') => {
     setLocationFilter(newLoc);
-    fetchJobs(newLoc, sourceFilter, search);
+    const targetSource = newLoc === 'govt' ? 'BD Govt Jobs' : sourceFilter;
+    if (newLoc === 'govt') {
+      setSourceFilter('BD Govt Jobs');
+    }
+    fetchJobs(newLoc, targetSource, search);
   };
 
   const handleSourceFilter = (newSrc: string | null) => {
     const nextSrc = sourceFilter === newSrc ? null : newSrc;
     setSourceFilter(nextSrc);
-    fetchJobs(locationFilter, nextSrc, search);
+    if (nextSrc === 'BD Govt Jobs') {
+      setLocationFilter('govt');
+    } else if (locationFilter === 'govt' && nextSrc !== null) {
+      setLocationFilter('all');
+    }
+    const nextLoc = locationFilter === 'govt' && nextSrc !== 'BD Govt Jobs' ? 'all' : locationFilter;
+    fetchJobs(nextLoc, nextSrc, search);
   };
 
   const fetchSavedIds = async () => {
@@ -164,6 +201,7 @@ export default function JobsPage() {
       // Wait briefly for background ingestion, then refresh
       setTimeout(async () => {
         await fetchJobs(locationFilter, sourceFilter, search);
+        await fetchSources();
         setSyncing(false);
       }, 2500);
     } catch (error: any) {
@@ -266,8 +304,6 @@ export default function JobsPage() {
   const indexOfFirstJob = indexOfLastJob - jobsPerPage;
   const currentJobs = filteredJobs.slice(indexOfFirstJob, indexOfLastJob);
   const totalPages = Math.ceil(filteredJobs.length / jobsPerPage);
-
-  const sources = [...new Set(jobs.map((j) => j.source).filter(Boolean))];
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto py-6">
@@ -681,29 +717,60 @@ export default function JobsPage() {
           >
             All Sources
           </Badge>
-          {sources.map((src) => {
+          {allSources.map((item) => {
+            const src = item.source;
             const isGovt = src === 'BD Govt Jobs';
             const isBdjobs = src === 'Bdjobs';
+            const isLinkedIn = src === 'LinkedIn';
             const isJobicy = src === 'Jobicy';
+            const isNextJobz = src === 'NextJobz';
+            const isWWR = src === 'WeWorkRemotely';
+            const isRemoteOK = src === 'RemoteOK';
             const isSelected = sourceFilter === src;
             return (
               <Badge
                 key={src}
                 variant={isSelected ? 'default' : 'outline'}
-                className={`cursor-pointer transition-colors ${
+                className={`cursor-pointer transition-colors flex items-center gap-1.5 ${
                   isSelected
-                    ? ''
+                    ? isGovt
+                      ? 'bg-emerald-600 hover:bg-emerald-500 text-white font-semibold'
+                      : isBdjobs
+                      ? 'bg-orange-600 hover:bg-orange-500 text-white font-semibold'
+                      : isLinkedIn
+                      ? 'bg-blue-600 hover:bg-blue-500 text-white font-semibold'
+                      : 'font-semibold'
                     : isGovt
                     ? 'border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10'
                     : isBdjobs
                     ? 'border-orange-500/40 text-orange-400 hover:bg-orange-500/10'
+                    : isLinkedIn
+                    ? 'border-blue-500/40 text-blue-400 hover:bg-blue-500/10'
                     : isJobicy
                     ? 'border-cyan-500/40 text-cyan-400 hover:bg-cyan-500/10'
+                    : isNextJobz
+                    ? 'border-purple-500/40 text-purple-400 hover:bg-purple-500/10'
+                    : isWWR
+                    ? 'border-rose-500/40 text-rose-400 hover:bg-rose-500/10'
+                    : isRemoteOK
+                    ? 'border-amber-500/40 text-amber-400 hover:bg-amber-500/10'
                     : ''
                 }`}
                 onClick={() => handleSourceFilter(src)}
               >
-                {isGovt ? '🏛️ ' : ''}{src}
+                {isGovt && <span>🏛️</span>}
+                <span>{src}</span>
+                {item.count !== undefined && item.count > 0 && (
+                  <span
+                    className={`text-[10px] px-1 rounded-full ${
+                      isSelected
+                        ? 'bg-black/25 text-white'
+                        : 'bg-muted text-muted-foreground'
+                    }`}
+                  >
+                    {item.count}
+                  </span>
+                )}
               </Badge>
             );
           })}

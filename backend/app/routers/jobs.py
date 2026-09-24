@@ -59,6 +59,15 @@ def get_sync_status():
     return {"is_syncing": _sync_running}
 
 
+@router.get("/sources")
+def get_job_sources():
+    """Get all unique job sources with their active job counts."""
+    res = db().table("jobs").select("source").eq("is_active", True).execute()
+    from collections import Counter
+    counts = Counter([r["source"] for r in (res.data or []) if r.get("source")])
+    return [{"source": k, "count": v} for k, v in counts.most_common()]
+
+
 @router.get("", response_model=JobListResponse)
 def list_jobs(
     keyword: Optional[str] = None,
@@ -67,7 +76,7 @@ def list_jobs(
     source: Optional[str] = None,
     remote_only: bool = False,
     experience_level: Optional[str] = None,
-    limit: int = Query(default=20, ge=1, le=100),
+    limit: int = Query(default=30, ge=1, le=300),
     offset: int = Query(default=0, ge=0),
     sort: str = Query(default="latest", pattern=r"^(latest|oldest)$"),
 ):
