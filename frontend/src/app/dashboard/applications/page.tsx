@@ -545,12 +545,12 @@ export default function ApplicationsKanbanPage() {
               onClick={() => setStatusFilter('all')}
               className={`px-2.5 py-1 rounded-full text-xs transition-all font-medium flex items-center gap-1.5 cursor-pointer ${
                 statusFilter === 'all'
-                  ? 'bg-white text-zinc-950 font-semibold shadow-xs'
-                  : 'text-zinc-400 hover:text-white hover:bg-white/5 border border-transparent'
+                  ? 'bg-primary text-primary-foreground font-semibold shadow-xs'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted border border-transparent'
               }`}
             >
               All Stages
-              <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-white/10 text-white font-mono">
+              <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-muted text-foreground font-mono">
                 {apps.length}
               </span>
             </button>
@@ -564,13 +564,13 @@ export default function ApplicationsKanbanPage() {
                   onClick={() => setStatusFilter(isSelected ? 'all' : col.key)}
                   className={`px-2.5 py-1 rounded-full text-xs transition-all font-medium flex items-center gap-1.5 cursor-pointer ${
                     isSelected
-                      ? 'bg-white text-zinc-950 font-semibold shadow-xs'
-                      : 'text-zinc-400 hover:text-white hover:bg-white/5 border border-transparent'
+                      ? 'bg-primary text-primary-foreground font-semibold shadow-xs'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted border border-transparent'
                   }`}
                 >
-                  <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-zinc-900' : col.dot}`} />
+                  <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-primary-foreground' : col.dot}`} />
                   {col.label}
-                  <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-white/10 text-zinc-300 font-mono">
+                  <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-muted text-foreground font-mono">
                     {count}
                   </span>
                 </button>
@@ -585,7 +585,7 @@ export default function ApplicationsKanbanPage() {
                 type="checkbox"
                 checked={showArchivedColumn}
                 onChange={e => setShowArchivedColumn(e.target.checked)}
-                className="rounded border-border text-white focus:ring-white w-3.5 h-3.5"
+                className="rounded border-border text-primary focus:ring-primary w-3.5 h-3.5"
               />
               <span>Include Archived</span>
             </label>

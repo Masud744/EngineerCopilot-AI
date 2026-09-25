@@ -335,10 +335,10 @@ export default function ProfilePage() {
       <div className="shrink-0 flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2.5 border-b border-border/60">
         <div>
           <div className="flex items-center gap-2">
-            <span className="flex h-7 w-7 items-center justify-center rounded-md border border-white/20 bg-white/10 text-white">
+            <span className="flex h-7 w-7 items-center justify-center rounded-md border border-border bg-muted text-foreground">
               <User className="w-4 h-4" strokeWidth={1.75} />
             </span>
-            <h1 className="text-lg font-bold tracking-tight text-white">
+            <h1 className="text-lg font-bold tracking-tight text-foreground">
               Engineering Profile & Resume Studio
             </h1>
           </div>
@@ -350,13 +350,13 @@ export default function ProfilePage() {
         <div className="flex items-center gap-2">
           {/* Active Resume Status */}
           {activeResume ? (
-            <Badge variant="outline" className="border-white/20 bg-white/10 text-white py-1 px-2.5 text-xs font-medium">
-              <CheckCircle2 className="w-3.5 h-3.5 mr-1.5 text-white" />
+            <Badge variant="outline" className="border-border bg-muted/70 text-foreground py-1 px-2.5 text-xs font-medium">
+              <CheckCircle2 className="w-3.5 h-3.5 mr-1.5 text-emerald-500" />
               Active: {activeResume.name}
             </Badge>
           ) : (
-            <Badge variant="outline" className="border-white/20 bg-white/5 text-zinc-400 py-1 px-2.5 text-xs font-medium">
-              <AlertTriangle className="w-3.5 h-3.5 mr-1.5 text-zinc-400" />
+            <Badge variant="outline" className="border-border bg-muted/40 text-muted-foreground py-1 px-2.5 text-xs font-medium">
+              <AlertTriangle className="w-3.5 h-3.5 mr-1.5 text-muted-foreground" />
               No Resume Uploaded
             </Badge>
           )}
@@ -373,7 +373,7 @@ export default function ProfilePage() {
           <Button
             size="sm"
             disabled={uploading || resumes.length >= 5}
-            className="bg-white text-black hover:bg-zinc-200 font-semibold h-8 text-xs shadow-none border-0"
+            className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold h-8 text-xs shadow-none cursor-pointer"
             onClick={() => fileInputRef.current?.click()}
             title={resumes.length >= 5 ? 'Max 5 resumes reached. Delete one to upload new.' : 'Upload a resume (PDF/DOCX)'}
           >
@@ -395,12 +395,12 @@ export default function ProfilePage() {
         <div
           className={`shrink-0 p-3 rounded-lg text-xs flex items-center justify-between border ${
             actionMsg.type === 'success'
-              ? 'bg-white/10 border-white/20 text-white'
-              : 'bg-zinc-900 border-zinc-700 text-zinc-300'
+              ? 'bg-muted border-border text-foreground'
+              : 'bg-destructive/10 border-destructive/20 text-destructive'
           }`}
         >
           <span>{actionMsg.text}</span>
-          <button onClick={() => setActionMsg(null)} className="text-xs hover:underline ml-4 text-zinc-400 hover:text-white">
+          <button onClick={() => setActionMsg(null)} className="text-xs hover:underline ml-4 text-muted-foreground hover:text-foreground">
             Dismiss
           </button>
         </div>
@@ -412,10 +412,10 @@ export default function ProfilePage() {
         <div className="lg:col-span-4 xl:col-span-4 flex flex-col h-full min-h-0 bg-card border border-border/70 rounded-xl overflow-hidden">
           {/* Rail Header */}
           <div className="p-3 border-b border-border/50 shrink-0 flex items-center justify-between bg-muted/20">
-            <span className="text-xs font-semibold text-zinc-300 uppercase tracking-wider flex items-center gap-1.5">
-              <User className="w-3.5 h-3.5 text-white" /> Candidate Profile
+            <span className="text-xs font-semibold text-foreground uppercase tracking-wider flex items-center gap-1.5">
+              <User className="w-3.5 h-3.5 text-foreground" /> Candidate Profile
             </span>
-            <span className="text-[11px] text-zinc-400 font-mono">
+            <span className="text-[11px] text-muted-foreground font-mono">
               {resumes.length}/5 resumes saved
             </span>
           </div>
@@ -425,22 +425,22 @@ export default function ProfilePage() {
             {/* Identity Card */}
             <div className="p-3 rounded-lg border border-border/60 bg-muted/20 space-y-2.5">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center shrink-0">
-                  <span className="text-sm font-bold text-white">
+                <div className="h-10 w-10 rounded-full bg-muted border border-border flex items-center justify-center shrink-0">
+                  <span className="text-sm font-bold text-foreground">
                     {(profileData?.profile?.name || 'Engineer').charAt(0).toUpperCase()}
                   </span>
                 </div>
                 <div className="min-w-0 flex-1">
-                  <h3 className="text-xs font-bold text-white truncate">
+                  <h3 className="text-xs font-bold text-foreground truncate">
                     {profileData?.profile?.name || 'Engineering Candidate'}
                   </h3>
                   {profileData?.profile?.email && (
-                    <p className="text-[11px] text-zinc-400 truncate flex items-center gap-1 mt-0.5">
+                    <p className="text-[11px] text-muted-foreground truncate flex items-center gap-1 mt-0.5">
                       <Mail className="w-3 h-3 shrink-0" /> {profileData.profile.email}
                     </p>
                   )}
                   {profileData?.profile?.location && (
-                    <p className="text-[11px] text-zinc-400 truncate flex items-center gap-1 mt-0.5">
+                    <p className="text-[11px] text-muted-foreground truncate flex items-center gap-1 mt-0.5">
                       <MapPin className="w-3 h-3 shrink-0" /> {profileData.profile.location}
                     </p>
                   )}
@@ -449,21 +449,21 @@ export default function ProfilePage() {
 
               {/* Quick 4-box metrics grid for active resume */}
               <div className="grid grid-cols-4 gap-1.5 pt-2 border-t border-border/40 text-center">
-                <div className="p-1.5 rounded bg-background/60 border border-border/50">
-                  <p className="text-sm font-bold text-white">{parsed?.skills?.length || 0}</p>
-                  <p className="text-[9px] text-zinc-400 uppercase font-semibold">Skills</p>
+                <div className="p-1.5 rounded bg-background border border-border/60">
+                  <p className="text-sm font-bold text-foreground">{parsed?.skills?.length || 0}</p>
+                  <p className="text-[9px] text-muted-foreground uppercase font-semibold">Skills</p>
                 </div>
-                <div className="p-1.5 rounded bg-background/60 border border-border/50">
-                  <p className="text-sm font-bold text-white">{parsed?.experience?.length || 0}</p>
-                  <p className="text-[9px] text-zinc-400 uppercase font-semibold">Roles</p>
+                <div className="p-1.5 rounded bg-background border border-border/60">
+                  <p className="text-sm font-bold text-foreground">{parsed?.experience?.length || 0}</p>
+                  <p className="text-[9px] text-muted-foreground uppercase font-semibold">Roles</p>
                 </div>
-                <div className="p-1.5 rounded bg-background/60 border border-border/50">
-                  <p className="text-sm font-bold text-white">{parsed?.projects?.length || 0}</p>
-                  <p className="text-[9px] text-zinc-400 uppercase font-semibold">Projects</p>
+                <div className="p-1.5 rounded bg-background border border-border/60">
+                  <p className="text-sm font-bold text-foreground">{parsed?.projects?.length || 0}</p>
+                  <p className="text-[9px] text-muted-foreground uppercase font-semibold">Projects</p>
                 </div>
-                <div className="p-1.5 rounded bg-background/60 border border-border/50">
-                  <p className="text-sm font-bold text-white">{parsed?.education?.length || 0}</p>
-                  <p className="text-[9px] text-zinc-400 uppercase font-semibold">Edu</p>
+                <div className="p-1.5 rounded bg-background border border-border/60">
+                  <p className="text-sm font-bold text-foreground">{parsed?.education?.length || 0}</p>
+                  <p className="text-[9px] text-muted-foreground uppercase font-semibold">Edu</p>
                 </div>
               </div>
             </div>
@@ -471,14 +471,14 @@ export default function ProfilePage() {
             {/* ── Multi-Resume Switcher (Max 5 Resumes) ── */}
             <div className="p-3 rounded-lg border border-border/60 bg-muted/20 space-y-2.5">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-zinc-300 uppercase tracking-wider flex items-center gap-1.5">
-                  <FileText className="w-3.5 h-3.5 text-white" /> Saved Resumes ({resumes.length}/5)
+                <span className="text-xs font-semibold text-foreground uppercase tracking-wider flex items-center gap-1.5">
+                  <FileText className="w-3.5 h-3.5 text-foreground" /> Saved Resumes ({resumes.length}/5)
                 </span>
                 {resumes.length < 5 && (
                   <button
                     onClick={() => fileInputRef.current?.click()}
                     disabled={uploading}
-                    className="text-[11px] text-zinc-400 hover:text-white flex items-center gap-1 font-medium cursor-pointer"
+                    className="text-[11px] text-muted-foreground hover:text-foreground flex items-center gap-1 font-medium cursor-pointer"
                   >
                     <Plus className="w-3 h-3" /> Add
                   </button>
@@ -497,21 +497,21 @@ export default function ProfilePage() {
                         key={r.id}
                         className={`p-2.5 rounded-lg border transition-all ${
                           isCurrent
-                            ? 'border-white/40 bg-white/[0.06]'
-                            : 'border-border/50 bg-background/40 hover:border-border/80'
+                            ? 'border-primary/50 bg-accent/40 shadow-xs'
+                            : 'border-border/70 bg-background/60 hover:border-foreground/30'
                         }`}
                       >
                         <div className="flex items-start justify-between gap-2">
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-1.5">
-                              <span className="text-xs font-bold text-white truncate">{r.name}</span>
+                              <span className="text-xs font-bold text-foreground truncate">{r.name}</span>
                               {isCurrent && (
-                                <span className="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-bold bg-white text-black font-mono">
+                                <span className="inline-flex items-center px-1.5 py-0.2 rounded text-[9px] font-bold bg-primary text-primary-foreground font-mono">
                                   ACTIVE
                                 </span>
                               )}
                             </div>
-                            <p className="text-[10px] text-zinc-400 truncate mt-0.5">
+                            <p className="text-[10px] text-muted-foreground truncate mt-0.5">
                               {r.file_name} • {r.skills_count || 0} skills
                             </p>
                           </div>
@@ -520,7 +520,7 @@ export default function ProfilePage() {
                             {r.download_url && (
                               <button
                                 onClick={() => window.open(r.download_url!, '_blank')}
-                                className="p-1 rounded hover:bg-white/10 text-zinc-400 hover:text-white cursor-pointer"
+                                className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer"
                                 title="Download PDF"
                               >
                                 <Download className="w-3.5 h-3.5" />
@@ -529,7 +529,7 @@ export default function ProfilePage() {
                             <button
                               onClick={() => handleDeleteResume(r.id, r.name)}
                               disabled={isDeleting}
-                              className="p-1 rounded hover:bg-white/10 text-zinc-400 hover:text-red-400 cursor-pointer"
+                              className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-red-500 cursor-pointer"
                               title="Delete resume"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -544,7 +544,7 @@ export default function ProfilePage() {
                               variant="ghost"
                               disabled={isSwitching}
                               onClick={() => handleSelectActiveResume(r.id)}
-                              className="h-6 text-[10px] px-2 text-zinc-300 hover:text-white hover:bg-white/10 cursor-pointer"
+                              className="h-6 text-[10px] px-2 text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer"
                             >
                               {isSwitching ? (
                                 <Loader2 className="w-3 h-3 animate-spin mr-1" />
@@ -561,11 +561,11 @@ export default function ProfilePage() {
                 </div>
               ) : (
                 <div className="text-center py-4 space-y-2">
-                  <p className="text-xs text-zinc-400">No resumes uploaded yet.</p>
+                  <p className="text-xs text-muted-foreground">No resumes uploaded yet.</p>
                   <Button
                     size="sm"
                     disabled={uploading}
-                    className="bg-white text-black hover:bg-zinc-200 font-semibold h-8 text-xs w-full"
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold h-8 text-xs w-full cursor-pointer"
                     onClick={() => fileInputRef.current?.click()}
                   >
                     <Upload className="w-3.5 h-3.5 mr-1.5" /> Upload Master Resume
@@ -577,16 +577,16 @@ export default function ProfilePage() {
             {/* Education Summary */}
             {parsed?.education && parsed.education.length > 0 && (
               <div className="p-3 rounded-lg border border-border/60 bg-muted/20 space-y-2">
-                <span className="text-xs font-semibold text-zinc-300 uppercase tracking-wider flex items-center gap-1.5">
-                  <GraduationCap className="w-3.5 h-3.5 text-white" /> Education
+                <span className="text-xs font-semibold text-foreground uppercase tracking-wider flex items-center gap-1.5">
+                  <GraduationCap className="w-3.5 h-3.5 text-foreground" /> Education
                 </span>
                 <div className="space-y-1.5">
                   {parsed.education.map((edu, i) => (
-                    <div key={i} className="text-xs border-l-2 border-white/20 pl-2.5 py-0.5">
-                      <p className="font-semibold text-white">
+                    <div key={i} className="text-xs border-l-2 border-border pl-2.5 py-0.5">
+                      <p className="font-semibold text-foreground">
                         {edu.degree} {edu.field_of_study ? `in ${edu.field_of_study}` : ''}
                       </p>
-                      <p className="text-[11px] text-zinc-400">{edu.institution}</p>
+                      <p className="text-[11px] text-muted-foreground">{edu.institution}</p>
                     </div>
                   ))}
                 </div>
@@ -596,12 +596,12 @@ export default function ProfilePage() {
             {/* Target Career Preferences Summary */}
             {profileData?.profile?.preferred_categories && profileData.profile.preferred_categories.length > 0 && (
               <div className="p-3 rounded-lg border border-border/60 bg-muted/20 space-y-2">
-                <span className="text-xs font-semibold text-zinc-300 uppercase tracking-wider flex items-center gap-1.5">
-                  <Briefcase className="w-3.5 h-3.5 text-white" /> Target Roles & Domain
+                <span className="text-xs font-semibold text-foreground uppercase tracking-wider flex items-center gap-1.5">
+                  <Briefcase className="w-3.5 h-3.5 text-foreground" /> Target Roles & Domain
                 </span>
                 <div className="flex flex-wrap gap-1">
                   {profileData.profile.preferred_categories.map((cat, i) => (
-                    <span key={i} className="rounded border border-white/10 bg-white/[0.04] px-1.5 py-0.5 text-[10px] text-zinc-300 font-mono">
+                    <span key={i} className="rounded border border-border bg-muted/60 px-1.5 py-0.5 text-[10px] text-foreground font-mono">
                       {cat}
                     </span>
                   ))}
@@ -619,8 +619,8 @@ export default function ProfilePage() {
               onClick={() => setActiveTab('overview')}
               className={`shrink-0 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
                 activeTab === 'overview'
-                  ? 'bg-white text-black font-bold'
-                  : 'text-zinc-400 hover:text-white hover:bg-white/[0.06]'
+                  ? 'bg-primary text-primary-foreground font-bold shadow-xs'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
               }`}
             >
               <FileText className="w-3.5 h-3.5" /> Profile & Technical Skills
@@ -629,8 +629,8 @@ export default function ProfilePage() {
               onClick={() => setActiveTab('scanner')}
               className={`shrink-0 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
                 activeTab === 'scanner'
-                  ? 'bg-white text-black font-bold'
-                  : 'text-zinc-400 hover:text-white hover:bg-white/[0.06]'
+                  ? 'bg-primary text-primary-foreground font-bold shadow-xs'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
               }`}
             >
               <Search className="w-3.5 h-3.5" /> ATS Job Scanner
@@ -639,8 +639,8 @@ export default function ProfilePage() {
               onClick={() => setActiveTab('bullet_studio')}
               className={`shrink-0 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
                 activeTab === 'bullet_studio'
-                  ? 'bg-white text-black font-bold'
-                  : 'text-zinc-400 hover:text-white hover:bg-white/[0.06]'
+                  ? 'bg-primary text-primary-foreground font-bold shadow-xs'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
               }`}
             >
               <Wand2 className="w-3.5 h-3.5" /> Impact Bullet Studio
@@ -654,20 +654,20 @@ export default function ProfilePage() {
               <div className="space-y-5">
                 {loading ? (
                   <div className="flex items-center justify-center py-16">
-                    <Loader2 className="w-6 h-6 animate-spin text-white" />
+                    <Loader2 className="w-6 h-6 animate-spin text-foreground" />
                   </div>
                 ) : !profileData?.has_resume ? (
                   <Card className="border-dashed border-2 border-border/70 bg-card/40">
                     <CardContent className="py-16 text-center">
-                      <div className="w-14 h-14 rounded-full bg-white/10 text-white flex items-center justify-center mx-auto mb-4 border border-white/20">
+                      <div className="w-14 h-14 rounded-full bg-muted text-foreground flex items-center justify-center mx-auto mb-4 border border-border">
                         <FileText className="w-7 h-7" />
                       </div>
-                      <h3 className="text-lg font-bold text-white">No Master Resume on File</h3>
+                      <h3 className="text-lg font-bold text-foreground">No Master Resume on File</h3>
                       <p className="text-muted-foreground text-xs max-w-md mx-auto mt-2 leading-relaxed">
                         Upload your existing PDF or DOCX resume. You can maintain up to 5 role-focused resumes (Backend, Embedded/IoT, AI/ML, Govt) and switch between them anytime.
                       </p>
                       <Button
-                        className="mt-5 bg-white text-black hover:bg-zinc-200 font-semibold cursor-pointer"
+                        className="mt-5 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold cursor-pointer"
                         disabled={uploading}
                         onClick={() => fileInputRef.current?.click()}
                       >
@@ -688,13 +688,13 @@ export default function ProfilePage() {
                     {/* Active Resume Banner */}
                     <div className="p-3 rounded-lg border border-border/60 bg-muted/20 flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="h-2 w-2 rounded-full bg-white animate-pulse" />
-                        <span className="text-xs text-zinc-300">
-                          Active context: <strong className="text-white">{activeResume?.name || 'Primary Resume'}</strong> ({activeResume?.file_name})
+                        <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                        <span className="text-xs text-muted-foreground">
+                          Active context: <strong className="text-foreground font-semibold">{activeResume?.name || 'Primary Resume'}</strong> ({activeResume?.file_name})
                         </span>
                       </div>
                       {resumes.length > 1 && (
-                        <span className="text-[11px] text-zinc-500 font-mono">
+                        <span className="text-[11px] text-muted-foreground font-mono">
                           Switch active resume anytime from the left rail
                         </span>
                       )}
@@ -704,10 +704,10 @@ export default function ProfilePage() {
                     <Card className="border-border/60">
                       <CardHeader className="pb-3 border-b border-border/40">
                         <CardTitle className="text-sm font-semibold flex items-center justify-between">
-                          <span className="flex items-center gap-2 text-white">
-                            <Sparkles className="w-4 h-4 text-white" /> Technical Skills & Tools
+                          <span className="flex items-center gap-2 text-foreground">
+                            <Sparkles className="w-4 h-4 text-foreground" /> Technical Skills & Tools
                           </span>
-                          <span className="text-xs text-zinc-400 font-mono">
+                          <span className="text-xs text-muted-foreground font-mono">
                             {parsed?.skills?.length || 0} skills indexed
                           </span>
                         </CardTitle>
@@ -753,14 +753,14 @@ export default function ProfilePage() {
                               <div className="space-y-4">
                                 {groups.map(group => (
                                   <div key={group.name} className="space-y-2">
-                                    <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider block">
+                                    <span className="text-[11px] font-semibold text-foreground/85 dark:text-zinc-400 uppercase tracking-wider block">
                                       {group.name} ({group.skills.length})
                                     </span>
                                     <div className="flex flex-wrap gap-1.5">
                                       {group.skills.map((skill, i) => (
                                         <span
                                           key={i}
-                                          className="rounded-md border border-white/10 bg-white/[0.04] px-2.5 py-1 text-xs text-zinc-200 font-mono"
+                                          className="rounded-md border border-border bg-muted/60 px-2.5 py-1 text-xs text-foreground font-mono"
                                         >
                                           {skill}
                                         </span>
@@ -772,7 +772,7 @@ export default function ProfilePage() {
                             );
                           })()
                         ) : (
-                          <p className="text-xs text-zinc-400 italic">No skills extracted from this resume.</p>
+                          <p className="text-xs text-muted-foreground italic">No skills extracted from this resume.</p>
                         )}
                       </CardContent>
                     </Card>
@@ -781,10 +781,10 @@ export default function ProfilePage() {
                     <Card className="border-border/60">
                       <CardHeader className="pb-3 border-b border-border/40">
                         <CardTitle className="text-sm font-semibold flex items-center justify-between">
-                          <span className="flex items-center gap-2 text-white">
-                            <Briefcase className="w-4 h-4 text-white" /> Work Experience
+                          <span className="flex items-center gap-2 text-foreground">
+                            <Briefcase className="w-4 h-4 text-foreground" /> Work Experience
                           </span>
-                          <span className="text-xs text-zinc-400 font-mono">
+                          <span className="text-xs text-muted-foreground font-mono">
                             {parsed?.experience?.length || 0} positions
                           </span>
                         </CardTitle>
@@ -792,25 +792,25 @@ export default function ProfilePage() {
                       <CardContent className="pt-4 space-y-3.5">
                         {parsed?.experience && parsed.experience.length > 0 ? (
                           parsed.experience.map((exp, i) => (
-                            <div key={i} className="border-l-2 border-white/20 pl-3 py-1">
-                              <p className="text-sm font-bold text-white">
-                                {exp.title || 'Role'} <span className="text-zinc-400 font-normal">at</span>{' '}
+                            <div key={i} className="border-l-2 border-border pl-3 py-1">
+                              <p className="text-sm font-bold text-foreground">
+                                {exp.title || 'Role'} <span className="text-muted-foreground font-normal">at</span>{' '}
                                 {exp.company || 'Company'}
                               </p>
                               {(exp.start_date || exp.end_date) && (
-                                <p className="text-xs text-zinc-400 mt-0.5">
+                                <p className="text-xs text-muted-foreground mt-0.5">
                                   {exp.start_date || ''} – {exp.end_date || 'Present'}
                                 </p>
                               )}
                               {exp.description && (
-                                <p className="text-xs text-zinc-300 mt-1.5 leading-relaxed">
+                                <p className="text-xs text-foreground/90 mt-1.5 leading-relaxed">
                                   {exp.description}
                                 </p>
                               )}
                             </div>
                           ))
                         ) : (
-                          <p className="text-xs text-zinc-400 italic">No work experience extracted.</p>
+                          <p className="text-xs text-muted-foreground italic">No work experience extracted.</p>
                         )}
                       </CardContent>
                     </Card>
@@ -819,10 +819,10 @@ export default function ProfilePage() {
                     <Card className="border-border/60">
                       <CardHeader className="pb-3 border-b border-border/40">
                         <CardTitle className="text-sm font-semibold flex items-center justify-between">
-                          <span className="flex items-center gap-2 text-white">
-                            <Layers className="w-4 h-4 text-white" /> Projects Showcase
+                          <span className="flex items-center gap-2 text-foreground">
+                            <Layers className="w-4 h-4 text-foreground" /> Projects Showcase
                           </span>
-                          <span className="text-xs text-zinc-400 font-mono">
+                          <span className="text-xs text-muted-foreground font-mono">
                             {parsed?.projects?.length || 0} projects
                           </span>
                         </CardTitle>
@@ -830,24 +830,24 @@ export default function ProfilePage() {
                       <CardContent className="pt-4 space-y-3.5">
                         {parsed?.projects && parsed.projects.length > 0 ? (
                           parsed.projects.map((proj, i) => (
-                            <div key={i} className="border-l-2 border-white/20 pl-3 py-1">
-                              <p className="text-sm font-bold text-white">{proj.title || 'Project'}</p>
+                            <div key={i} className="border-l-2 border-border pl-3 py-1">
+                              <p className="text-sm font-bold text-foreground">{proj.title || 'Project'}</p>
                               {proj.technologies && proj.technologies.length > 0 && (
                                 <div className="flex flex-wrap gap-1 mt-1.5">
                                   {proj.technologies.map((t, idx) => (
-                                    <span key={idx} className="rounded border border-white/10 bg-white/[0.04] px-1.5 py-0.5 text-[10px] text-zinc-300 font-mono">
+                                    <span key={idx} className="rounded border border-border bg-muted/60 px-1.5 py-0.5 text-[10px] text-foreground font-mono">
                                       {t}
                                     </span>
                                   ))}
                                 </div>
                               )}
                               {proj.description && (
-                                <p className="text-xs text-zinc-300 mt-1.5 leading-relaxed">{proj.description}</p>
+                                <p className="text-xs text-foreground/90 mt-1.5 leading-relaxed">{proj.description}</p>
                               )}
                             </div>
                           ))
                         ) : (
-                          <p className="text-xs text-zinc-400 italic">No projects listed.</p>
+                          <p className="text-xs text-muted-foreground italic">No projects listed.</p>
                         )}
                       </CardContent>
                     </Card>
@@ -862,33 +862,33 @@ export default function ProfilePage() {
                 {/* Note: overflow-visible prevents SearchableJobCombobox dropdown from being clipped */}
                 <Card className="border-border/60 overflow-visible">
                   <CardHeader className="pb-3 border-b border-border/40">
-                    <CardTitle className="text-sm font-semibold flex items-center gap-2 text-white">
-                      <Search className="w-4 h-4 text-white" /> Target Job ATS Scanner & Keyword Gap Analysis
+                    <CardTitle className="text-sm font-semibold flex items-center gap-2 text-foreground">
+                      <Search className="w-4 h-4 text-foreground" /> Target Job ATS Scanner & Keyword Gap Analysis
                     </CardTitle>
-                    <CardDescription className="text-xs text-zinc-400">
+                    <CardDescription className="text-xs text-muted-foreground">
                       Evaluates your active resume ({activeResume?.name || 'Primary Resume'}) against any target job to discover missing skills and ATS match percentage.
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="pt-4 space-y-4 overflow-visible">
                     {/* Scan Mode Toggle */}
                     <div className="flex gap-4 border-b border-border/50 pb-3">
-                      <label className="flex items-center gap-2 text-xs font-medium cursor-pointer text-zinc-300">
+                      <label className="flex items-center gap-2 text-xs font-medium cursor-pointer text-foreground">
                         <input
                           type="radio"
                           name="scanMode"
                           checked={scanMode === 'saved'}
                           onChange={() => setScanMode('saved')}
-                          className="accent-white"
+                          className="accent-primary"
                         />
                         Select from Job Database ({jobs.length} jobs)
                       </label>
-                      <label className="flex items-center gap-2 text-xs font-medium cursor-pointer text-zinc-300">
+                      <label className="flex items-center gap-2 text-xs font-medium cursor-pointer text-foreground">
                         <input
                           type="radio"
                           name="scanMode"
                           checked={scanMode === 'custom'}
                           onChange={() => setScanMode('custom')}
-                          className="accent-white"
+                          className="accent-primary"
                         />
                         Paste Any Job Description (LinkedIn / BDjobs)
                       </label>
@@ -896,7 +896,7 @@ export default function ProfilePage() {
 
                     {scanMode === 'saved' ? (
                       <div className="relative z-40">
-                        <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider block mb-1.5">
+                        <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">
                           Choose Target Job
                         </label>
                         <SearchableJobCombobox
@@ -910,7 +910,7 @@ export default function ProfilePage() {
                       <div className="space-y-3">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                           <div>
-                            <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider block mb-1">
+                            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
                               Job Title *
                             </label>
                             <Input
@@ -921,7 +921,7 @@ export default function ProfilePage() {
                             />
                           </div>
                           <div>
-                            <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider block mb-1">
+                            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
                               Company Name
                             </label>
                             <Input
@@ -933,7 +933,7 @@ export default function ProfilePage() {
                           </div>
                         </div>
                         <div>
-                          <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider block mb-1">
+                          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1">
                             Job Description & Requirements *
                           </label>
                           <textarea
@@ -941,15 +941,15 @@ export default function ProfilePage() {
                             placeholder="Paste the required skills, responsibilities, and qualifications..."
                             value={customJobDesc}
                             onChange={(e) => setCustomJobDesc(e.target.value)}
-                            className="w-full bg-background border border-border rounded-lg p-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-white font-mono"
+                            className="w-full bg-background border border-border rounded-lg p-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-primary font-mono text-foreground"
                           />
                         </div>
                       </div>
                     )}
 
-                    {scanError && <p className="text-xs text-red-400">{scanError}</p>}
+                    {scanError && <p className="text-xs text-red-500 font-medium">{scanError}</p>}
 
-                    <Button onClick={handleRunScan} disabled={scanning} className="bg-white text-black hover:bg-zinc-200 font-semibold h-8 text-xs cursor-pointer">
+                    <Button onClick={handleRunScan} disabled={scanning} className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold h-8 text-xs cursor-pointer">
                       {scanning ? (
                         <>
                           <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin" /> Calculating 4-Factor ATS Score...
@@ -965,21 +965,21 @@ export default function ProfilePage() {
 
                 {/* Scan Results Panel */}
                 {scanResult && (
-                  <Card className="border-border/80 bg-card/60 overflow-hidden">
+                  <Card className="border-border/80 bg-card overflow-hidden shadow-xs">
                     <CardHeader className="border-b border-border/50 bg-muted/20 py-3">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                         <div>
-                          <CardTitle className="text-sm font-bold flex items-center gap-2 text-white">
-                            <TrendingUp className="w-4 h-4 text-white" /> ATS Match Results
+                          <CardTitle className="text-sm font-bold flex items-center gap-2 text-foreground">
+                            <TrendingUp className="w-4 h-4 text-foreground" /> ATS Match Results
                           </CardTitle>
-                          <CardDescription className="text-xs text-zinc-400">
-                            Evaluated against <strong className="text-white">{activeResume?.name || 'Primary Resume'}</strong> across Skills (45%), Projects (35%), Location (10%), and Education (10%).
+                          <CardDescription className="text-xs text-muted-foreground">
+                            Evaluated against <strong className="text-foreground font-semibold">{activeResume?.name || 'Primary Resume'}</strong> across Skills (45%), Projects (35%), Location (10%), and Education (10%).
                           </CardDescription>
                         </div>
                         <div className="flex items-center gap-3">
                           <div className="text-right">
-                            <span className="text-2xl font-black text-white">{scanResult.match?.overall_score || 0}%</span>
-                            <p className="text-[10px] text-zinc-400 uppercase tracking-wider font-semibold">
+                            <span className="text-2xl font-black text-foreground">{scanResult.match?.overall_score || 0}%</span>
+                            <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">
                               Overall Match
                             </p>
                           </div>
@@ -991,20 +991,20 @@ export default function ProfilePage() {
                       {/* 4-Factor Score Breakdown */}
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                         <div className="p-2.5 rounded-lg bg-muted/40 border border-border/50">
-                          <p className="text-[11px] text-zinc-400 font-semibold">Skills (45%)</p>
-                          <p className="text-lg font-bold text-white mt-0.5">{scanResult.match?.skill_match || 0}%</p>
+                          <p className="text-[11px] text-muted-foreground font-semibold">Skills (45%)</p>
+                          <p className="text-lg font-bold text-foreground mt-0.5">{scanResult.match?.skill_match || 0}%</p>
                         </div>
                         <div className="p-2.5 rounded-lg bg-muted/40 border border-border/50">
-                          <p className="text-[11px] text-zinc-400 font-semibold">Projects (35%)</p>
-                          <p className="text-lg font-bold text-white mt-0.5">{scanResult.match?.project_match || 0}%</p>
+                          <p className="text-[11px] text-muted-foreground font-semibold">Projects (35%)</p>
+                          <p className="text-lg font-bold text-foreground mt-0.5">{scanResult.match?.project_match || 0}%</p>
                         </div>
                         <div className="p-2.5 rounded-lg bg-muted/40 border border-border/50">
-                          <p className="text-[11px] text-zinc-400 font-semibold">Location (10%)</p>
-                          <p className="text-lg font-bold text-white mt-0.5">{scanResult.match?.location_match || 0}%</p>
+                          <p className="text-[11px] text-muted-foreground font-semibold">Location (10%)</p>
+                          <p className="text-lg font-bold text-foreground mt-0.5">{scanResult.match?.location_match || 0}%</p>
                         </div>
                         <div className="p-2.5 rounded-lg bg-muted/40 border border-border/50">
-                          <p className="text-[11px] text-zinc-400 font-semibold">Education (10%)</p>
-                          <p className="text-lg font-bold text-white mt-0.5">{scanResult.match?.education_match || 0}%</p>
+                          <p className="text-[11px] text-muted-foreground font-semibold">Education (10%)</p>
+                          <p className="text-lg font-bold text-foreground mt-0.5">{scanResult.match?.education_match || 0}%</p>
                         </div>
                       </div>
 
@@ -1012,11 +1012,11 @@ export default function ProfilePage() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
                         {/* Matched Keywords */}
                         <div className="space-y-2.5 p-3.5 rounded-xl border border-border/60 bg-muted/20">
-                          <h4 className="text-xs font-semibold text-white flex items-center gap-1.5">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+                          <h4 className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
                             Matching Keywords in Active Resume ({scanResult.matching_skills?.length || 0})
                           </h4>
-                          <p className="text-[11px] text-zinc-400">
+                          <p className="text-[11px] text-muted-foreground">
                             These requirements are already present in {activeResume?.name || 'your resume'}.
                           </p>
                           <div className="flex flex-wrap gap-1.5 pt-1">
@@ -1024,25 +1024,25 @@ export default function ProfilePage() {
                               scanResult.matching_skills.map((skill, i) => (
                                 <span
                                   key={i}
-                                  className="inline-flex items-center gap-1 rounded-md border border-white/20 bg-card px-2 py-0.5 text-xs font-mono text-white font-medium"
+                                  className="inline-flex items-center gap-1 rounded-md border border-border bg-muted/60 px-2 py-0.5 text-xs font-mono text-foreground font-medium"
                                 >
-                                  <CheckCircle2 className="w-3 h-3 text-white" />
+                                  <CheckCircle2 className="w-3 h-3 text-emerald-500" />
                                   {skill}
                                 </span>
                               ))
                             ) : (
-                              <p className="text-xs text-zinc-400 italic">No direct keyword overlap found.</p>
+                              <p className="text-xs text-muted-foreground italic">No direct keyword overlap found.</p>
                             )}
                           </div>
                         </div>
 
                         {/* Missing Keywords (The Gap) */}
                         <div className="space-y-2.5 p-3.5 rounded-xl border border-border/60 bg-muted/20">
-                          <h4 className="text-xs font-semibold text-white flex items-center gap-1.5">
-                            <AlertTriangle className="w-3.5 h-3.5 text-zinc-400" />
+                          <h4 className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                            <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
                             Missing Keywords to Add (The Gap) ({scanResult.missing_skills?.length || 0})
                           </h4>
-                          <p className="text-[11px] text-zinc-400">
+                          <p className="text-[11px] text-muted-foreground">
                             Recruiters and ATS parsers filter for these terms.
                           </p>
                           <div className="flex flex-wrap gap-1.5 pt-1">
@@ -1050,13 +1050,13 @@ export default function ProfilePage() {
                               scanResult.missing_skills.map((skill, i) => (
                                 <span
                                   key={i}
-                                  className="inline-flex items-center gap-1 rounded-md border border-border/60 bg-card px-2 py-0.5 text-xs font-mono text-zinc-400 font-medium"
+                                  className="inline-flex items-center gap-1 rounded-md border border-border bg-muted/40 px-2 py-0.5 text-xs font-mono text-muted-foreground font-medium"
                                 >
                                   + {skill}
                                 </span>
                               ))
                             ) : (
-                              <p className="text-xs text-zinc-300 italic font-medium">
+                              <p className="text-xs text-foreground/80 italic font-medium">
                                 No missing critical skills detected! Great alignment.
                               </p>
                             )}
@@ -1067,13 +1067,13 @@ export default function ProfilePage() {
                       {/* Recruiter Feedback Bullets */}
                       {scanResult.match?.explanation && scanResult.match.explanation.length > 0 && (
                         <div className="p-3 rounded-xl bg-muted/30 border border-border/50 space-y-1.5">
-                          <h4 className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+                          <h4 className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
                             Recruiter & ATS Insights
                           </h4>
                           <ul className="space-y-1">
                             {scanResult.match.explanation.map((item, idx) => (
-                              <li key={idx} className="text-xs text-zinc-300 flex items-start gap-2">
-                                <span className="text-white font-bold mt-0.5">•</span>
+                              <li key={idx} className="text-xs text-foreground/90 flex items-start gap-2">
+                                <span className="text-foreground font-bold mt-0.5">•</span>
                                 <span>{item}</span>
                               </li>
                             ))}
@@ -1093,17 +1093,17 @@ export default function ProfilePage() {
                   <CardHeader className="pb-3 border-b border-border/40">
                     <div className="flex items-center justify-between">
                       <div>
-                        <CardTitle className="text-sm font-semibold flex items-center gap-2 text-white">
-                          <Wand2 className="w-4 h-4 text-white" /> Impact Bullet Studio
+                        <CardTitle className="text-sm font-semibold flex items-center gap-2 text-foreground">
+                          <Wand2 className="w-4 h-4 text-foreground" /> Impact Bullet Studio
                         </CardTitle>
-                        <CardDescription className="text-xs text-zinc-400 mt-0.5">
+                        <CardDescription className="text-xs text-muted-foreground mt-0.5">
                           Transform weak job bullets into high-impact executive statements using Google’s XYZ formula:
-                          <span className="text-white font-mono block mt-1">
+                          <span className="text-foreground font-mono block mt-1 font-semibold">
                             “Accomplished [X], as measured by [Y], by doing [Z]”
                           </span>
                         </CardDescription>
                       </div>
-                      <Badge variant="outline" className="border-white/20 bg-white/10 text-white text-[10px]">
+                      <Badge variant="outline" className="border-border bg-muted/60 text-foreground text-[10px]">
                         Google XYZ & STAR
                       </Badge>
                     </div>
@@ -1112,7 +1112,7 @@ export default function ProfilePage() {
                   <CardContent className="pt-4 space-y-4">
                     {/* Rough Bullet Textarea */}
                     <div>
-                      <label className="text-xs font-semibold text-zinc-300 uppercase tracking-wider block mb-1.5">
+                      <label className="text-xs font-semibold text-foreground uppercase tracking-wider block mb-1.5">
                         Your Current Rough Bullet Point *
                       </label>
                       <textarea
@@ -1120,22 +1120,22 @@ export default function ProfilePage() {
                         placeholder="e.g. Built REST backend APIs using Python and Docker for customer data synchronization."
                         value={rawBullet}
                         onChange={(e) => setRawBullet(e.target.value)}
-                        className="w-full bg-background border border-border rounded-lg p-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-white"
+                        className="w-full bg-background border border-border rounded-lg p-2.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
                       />
                     </div>
 
-                    {/* Role & Skills Pickers with Modern Chips (No ugly browser select dropdowns) */}
+                    {/* Role & Skills Pickers with Modern Chips */}
                     <div className="space-y-3 p-3.5 rounded-xl border border-border/60 bg-muted/20">
                       {/* Target Role Chips */}
                       <div>
                         <div className="flex items-center justify-between mb-1.5">
-                          <label className="text-xs font-semibold text-zinc-300 uppercase tracking-wider">
+                          <label className="text-xs font-semibold text-foreground uppercase tracking-wider">
                             Target Role Context (optional)
                           </label>
                           {targetRole && (
                             <button
                               onClick={() => setTargetRole('')}
-                              className="text-[10px] text-zinc-500 hover:text-white underline"
+                              className="text-[10px] text-muted-foreground hover:text-foreground underline cursor-pointer"
                             >
                               Clear
                             </button>
@@ -1151,8 +1151,8 @@ export default function ProfilePage() {
                                 onClick={() => setTargetRole(isSelected ? '' : role)}
                                 className={`text-[11px] px-2.5 py-1 rounded-md border transition-all cursor-pointer ${
                                   isSelected
-                                    ? 'bg-white text-black font-semibold border-white'
-                                    : 'border-white/10 bg-white/[0.04] text-zinc-300 hover:text-white hover:border-white/30'
+                                    ? 'bg-primary text-primary-foreground font-semibold border-primary'
+                                    : 'border-border bg-muted/60 text-muted-foreground hover:text-foreground hover:border-foreground/30'
                                 }`}
                               >
                                 {role}
@@ -1164,20 +1164,20 @@ export default function ProfilePage() {
                           placeholder="Or type custom role title (e.g. Embedded Firmware Engineer)..."
                           value={targetRole}
                           onChange={(e) => setTargetRole(e.target.value)}
-                          className="h-8 text-xs bg-background"
+                          className="h-8 text-xs bg-background text-foreground"
                         />
                       </div>
 
                       {/* Skills to Infuse Chips */}
                       <div className="pt-2 border-t border-border/40">
                         <div className="flex items-center justify-between mb-1.5">
-                          <label className="text-xs font-semibold text-zinc-300 uppercase tracking-wider">
+                          <label className="text-xs font-semibold text-foreground uppercase tracking-wider">
                             Skills to Infuse into Bullet (optional)
                           </label>
                           {targetKeywords && (
                             <button
                               onClick={() => setTargetKeywords('')}
-                              className="text-[10px] text-zinc-500 hover:text-white underline"
+                              className="text-[10px] text-muted-foreground hover:text-foreground underline cursor-pointer"
                             >
                               Clear all
                             </button>
@@ -1197,8 +1197,8 @@ export default function ProfilePage() {
                                 onClick={() => handleToggleSkill(skill)}
                                 className={`text-[11px] px-2.5 py-1 rounded-md border transition-all cursor-pointer ${
                                   isAdded
-                                    ? 'bg-white text-black font-semibold border-white'
-                                    : 'border-white/10 bg-white/[0.04] text-zinc-300 hover:text-white hover:border-white/30'
+                                    ? 'bg-primary text-primary-foreground font-semibold border-primary'
+                                    : 'border-border bg-muted/60 text-muted-foreground hover:text-foreground hover:border-foreground/30'
                                 }`}
                               >
                                 {isAdded ? `✓ ${skill}` : `+ ${skill}`}
@@ -1210,14 +1210,14 @@ export default function ProfilePage() {
                           placeholder="Or comma-separated keywords (e.g. FastAPI, PostgreSQL, Redis, Kubernetes)..."
                           value={targetKeywords}
                           onChange={(e) => setTargetKeywords(e.target.value)}
-                          className="h-8 text-xs bg-background"
+                          className="h-8 text-xs bg-background text-foreground"
                         />
                       </div>
                     </div>
 
-                    {bulletError && <p className="text-xs text-red-400">{bulletError}</p>}
+                    {bulletError && <p className="text-xs text-red-500 font-medium">{bulletError}</p>}
 
-                    <Button onClick={handleOptimizeBullet} disabled={optimizing} className="bg-white text-black hover:bg-zinc-200 font-semibold h-8 text-xs cursor-pointer">
+                    <Button onClick={handleOptimizeBullet} disabled={optimizing} className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold h-8 text-xs cursor-pointer">
                       {optimizing ? (
                         <>
                           <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin" /> Rewriting with Google XYZ & STAR...
@@ -1235,36 +1235,36 @@ export default function ProfilePage() {
                 {bulletResult && (
                   <div className="space-y-3.5">
                     {/* Primary Recommendation */}
-                    <Card className="border-white/30 bg-card/80">
+                    <Card className="border-border bg-card shadow-xs">
                       <CardHeader className="py-2.5 px-4 border-b border-border/40">
                         <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-                            <Sparkles className="w-3.5 h-3.5 text-white" /> Top Executive Bullet (Google XYZ)
+                          <span className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
+                            <Sparkles className="w-3.5 h-3.5 text-foreground" /> Top Executive Bullet (Google XYZ)
                           </span>
                           <Button
                             size="sm"
                             variant="outline"
-                            className="h-7 text-xs border-white/20 text-zinc-200 hover:text-white cursor-pointer"
+                            className="h-7 text-xs border-border text-foreground hover:bg-muted cursor-pointer"
                             onClick={() => copyToClipboard(bulletResult.optimized_bullet, 0)}
                           >
                             {copiedIndex === 0 ? (
                               <>
-                                <Check className="w-3 h-3 mr-1 text-white" /> Copied!
+                                <Check className="w-3 h-3 mr-1 text-emerald-500" /> Copied!
                               </>
                             ) : (
                               <>
-                                <Copy className="w-3 h-3 mr-1" /> Copy Line
+                                <Copy className="w-3 h-3 mr-1 text-muted-foreground" /> Copy Line
                               </>
                             )}
                           </Button>
                         </div>
                       </CardHeader>
                       <CardContent className="pt-3.5 space-y-2.5">
-                        <p className="text-sm font-medium text-white leading-relaxed pl-3 border-l-2 border-white">
+                        <p className="text-sm font-medium text-foreground leading-relaxed pl-3 border-l-2 border-primary">
                           “{bulletResult.optimized_bullet}”
                         </p>
-                        <div className="p-2.5 rounded-lg bg-muted/40 text-xs text-zinc-300">
-                          <strong className="text-white">Why this wins:</strong> {bulletResult.impact_explanation}
+                        <div className="p-2.5 rounded-lg bg-muted/50 text-xs text-foreground/90">
+                          <strong className="text-foreground">Why this wins:</strong> {bulletResult.impact_explanation}
                         </div>
                       </CardContent>
                     </Card>
@@ -1272,21 +1272,21 @@ export default function ProfilePage() {
                     {/* Alternative Variations */}
                     {bulletResult.alternatives && bulletResult.alternatives.length > 0 && (
                       <div className="space-y-2">
-                        <h4 className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider px-1">
+                        <h4 className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider px-1">
                           Alternative Variations
                         </h4>
                         {bulletResult.alternatives.map((alt, idx) => (
                           <Card key={idx} className="border-border/60 bg-muted/20">
                             <CardContent className="py-2.5 px-3 flex items-center justify-between gap-3">
-                              <p className="text-xs text-zinc-300 leading-relaxed">“{alt}”</p>
+                              <p className="text-xs text-foreground/90 leading-relaxed">“{alt}”</p>
                               <Button
                                 size="sm"
                                 variant="ghost"
-                                className="h-7 text-xs shrink-0 text-zinc-400 hover:text-white cursor-pointer"
+                                className="h-7 text-xs shrink-0 text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer"
                                 onClick={() => copyToClipboard(alt, idx + 1)}
                               >
                                 {copiedIndex === idx + 1 ? (
-                                  <Check className="w-3.5 h-3.5 text-white" />
+                                  <Check className="w-3.5 h-3.5 text-emerald-500" />
                                 ) : (
                                   <Copy className="w-3.5 h-3.5" />
                                 )}

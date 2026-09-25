@@ -25,8 +25,8 @@ class GeminiProvider(BaseLLMProvider):
             name="gemini",
             rate_limit=TokenBucket(max_tokens=15, refill_rate=0.25),
         )
-        genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel("gemini-3.5-flash-lite")
+        genai.configure(api_key=api_key, transport="rest")
+        self.model = genai.GenerativeModel("gemini-2.5-flash")
 
     async def complete(
         self,
@@ -49,19 +49,25 @@ class GeminiProvider(BaseLLMProvider):
                 config_kwargs["response_mime_type"] = "application/json"
 
             try:
-                response = await asyncio.to_thread(
-                    self.model.generate_content,
-                    full_prompt,
-                    generation_config=genai.types.GenerationConfig(**config_kwargs),
+                response = await asyncio.wait_for(
+                    asyncio.to_thread(
+                        self.model.generate_content,
+                        full_prompt,
+                        generation_config=genai.types.GenerationConfig(**config_kwargs),
+                    ),
+                    timeout=25.0,
                 )
             except Exception as e:
-                # If gemini-3.5-flash-lite has an issue, fallback to gemini-2.5-flash
-                logger.warning("gemini-3.5-flash-lite error (%s), trying gemini-2.5-flash", e)
-                fallback_model = genai.GenerativeModel("gemini-2.5-flash")
-                response = await asyncio.to_thread(
-                    fallback_model.generate_content,
-                    full_prompt,
-                    generation_config=genai.types.GenerationConfig(**config_kwargs),
+                # If gemini-2.5-flash has an issue, fallback to gemini-2.5-flash-lite
+                logger.warning("gemini-2.5-flash error (%s), trying gemini-2.5-flash-lite", e)
+                fallback_model = genai.GenerativeModel("gemini-2.5-flash-lite")
+                response = await asyncio.wait_for(
+                    asyncio.to_thread(
+                        fallback_model.generate_content,
+                        full_prompt,
+                        generation_config=genai.types.GenerationConfig(**config_kwargs),
+                    ),
+                    timeout=25.0,
                 )
 
             usage = {}

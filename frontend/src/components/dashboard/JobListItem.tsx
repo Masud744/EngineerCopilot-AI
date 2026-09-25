@@ -32,10 +32,10 @@ export function JobListItem({
 
   return (
     <div
-      className={`flex items-start gap-3 px-4 py-3.5 transition-colors cursor-pointer border-l-2 ${
+      className={`flex items-start gap-3 px-4 py-3.5 transition-colors cursor-pointer ${
         isActive
-          ? 'border-l-white bg-white/[0.05]'
-          : 'border-l-transparent hover:bg-white/[0.02]'
+          ? 'bg-zinc-800/80 text-foreground'
+          : 'hover:bg-zinc-800/30'
       }`}
     >
       <button
@@ -70,7 +70,7 @@ export function JobListItem({
               </span>
             )}
             {job.salary_min && (
-              <span className="inline-flex items-center text-zinc-200 font-semibold font-mono">
+              <span className="inline-flex items-center text-foreground font-semibold font-mono">
                 {job.salary_currency || '$'}{Number(job.salary_min).toLocaleString()}
                 {job.salary_max ? `–${Number(job.salary_max).toLocaleString()}` : '+'}
                 {job.salary_currency === '৳' ? '/mo' : ''}
@@ -85,13 +85,13 @@ export function JobListItem({
               {skills.slice(0, 3).map((skill) => (
                 <span
                   key={skill}
-                  className="rounded border border-border/60 bg-secondary/60 px-1.5 py-[2px] text-[10px] text-muted-foreground font-medium"
+                  className="rounded border border-border/60 bg-muted/60 px-1.5 py-[2px] text-[10px] text-muted-foreground font-medium"
                 >
                   {skill}
                 </span>
               ))}
               {skills.length > 3 && (
-                <span className="rounded border border-border/60 bg-secondary/60 px-1.5 py-[2px] text-[10px] text-muted-foreground">
+                <span className="rounded border border-border/60 bg-muted/60 px-1.5 py-[2px] text-[10px] text-muted-foreground">
                   +{skills.length - 3}
                 </span>
               )}
@@ -105,14 +105,14 @@ export function JobListItem({
         type="button"
         variant="ghost"
         size="icon"
-        className="h-8 w-8 shrink-0 text-zinc-500 hover:text-white"
+        className="h-8 w-8 shrink-0 text-muted-foreground hover:text-foreground"
         title={isSaved ? 'Remove saved job' : 'Save job'}
         onClick={(e) => {
           e.stopPropagation();
           onSaveToggle(job.id);
         }}
       >
-        <Bookmark className={`h-4 w-4 ${isSaved ? 'fill-white text-white' : ''}`} strokeWidth={1.75} />
+        <Bookmark className={`h-4 w-4 ${isSaved ? 'fill-primary text-primary' : ''}`} strokeWidth={1.75} />
       </Button>
     </div>
   );

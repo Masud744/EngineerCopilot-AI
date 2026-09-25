@@ -9,10 +9,11 @@ export default function LandingPage() {
         <div className="container flex h-16 max-w-screen-2xl items-center px-4">
           <div className="mr-4 hidden md:flex">
             <Link href="/" className="mr-6 flex items-center space-x-2">
-              <Cpu className="h-6 w-6 text-primary" />
-              <span className="hidden font-bold sm:inline-block text-xl tracking-tight">
-                EngineerCopilot <span className="text-primary">AI</span>
-              </span>
+              <img
+                src="/shombhob-brand-white.png"
+                alt="সম্ভব"
+                className="h-8 w-auto object-contain"
+              />
             </Link>
           </div>
           <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">

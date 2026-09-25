@@ -20,6 +20,10 @@ import {
 
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/lib/supabase/client'
+import { ThemeToggle } from '@/components/dashboard/ThemeToggle'
+import { NotificationsPopover } from '@/components/dashboard/NotificationsPopover'
+import { SettingsModal } from '@/components/dashboard/SettingsModal'
+import { ProfileDropdown } from '@/components/dashboard/ProfileDropdown'
 
 const SIDEBAR_ITEMS = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
@@ -37,6 +41,7 @@ export default function DashboardLayout({
   const pathname = usePathname()
   const router = useRouter()
   const [isMobileOpen, setIsMobileOpen] = useState(false)
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [userEmail, setUserEmail] = useState<string | null>(null)
   const [userName, setUserName] = useState<string | null>(null)
 
@@ -72,24 +77,43 @@ export default function DashboardLayout({
     <div className="flex h-full flex-col bg-card border-r border-border/50" suppressHydrationWarning>
       {/* Logo */}
       <div className={`flex h-[72px] items-center border-b border-border/60 ${isMobileDrawer ? 'px-5' : 'px-3 lg:px-5 justify-center lg:justify-start'}`}>
-        <Link href="/" className="flex items-center gap-2.5" title="EngineerCopilot">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/20 bg-white/10">
-            <Cpu className="h-5 w-5 text-white" strokeWidth={1.75} />
-          </span>
-          <span className={isMobileDrawer ? 'block' : 'hidden lg:block'}>
-            <span className="block text-[15px] font-bold tracking-tight text-white">
-              Engineer<span className="text-zinc-400 font-normal">Copilot</span>
+        <Link href="/dashboard" className="flex items-center gap-2.5 group" title="সম্ভব">
+          {/* Collapsed Rail View (Tablet/Desktop icon-only rail) */}
+          <div className={`${isMobileDrawer ? 'hidden' : 'flex lg:hidden'} h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted/60 border border-border p-1.5 transition-colors group-hover:border-foreground/30`}>
+            <img
+              src="/shombhob-icon-white.png"
+              alt="সম্ভব"
+              className="h-full w-full object-contain hidden dark:block"
+            />
+            <img
+              src="/shombhob-icon-black.png"
+              alt="সম্ভব"
+              className="h-full w-full object-contain block dark:hidden"
+            />
+          </div>
+
+          {/* Full Expanded View (Desktop sidebar & Mobile drawer) */}
+          <div className={`${isMobileDrawer ? 'flex' : 'hidden lg:flex'} flex-col justify-center`}>
+            <img
+              src="/shombhob-brand-white.png"
+              alt="সম্ভব"
+              className="h-7 w-auto object-contain self-start hidden dark:block"
+            />
+            <img
+              src="/shombhob-brand-black.png"
+              alt="সম্ভব"
+              className="h-7 w-auto object-contain self-start block dark:hidden"
+            />
+            <span className="text-[9.5px] text-muted-foreground font-normal tracking-tight leading-tight mt-1">
+              Find opportunities. Build your future.
             </span>
-            <span className="block text-[10px] text-zinc-500 leading-tight">
-              Find, Prepare, Apply, Grow.
-            </span>
-          </span>
+          </div>
         </Link>
       </div>
 
       {/* Navigation */}
       <div className="flex-1 overflow-auto py-3">
-        <nav className={`grid items-start space-y-0.5 ${isMobileDrawer ? 'px-3' : 'px-2 lg:px-3'}`}>
+        <nav className={`grid items-start space-y-1 ${isMobileDrawer ? 'px-3' : 'px-2 lg:px-3'}`}>
           {SIDEBAR_ITEMS.map((item) => {
             const isActive =
               item.href === '/dashboard'
@@ -101,17 +125,22 @@ export default function DashboardLayout({
                 href={item.href}
                 title={item.name}
                 onClick={() => setIsMobileOpen(false)}
-                className={`flex items-center gap-3 rounded-lg py-2.5 text-[13px] font-medium transition-all ${
+                className={`group flex items-center gap-3 rounded-lg py-2.5 text-[13px] font-medium transition-colors ${
                   isMobileDrawer
                     ? 'px-3'
-                    : 'px-2 lg:px-3 justify-center lg:justify-start'
+                    : 'px-2.5 lg:px-3 justify-center lg:justify-start'
                 } ${
                   isActive
-                    ? 'bg-white/10 text-white border-l-2 border-white font-semibold'
-                    : 'text-zinc-400 hover:bg-white/[0.04] hover:text-white border-l-2 border-transparent'
+                    ? 'bg-accent text-accent-foreground font-semibold shadow-sm'
+                    : 'text-muted-foreground hover:bg-accent/60 hover:text-foreground'
                 }`}
               >
-                <item.icon className={`h-[18px] w-[18px] shrink-0 ${isActive ? 'text-white' : 'text-zinc-400'}`} strokeWidth={1.75} />
+                <item.icon
+                  className={`h-[18px] w-[18px] shrink-0 transition-colors ${
+                    isActive ? 'text-accent-foreground' : 'text-muted-foreground group-hover:text-foreground'
+                  }`}
+                  strokeWidth={1.75}
+                />
                 <span className={isMobileDrawer ? 'inline' : 'hidden lg:inline'}>
                   {item.name}
                 </span>
@@ -125,10 +154,10 @@ export default function DashboardLayout({
       <div className={`border-t border-border/50 mt-auto ${isMobileDrawer ? 'p-3' : 'p-2 lg:p-3'}`}>
         <div className={`flex items-center gap-3 ${isMobileDrawer ? 'px-2 py-2' : 'px-1 lg:px-2 py-2 justify-center lg:justify-start'}`}>
           <div
-            className="h-9 w-9 rounded-full bg-white/10 border border-white/20 flex items-center justify-center shrink-0"
+            className="h-9 w-9 rounded-full bg-muted border border-border flex items-center justify-center shrink-0"
             title={userName || 'User'}
           >
-            <span className="text-sm font-semibold text-white">
+            <span className="text-sm font-semibold text-foreground">
               {(userName || 'U').charAt(0).toUpperCase()}
             </span>
           </div>
@@ -203,7 +232,7 @@ export default function DashboardLayout({
       {/* Main Content Wrapper */}
       <div className="flex flex-col md:pl-[68px] lg:pl-[240px] flex-1 h-screen overflow-hidden transition-all duration-200">
         {/* Top Header */}
-        <header className="flex h-14 shrink-0 items-center gap-4 border-b border-border bg-background/95 px-4 lg:px-6 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-40">
+        <header className="flex h-14 shrink-0 items-center gap-4 border-b border-border bg-card/90 px-4 lg:px-6 backdrop-blur supports-[backdrop-filter]:bg-card/75 z-40">
           <Button
             variant="ghost"
             size="icon"
@@ -218,21 +247,31 @@ export default function DashboardLayout({
             {getPageTitle()}
           </div>
 
-          <div className="flex items-center gap-1">
-            <button className="p-2 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors" title="Settings">
-              <Settings className="h-[18px] w-[18px]" />
-            </button>
-            <button className="p-2 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors relative" title="Notifications">
-              <Bell className="h-[18px] w-[18px]" />
-              <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-primary" />
-            </button>
-            <Link
-              href="/dashboard/profile"
-              className="ml-1 h-8 w-8 rounded-full bg-muted border border-border flex items-center justify-center hover:bg-muted/80 transition-colors"
-              title="Profile"
+          <div className="flex items-center gap-1 sm:gap-1.5">
+            {/* Theme Selector (Light, Dark, System) */}
+            <ThemeToggle />
+
+            {/* Settings Modal Trigger */}
+            <button
+              type="button"
+              onClick={() => setIsSettingsOpen(true)}
+              className="p-2 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer"
+              title="Settings & Preferences"
+              aria-label="Settings"
             >
-              <User className="h-4 w-4 text-muted-foreground" />
-            </Link>
+              <Settings className="h-[18px] w-[18px]" strokeWidth={1.75} />
+            </button>
+
+            {/* Notifications Popover */}
+            <NotificationsPopover />
+
+            {/* User Profile Dropdown Menu */}
+            <ProfileDropdown
+              userName={userName}
+              userEmail={userEmail}
+              onOpenSettings={() => setIsSettingsOpen(true)}
+              onLogout={handleLogout}
+            />
           </div>
         </header>
 
@@ -266,6 +305,15 @@ export default function DashboardLayout({
           )
         })}
       </nav>
+
+      {/* ── Settings Dialog ── */}
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        userName={userName}
+        userEmail={userEmail}
+        onLogout={handleLogout}
+      />
     </div>
   )
 }

@@ -276,18 +276,18 @@ export default function DashboardPage() {
         
         {/* Metric 1 */}
         <Link href="/dashboard/applications" className="group">
-          <Card className="border border-border/70 bg-card hover:border-white/30 transition-all p-3.5 group-hover:bg-white/[0.02]">
+          <Card className="border border-border/70 bg-card hover:border-foreground/30 transition-all p-3.5 group-hover:bg-muted/30">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Active Pipeline</span>
-              <div className="h-6 w-6 rounded-md bg-white/[0.04] border border-white/10 flex items-center justify-center">
-                <Briefcase className="h-3 w-3 text-zinc-400" strokeWidth={1.5} />
+              <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Active Pipeline</span>
+              <div className="h-6 w-6 rounded-md bg-muted border border-border flex items-center justify-center">
+                <Briefcase className="h-3 w-3 text-muted-foreground" strokeWidth={1.5} />
               </div>
             </div>
             <div className="mt-2 flex items-baseline justify-between">
-              <span className="text-2xl font-semibold font-mono tracking-tight text-white">
+              <span className="text-2xl font-semibold font-mono tracking-tight text-foreground">
                 {totals.activeApplications}
               </span>
-              <span className="text-[11px] text-zinc-500 font-medium">
+              <span className="text-[11px] text-muted-foreground font-medium">
                 in tracker
               </span>
             </div>
@@ -296,18 +296,18 @@ export default function DashboardPage() {
 
         {/* Metric 2 */}
         <Link href="/dashboard/applications" className="group">
-          <Card className="border border-border/70 bg-card hover:border-white/30 transition-all p-3.5 group-hover:bg-white/[0.02]">
+          <Card className="border border-border/70 bg-card hover:border-foreground/30 transition-all p-3.5 group-hover:bg-muted/30">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Interviews & Tests</span>
-              <div className="h-6 w-6 rounded-md bg-white/[0.04] border border-white/10 flex items-center justify-center">
-                <Activity className="h-3 w-3 text-zinc-400" strokeWidth={1.5} />
+              <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Interviews & Tests</span>
+              <div className="h-6 w-6 rounded-md bg-muted border border-border flex items-center justify-center">
+                <Activity className="h-3 w-3 text-muted-foreground" strokeWidth={1.5} />
               </div>
             </div>
             <div className="mt-2 flex items-baseline justify-between">
-              <span className="text-2xl font-semibold font-mono tracking-tight text-white">
+              <span className="text-2xl font-semibold font-mono tracking-tight text-foreground">
                 {totals.interviews}
               </span>
-              <span className="text-[11px] text-zinc-500 font-medium">
+              <span className="text-[11px] text-muted-foreground font-medium">
                 active rounds
               </span>
             </div>
@@ -315,19 +315,19 @@ export default function DashboardPage() {
         </Link>
 
         {/* Metric 3 */}
-        <Link href="/dashboard/resume" className="group">
-          <Card className="border border-border/70 bg-card hover:border-white/30 transition-all p-3.5 group-hover:bg-white/[0.02]">
+        <Link href="/dashboard/profile" className="group">
+          <Card className="border border-border/70 bg-card hover:border-foreground/30 transition-all p-3.5 group-hover:bg-muted/30">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Tailored Resumes</span>
-              <div className="h-6 w-6 rounded-md bg-white/[0.04] border border-white/10 flex items-center justify-center">
-                <FileText className="h-3 w-3 text-zinc-400" strokeWidth={1.5} />
+              <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Tailored Resumes</span>
+              <div className="h-6 w-6 rounded-md bg-muted border border-border flex items-center justify-center">
+                <FileText className="h-3 w-3 text-muted-foreground" strokeWidth={1.5} />
               </div>
             </div>
             <div className="mt-2 flex items-baseline justify-between">
-              <span className="text-2xl font-semibold font-mono tracking-tight text-white">
+              <span className="text-2xl font-semibold font-mono tracking-tight text-foreground">
                 {generatedResumes.length}
               </span>
-              <span className="text-[11px] text-zinc-500 font-medium">
+              <span className="text-[11px] text-muted-foreground font-medium">
                 profiles stored
               </span>
             </div>
@@ -335,19 +335,19 @@ export default function DashboardPage() {
         </Link>
 
         {/* Metric 4 */}
-        <Link href="/dashboard/resume" className="group">
-          <Card className="border border-border/70 bg-card hover:border-white/30 transition-all p-3.5 group-hover:bg-white/[0.02]">
+        <Link href="/dashboard/profile" className="group">
+          <Card className="border border-border/70 bg-card hover:border-foreground/30 transition-all p-3.5 group-hover:bg-muted/30">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Target ATS Index</span>
-              <div className="h-6 w-6 rounded-md bg-white/[0.04] border border-white/10 flex items-center justify-center">
-                <TrendingUp className="h-3 w-3 text-zinc-400" strokeWidth={1.5} />
+              <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Target ATS Index</span>
+              <div className="h-6 w-6 rounded-md bg-muted border border-border flex items-center justify-center">
+                <TrendingUp className="h-3 w-3 text-muted-foreground" strokeWidth={1.5} />
               </div>
             </div>
             <div className="mt-2 flex items-baseline justify-between">
-              <span className="text-2xl font-semibold font-mono tracking-tight text-white">
+              <span className="text-2xl font-semibold font-mono tracking-tight text-foreground">
                 {matchAvg !== null ? `${matchAvg}%` : hasMasterResume ? '85%' : 'Calibrate'}
               </span>
-              <span className="text-[11px] text-zinc-500 font-medium">
+              <span className="text-[11px] text-muted-foreground font-medium">
                 match score
               </span>
             </div>
@@ -365,21 +365,21 @@ export default function DashboardPage() {
           {/* Card Header & Fast Filter Tabs */}
           <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-border/40 shrink-0">
             <div className="flex items-center gap-2">
-              <Compass className="h-4 w-4 text-white" strokeWidth={1.5} />
+              <Compass className="h-4 w-4 text-foreground" strokeWidth={1.5} />
               <h2 className="text-sm font-bold text-foreground">Recommended Opportunities</h2>
-              <span className="rounded-full bg-white/10 border border-white/20 px-2 py-0.2 text-[10px] font-mono text-zinc-300 font-semibold">
+              <span className="rounded-full bg-muted border border-border px-2 py-0.2 text-[10px] font-mono text-muted-foreground font-semibold">
                 {displayedJobs.length} live
               </span>
             </div>
 
             {/* Quick Segment Filter - Clean SVG Icons without Emojis */}
-            <div className="flex items-center gap-1 bg-white/[0.04] p-0.5 rounded-lg border border-white/10 text-[11px]">
+            <div className="flex items-center gap-1 bg-muted/60 p-0.5 rounded-lg border border-border text-[11px]">
               <button
                 onClick={() => handleCategoryChange('all')}
                 className={`px-2.5 py-1 rounded-md font-medium transition-all cursor-pointer ${
                   activeCategory === 'all'
-                    ? 'bg-white text-zinc-950 shadow-xs font-semibold'
-                    : 'text-zinc-400 hover:text-white'
+                    ? 'bg-primary text-primary-foreground shadow-xs font-semibold'
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 All
@@ -388,8 +388,8 @@ export default function DashboardPage() {
                 onClick={() => handleCategoryChange('bd')}
                 className={`px-2.5 py-1 rounded-md font-medium transition-all flex items-center gap-1 cursor-pointer ${
                   activeCategory === 'bd'
-                    ? 'bg-white text-zinc-950 shadow-xs font-semibold'
-                    : 'text-zinc-400 hover:text-white'
+                    ? 'bg-primary text-primary-foreground shadow-xs font-semibold'
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 <Building2 className="w-3 h-3" strokeWidth={1.5} /> BD Tech
@@ -398,8 +398,8 @@ export default function DashboardPage() {
                 onClick={() => handleCategoryChange('remote')}
                 className={`px-2.5 py-1 rounded-md font-medium transition-all flex items-center gap-1 cursor-pointer ${
                   activeCategory === 'remote'
-                    ? 'bg-white text-zinc-950 shadow-xs font-semibold'
-                    : 'text-zinc-400 hover:text-white'
+                    ? 'bg-primary text-primary-foreground shadow-xs font-semibold'
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 <Globe className="w-3 h-3" strokeWidth={1.5} /> Remote
@@ -408,8 +408,8 @@ export default function DashboardPage() {
                 onClick={() => handleCategoryChange('govt')}
                 className={`px-2.5 py-1 rounded-md font-medium transition-all flex items-center gap-1 cursor-pointer ${
                   activeCategory === 'govt'
-                    ? 'bg-white text-zinc-950 shadow-xs font-semibold'
-                    : 'text-zinc-400 hover:text-white'
+                    ? 'bg-primary text-primary-foreground shadow-xs font-semibold'
+                    : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
                 <Landmark className="w-3 h-3" strokeWidth={1.5} /> BD Govt
@@ -418,7 +418,7 @@ export default function DashboardPage() {
 
             <Link
               href="/dashboard/jobs"
-              className="text-xs text-zinc-400 hover:text-white hover:underline font-medium inline-flex items-center gap-1"
+              className="text-xs text-muted-foreground hover:text-foreground hover:underline font-medium inline-flex items-center gap-1"
             >
               All Jobs <ChevronRight className="h-3 w-3" strokeWidth={1.5} />
             </Link>
@@ -428,7 +428,7 @@ export default function DashboardPage() {
           <div className="flex-1 min-h-0 overflow-y-auto space-y-2 pt-2.5 pr-1">
             {categoryLoading ? (
               <div className="flex items-center justify-center h-32 gap-2 text-xs text-muted-foreground">
-                <Loader2 className="w-4 h-4 animate-spin text-white" />
+                <Loader2 className="w-4 h-4 animate-spin text-foreground" />
                 Loading opportunities...
               </div>
             ) : displayedJobs.length === 0 ? (
@@ -436,7 +436,7 @@ export default function DashboardPage() {
                 <Briefcase className="h-8 w-8 text-muted-foreground opacity-30 mb-2" />
                 <p className="text-xs text-muted-foreground">No roles matching this category yet.</p>
                 <Link href="/dashboard/jobs" className="mt-2">
-                  <Button size="sm" variant="outline" className="h-7 text-xs border-white/20 text-zinc-200 hover:bg-white/5">Browse All Jobs</Button>
+                  <Button size="sm" variant="outline" className="h-7 text-xs border-border text-foreground hover:bg-muted">Browse All Jobs</Button>
                 </Link>
               </div>
             ) : (
@@ -532,20 +532,20 @@ export default function DashboardPage() {
           <div className="border border-border/60 bg-card rounded-xl p-3.5 shadow-sm flex flex-col flex-1 min-h-0">
             <div className="flex items-center justify-between pb-2 border-b border-border/40 shrink-0">
               <div className="flex items-center gap-2">
-                <Layers className="h-4 w-4 text-white" strokeWidth={1.75} />
+                <Layers className="h-4 w-4 text-foreground" strokeWidth={1.75} />
                 <h3 className="text-sm font-bold text-foreground">Pipeline Funnel</h3>
               </div>
-              <Link href="/dashboard/applications" className="text-xs text-zinc-400 hover:text-white hover:underline font-medium flex items-center gap-0.5">
+              <Link href="/dashboard/applications" className="text-xs text-muted-foreground hover:text-foreground hover:underline font-medium flex items-center gap-0.5">
                 Kanban <ArrowRight className="h-3 w-3" />
               </Link>
             </div>
 
             <div className="flex-1 min-h-0 flex flex-col justify-around py-2 space-y-2">
               {[
-                { label: 'Applied', val: stats?.applied || 0, bar: 'bg-zinc-600' },
-                { label: 'Technical Assessment', val: stats?.assessment || 0, bar: 'bg-zinc-400' },
-                { label: 'Interview Rounds', val: (stats?.interview || 0) + (stats?.final_interview || 0), bar: 'bg-zinc-200' },
-                { label: 'Offers Extended', val: stats?.offer || 0, bar: 'bg-white' },
+                { label: 'Applied', val: stats?.applied || 0, bar: 'bg-zinc-600 dark:bg-zinc-600' },
+                { label: 'Technical Assessment', val: stats?.assessment || 0, bar: 'bg-zinc-500 dark:bg-zinc-400' },
+                { label: 'Interview Rounds', val: (stats?.interview || 0) + (stats?.final_interview || 0), bar: 'bg-zinc-400 dark:bg-zinc-300' },
+                { label: 'Offers Extended', val: stats?.offer || 0, bar: 'bg-primary dark:bg-white' },
               ].map((row) => {
                 const pct = totalInPipeline > 0 ? Math.round((row.val / totalInPipeline) * 100) : 0
                 return (
@@ -556,7 +556,7 @@ export default function DashboardPage() {
                         {row.val} ({pct}%)
                       </span>
                     </div>
-                    <div className="h-1.5 w-full bg-white/[0.06] rounded-full overflow-hidden">
+                    <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
                       <div
                         className={`h-full ${row.bar} transition-all duration-500 rounded-full`}
                         style={{ width: `${Math.max(pct, row.val > 0 ? 10 : 0)}%` }}
@@ -569,7 +569,7 @@ export default function DashboardPage() {
 
             <div className="pt-2 border-t border-border/40 shrink-0">
               <Link href="/dashboard/applications">
-                <Button variant="outline" size="sm" className="w-full h-7 text-xs border-white/15 text-zinc-200 hover:bg-white/5 font-medium">
+                <Button variant="outline" size="sm" className="w-full h-7 text-xs border-border text-foreground hover:bg-muted font-medium">
                   Manage Pipeline Board
                 </Button>
               </Link>
@@ -580,39 +580,39 @@ export default function DashboardPage() {
           <div className="border border-border/60 bg-card rounded-xl p-3.5 shadow-sm flex flex-col justify-between shrink-0 gap-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-zinc-400" strokeWidth={1.75} />
+                <Sparkles className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
                 <h3 className="text-sm font-semibold text-foreground">ATS Career Hub</h3>
               </div>
               <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold border ${
                 hasMasterResume
-                  ? 'bg-white/10 border-white/20 text-white'
-                  : 'bg-white/5 border-white/10 text-zinc-400'
+                  ? 'bg-muted/80 border-border text-foreground'
+                  : 'bg-muted/40 border-border text-muted-foreground'
               }`}>
                 {hasMasterResume ? 'Profile Active' : 'Resume Required'}
               </span>
             </div>
 
             <div className="grid grid-cols-2 gap-2">
-              <Link href="/dashboard/resume">
-                <Button variant="outline" size="sm" className="w-full h-8 text-xs border-white/15 text-zinc-200 hover:bg-white/5 font-medium justify-center">
-                  <FileText className="h-3 w-3 mr-1 text-zinc-400" strokeWidth={1.75} />
+              <Link href="/dashboard/profile">
+                <Button variant="outline" size="sm" className="w-full h-8 text-xs border-border text-foreground hover:bg-muted font-medium justify-center">
+                  <FileText className="h-3 w-3 mr-1 text-muted-foreground" strokeWidth={1.75} />
                   Resume Studio
                 </Button>
               </Link>
               <Link href="/dashboard/saved-jobs">
-                <Button variant="outline" size="sm" className="w-full h-8 text-xs border-white/15 text-zinc-200 hover:bg-white/5 font-medium justify-center">
-                  <Bookmark className="h-3 w-3 mr-1 text-zinc-400" strokeWidth={1.75} />
+                <Button variant="outline" size="sm" className="w-full h-8 text-xs border-border text-foreground hover:bg-muted font-medium justify-center">
+                  <Bookmark className="h-3 w-3 mr-1 text-muted-foreground" strokeWidth={1.75} />
                   Saved ({savedJobsCount})
                 </Button>
               </Link>
             </div>
 
-            <div className="rounded-lg bg-white/[0.03] border border-white/10 p-2 flex items-center justify-between text-[11px] text-muted-foreground">
+            <div className="rounded-lg bg-muted/40 border border-border p-2 flex items-center justify-between text-[11px] text-muted-foreground">
               <span className="flex items-center gap-1.5 font-medium text-foreground/80">
-                <Target className="h-3.5 w-3.5 text-zinc-300" strokeWidth={1.75} />
+                <Target className="h-3.5 w-3.5 text-muted-foreground" strokeWidth={1.75} />
                 1-Click ATS Matcher
               </span>
-              <span className="text-white font-semibold font-mono">Available</span>
+              <span className="text-foreground font-semibold font-mono">Available</span>
             </div>
           </div>
 

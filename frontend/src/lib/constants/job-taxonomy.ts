@@ -42,10 +42,10 @@ export function getCategoryLabel(category: string): string {
 export function getCategoryBadgeClass(category: string): string {
   const key = category?.toLowerCase().trim();
   if (key === 'government') {
-    return 'bg-white/10 text-white border-white/20 hover:bg-white/15';
+    return 'bg-primary/10 text-primary border-primary/20 hover:bg-primary/15';
   }
   // Cohesive technical monochrome pill for all categories
-  return 'bg-white/[0.05] text-zinc-300 border-white/10 hover:bg-white/10';
+  return 'bg-muted/70 text-foreground border-border hover:bg-muted';
 }
 
 export function getSourceBadge(source: string): { label: string; className: string } {
@@ -53,42 +53,42 @@ export function getSourceBadge(source: string): { label: string; className: stri
     case 'BD Govt Jobs':
       return {
         label: 'Govt Circular',
-        className: 'border-white/30 text-white bg-white/10 font-medium',
+        className: 'border-border bg-muted/80 text-foreground font-medium',
       };
     case 'Bdjobs':
       return {
         label: 'Bdjobs',
-        className: 'border-white/15 text-zinc-300 bg-white/[0.05] font-medium',
+        className: 'border-border bg-muted/50 text-foreground/80 font-medium',
       };
     case 'Jobicy':
       return {
         label: 'Jobicy',
-        className: 'border-white/15 text-zinc-300 bg-white/[0.05] font-medium',
+        className: 'border-border bg-muted/50 text-foreground/80 font-medium',
       };
     case 'LinkedIn':
       return {
         label: 'LinkedIn',
-        className: 'border-white/15 text-zinc-300 bg-white/[0.05] font-medium',
+        className: 'border-border bg-muted/50 text-foreground/80 font-medium',
       };
     case 'WeWorkRemotely':
       return {
         label: 'WWR',
-        className: 'border-white/15 text-zinc-300 bg-white/[0.05] font-medium',
+        className: 'border-border bg-muted/50 text-foreground/80 font-medium',
       };
     case 'RemoteOK':
       return {
         label: 'RemoteOK',
-        className: 'border-white/15 text-zinc-300 bg-white/[0.05] font-medium',
+        className: 'border-border bg-muted/50 text-foreground/80 font-medium',
       };
     case 'NextJobz':
       return {
         label: 'NextJobz',
-        className: 'border-white/15 text-zinc-300 bg-white/[0.05] font-medium',
+        className: 'border-border bg-muted/50 text-foreground/80 font-medium',
       };
     default:
       return {
         label: source || 'Active',
-        className: 'border-white/10 text-zinc-400 bg-white/[0.03] font-medium',
+        className: 'border-border bg-muted/50 text-foreground/80 font-medium',
       };
   }
 }

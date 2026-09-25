@@ -6,39 +6,69 @@
 
 @layer base {
   :root {
-    /* ── Surfaces (Taito.ai Deep Obsidian & Clean Charcoal) ── */
-    --background: 240 10% 4%;       /* #09090b - pure minimalist obsidian */
-    --foreground: 0 0% 98%;         /* #fafafa - crisp high-contrast white */
+    /* ── Light Mode Surface & Content (Soft Slate / Charcoal) ── */
+    --background: 240 5% 95%;          /* #f2f2f5 - soft comfortable background, eliminates harsh glare */
+    --foreground: 240 10% 4%;         /* #09090b - deep ink */
 
-    --card: 240 10% 6.5%;          /* #111115 - elevated card surface */
+    --card: 0 0% 100%;                /* #ffffff - crisp elevated cards */
+    --card-foreground: 240 10% 4%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 4%;
+
+    --primary: 240 10% 4%;            /* #09090b */
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 240 5% 92%;          /* #e9e9ee */
+    --secondary-foreground: 240 10% 4%;
+
+    --muted: 240 5% 91%;              /* #e6e6ec */
+    --muted-foreground: 240 4% 42%;   /* #65656d */
+
+    --accent: 240 5% 90%;             /* #e2e2e8 */
+    --accent-foreground: 240 10% 4%;
+
+    --destructive: 0 84% 60%;         /* #ef4444 */
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 240 5% 86%;             /* #dcdce2 - crisp subtle border */
+    --border-strong: 240 5% 70%;
+    --input: 240 5% 86%;
+    --ring: 240 10% 4%;
+
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    /* ── Dark Mode Surface & Content (Obsidian) ── */
+    --background: 240 10% 4%;          /* #09090b - obsidian */
+    --foreground: 0 0% 98%;            /* #fafafa */
+
+    --card: 240 10% 6.5%;             /* #111115 */
     --card-foreground: 0 0% 98%;
 
-    --popover: 240 10% 8.5%;        /* #15161a */
+    --popover: 240 10% 8.5%;           /* #15161a */
     --popover-foreground: 0 0% 98%;
 
-    /* ── Brand Accent — Pure Black & White (Taito.ai) ── */
-    --primary: 0 0% 98%;           /* #fafafa - crisp white primary */
-    --primary-foreground: 240 10% 4%; /* #09090b - deep black text on primary */
+    --primary: 0 0% 98%;              /* #fafafa */
+    --primary-foreground: 240 10% 4%;
 
-    --secondary: 240 5% 14%;       /* #232328 */
+    --secondary: 240 5% 14%;          /* #232328 */
     --secondary-foreground: 0 0% 98%;
 
-    --muted: 240 5% 12%;           /* #1d1e22 */
-    --muted-foreground: 240 5% 65%; /* #a1a1aa - clean neutral zinc */
+    --muted: 240 5% 12%;              /* #1d1e22 */
+    --muted-foreground: 240 5% 65%;    /* #a1a1aa */
 
     --accent: 240 5% 14%;
     --accent-foreground: 0 0% 98%;
 
-    --destructive: 0 72% 51%;       /* #EF4444 */
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 98%;
 
-    /* ── Borders & Inputs ─────────────────────────── */
-    --border: 240 5% 16%;          /* #26272e - subtle crisp border */
-    --border-strong: 240 5% 26%;   /* #40414b */
+    --border: 240 5% 16%;             /* #26272e */
+    --border-strong: 240 5% 26%;
     --input: 240 5% 16%;
     --ring: 0 0% 98%;
-
-    --radius: 0.75rem;              /* 12px card radius globally */
   }
 }
 
@@ -46,8 +76,11 @@
   * {
     @apply border-border;
   }
-  html {
+  html.dark {
     color-scheme: dark;
+  }
+  html.light {
+    color-scheme: light;
   }
   body {
     @apply bg-background text-foreground antialiased;

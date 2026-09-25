@@ -285,9 +285,7 @@ def delete_resume(resume_id: str, user: CurrentUser):
 @router.get("/current")
 def get_current_resume(user: CurrentUser):
     """Fetch current user's uploaded master resumes list and active parsed content."""
-    res = db().table("profiles").select(
-        "id, full_name, email, phone, city, country, linkedin_url, github_url, portfolio_url, preferred_categories, preferred_locations, expected_salary_min, expected_salary_max, salary_currency, employment_type, resume_file_path, resume_parsed_data, updated_at"
-    ).eq("id", user.user_id).single().execute()
+    res = db().table("profiles").select("*").eq("id", user.user_id).single().execute()
 
     if not res.data:
         raise HTTPException(status_code=404, detail="Profile not found")

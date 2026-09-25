@@ -138,10 +138,10 @@ export default function SavedJobsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0 pb-1">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
               Saved Jobs
             </h1>
-            <span className="rounded-full bg-white/10 border border-white/20 px-2 py-0.2 text-[10px] font-mono text-zinc-300 font-semibold">
+            <span className="rounded-full bg-muted border border-border px-2 py-0.2 text-[10px] font-mono text-muted-foreground font-semibold">
               {savedItems.length} bookmarked
             </span>
           </div>
@@ -155,7 +155,7 @@ export default function SavedJobsPage() {
             <Button
               variant="outline"
               size="sm"
-              className="h-8 text-xs border-white/15 text-zinc-300 hover:text-white hover:bg-white/5"
+              className="h-8 text-xs border-border text-foreground hover:bg-muted"
             >
               <Briefcase className="w-3.5 h-3.5 mr-1.5" strokeWidth={1.5} />
               Browse All Jobs
@@ -209,10 +209,10 @@ export default function SavedJobsPage() {
                   <div
                     key={item.id}
                     onClick={() => setSelectedJobId(item.job_id)}
-                    className={`flex items-start gap-3 px-3.5 py-3 transition-colors cursor-pointer border-l-2 ${
+                    className={`flex items-start gap-3 px-3.5 py-3 transition-colors cursor-pointer ${
                       isSelected
-                        ? 'border-l-white bg-white/[0.05]'
-                        : 'border-l-transparent hover:bg-white/[0.02]'
+                        ? 'bg-zinc-800/80 text-foreground'
+                        : 'hover:bg-zinc-800/30'
                     }`}
                   >
                     <CompanyLogo company={item.job_company || 'Company'} size="sm" />
@@ -251,13 +251,13 @@ export default function SavedJobsPage() {
                         handleUnsave(item.id, item.job_id);
                       }}
                       disabled={removingId === item.id}
-                      className="p-1 text-zinc-500 hover:text-white transition-colors"
+                      className="p-1 text-muted-foreground hover:text-foreground transition-colors"
                       title="Remove from saved"
                     >
                       {removingId === item.id ? (
                         <Loader2 className="w-3.5 h-3.5 animate-spin" />
                       ) : (
-                        <Bookmark className="w-3.5 h-3.5 fill-white text-white" strokeWidth={1.5} />
+                        <Bookmark className="w-3.5 h-3.5 fill-primary text-primary" strokeWidth={1.5} />
                       )}
                     </button>
                   </div>
@@ -270,7 +270,7 @@ export default function SavedJobsPage() {
           <div className="hidden md:flex md:col-span-7 lg:col-span-7 flex-col h-full min-h-0 border border-border/70 bg-card rounded-xl shadow-sm overflow-hidden">
             {loadingDetail ? (
               <div className="flex flex-col items-center justify-center h-full gap-2 text-xs text-muted-foreground">
-                <Loader2 className="w-6 h-6 animate-spin text-white" />
+                <Loader2 className="w-6 h-6 animate-spin text-foreground" />
                 <span>Loading role preview...</span>
               </div>
             ) : selectedJobDetail ? (
