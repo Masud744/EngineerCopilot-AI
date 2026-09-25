@@ -105,14 +105,14 @@ export function CompanyLogo({ company = '', size = 'md', className = '' }: Compa
     );
   }
 
-  // ── Constrained 6-color avatar palette (12% bg tint + full text) ──
+  // ── Curated Monochrome Palette (Taito.ai style: high-contrast dark neutral tones) ──
   const AVATAR_PALETTES = [
-    'bg-teal-500/12 text-teal-400 border-teal-500/20',
-    'bg-blue-500/12 text-blue-400 border-blue-500/20',
-    'bg-violet-500/12 text-violet-400 border-violet-500/20',
-    'bg-amber-500/12 text-amber-400 border-amber-500/20',
-    'bg-rose-500/12 text-rose-400 border-rose-500/20',
-    'bg-emerald-500/12 text-emerald-400 border-emerald-500/20',
+    'bg-zinc-800 text-zinc-100 border-zinc-700/60',
+    'bg-neutral-800 text-neutral-100 border-neutral-700/60',
+    'bg-stone-800 text-stone-100 border-stone-700/60',
+    'bg-slate-800 text-slate-100 border-slate-700/60',
+    'bg-zinc-900 text-white border-zinc-700/80',
+    'bg-zinc-800/90 text-zinc-200 border-zinc-600/50',
   ];
   // Deterministic hash: same company → same color every time
   const hash = (company || 'J').split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);

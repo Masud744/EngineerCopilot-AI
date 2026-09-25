@@ -202,23 +202,23 @@ export default function JobDetailsPage() {
                         className="h-8 px-2 text-muted-foreground hover:text-foreground"
                       >
                         {copiedTitle ? (
-                          <Check className="w-4 h-4 text-emerald-500" />
+                          <Check className="w-4 h-4 text-white" strokeWidth={1.75} />
                         ) : (
-                          <Copy className="w-4 h-4" />
+                          <Copy className="w-4 h-4 text-zinc-400" strokeWidth={1.75} />
                         )}
                       </Button>
                     </div>
 
                     <div className="flex flex-wrap items-center text-sm text-muted-foreground gap-4 mt-2 select-text">
                       <span className="flex items-center gap-1.5 font-medium text-foreground">
-                        <Building2 className="w-4 h-4 text-primary" /> {job.company}
+                        <Building2 className="w-4 h-4 text-zinc-400" strokeWidth={1.75} /> {job.company}
                       </span>
                       <span className="flex items-center gap-1.5">
-                        <MapPin className="w-4 h-4" /> {job.location || 'Remote'}
+                        <MapPin className="w-4 h-4 text-muted-foreground/80" strokeWidth={1.75} /> {job.location || 'Remote'}
                       </span>
                       {job.salary_min && (
-                        <span className="flex items-center gap-1.5 text-emerald-500 font-medium">
-                          <DollarSign className="w-4 h-4" />
+                        <span className="flex items-center gap-1.5 text-zinc-200 font-medium font-mono">
+                          <DollarSign className="w-4 h-4 text-zinc-400" strokeWidth={1.75} />
                           {job.salary_currency || '$'}
                           {job.salary_min.toLocaleString()} –{' '}
                           {job.salary_max ? job.salary_max.toLocaleString() : '+'}
@@ -226,7 +226,7 @@ export default function JobDetailsPage() {
                       )}
                       {job.posted_date && (
                         <span className="flex items-center gap-1.5">
-                          <CalendarDays className="w-4 h-4" />
+                          <CalendarDays className="w-4 h-4 text-muted-foreground/70" strokeWidth={1.75} />
                           {formatPostedDate(job.posted_date)}
                         </span>
                       )}
@@ -237,7 +237,7 @@ export default function JobDetailsPage() {
 
               <div className="flex flex-wrap gap-2 mt-4">
                 {job.is_remote && (
-                  <Badge variant="secondary" className="bg-sky-500/10 text-sky-400 border border-sky-500/20 text-xs">
+                  <Badge variant="secondary" className="bg-white/[0.05] text-zinc-300 border border-white/10 text-xs font-medium">
                     Remote
                   </Badge>
                 )}
@@ -261,7 +261,7 @@ export default function JobDetailsPage() {
                       variant="outline"
                       className={`capitalize font-medium flex items-center gap-1 ${srcBadge.className}`}
                     >
-                      {job.source === 'BD Govt Jobs' && <Landmark className="w-3 h-3" />}
+                      {job.source === 'BD Govt Jobs' && <Landmark className="w-3 h-3 text-zinc-300" strokeWidth={1.75} />}
                       {srcBadge.label}
                     </Badge>
                   );
@@ -272,13 +272,13 @@ export default function JobDetailsPage() {
 
           {/* Government Circular Alert */}
           {job.source === 'BD Govt Jobs' && (
-            <div className="p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 flex items-start gap-3">
-              <Landmark className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
+            <div className="p-4 rounded-xl border border-white/20 bg-white/[0.04] text-zinc-300 flex items-start gap-3">
+              <Landmark className="w-5 h-5 text-white flex-shrink-0 mt-0.5" strokeWidth={1.75} />
               <div className="space-y-1">
-                <h4 className="font-semibold text-sm text-emerald-200">
+                <h4 className="font-semibold text-sm text-white">
                   গণপ্রজাতন্ত্রী বাংলাদেশ সরকার — সরকারি নিয়োগ বিজ্ঞপ্তি
                 </h4>
-                <p className="text-xs text-emerald-300/80 leading-relaxed">
+                <p className="text-xs text-zinc-400 leading-relaxed">
                   এটি বাংলাদেশ সরকারের মন্ত্রণালয়, অধিদপ্তর, স্বায়ত্তশাসিত বা সরকারি প্রতিষ্ঠানের নিয়োগ সার্কুলার। নিয়োগের শর্তাবলী, শিক্ষাগত যোগ্যতা, বয়সসীমা ও নির্দেশনাবলী দেখতে নিচে অথবা সাইডবারের লিংকে ক্লিক করে মূল সার্কুলার ও Teletalk পোর্টালে যান।
                 </p>
               </div>
@@ -367,13 +367,13 @@ export default function JobDetailsPage() {
                 {/* Matching Skills */}
                 {matchData.matching_skills && matchData.matching_skills.length > 0 && (
                   <div className="space-y-2 pt-2 border-t border-border/50">
-                    <span className="text-xs font-semibold flex items-center gap-1.5 text-emerald-400">
-                      <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span className="text-xs font-semibold flex items-center gap-1.5 text-white">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-white" strokeWidth={1.75} />
                       Matching Skills ({matchData.matching_skills.length})
                     </span>
                     <div className="flex flex-wrap gap-1.5">
                       {matchData.matching_skills.map((s) => (
-                        <Badge key={s} variant="secondary" className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[11px]">
+                        <Badge key={s} variant="secondary" className="bg-white/10 text-white border border-white/20 text-[11px] font-medium">
                           {s}
                         </Badge>
                       ))}
@@ -384,13 +384,13 @@ export default function JobDetailsPage() {
                 {/* Missing Skills */}
                 {matchData.missing_skills && matchData.missing_skills.length > 0 && (
                   <div className="space-y-2 pt-2 border-t border-border/50">
-                    <span className="text-xs font-semibold flex items-center gap-1.5 text-amber-400">
-                      <AlertTriangle className="w-3.5 h-3.5" />
+                    <span className="text-xs font-semibold flex items-center gap-1.5 text-zinc-400">
+                      <AlertTriangle className="w-3.5 h-3.5 text-zinc-400" strokeWidth={1.75} />
                       Missing Skills ({matchData.missing_skills.length})
                     </span>
                     <div className="flex flex-wrap gap-1.5">
                       {matchData.missing_skills.map((s) => (
-                        <Badge key={s} variant="secondary" className="bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[11px]">
+                        <Badge key={s} variant="secondary" className="bg-white/[0.04] text-zinc-400 border border-white/10 text-[11px]">
                           + {s}
                         </Badge>
                       ))}

@@ -417,20 +417,10 @@ export default function JobsPage() {
           </div>
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
-              Find Your <span className="text-primary">Next Opportunity</span>
+              Find Your <span className="text-white">Next Opportunity</span>
             </h1>
-            <p className="mt-1.5 max-w-xl text-sm text-muted-foreground leading-relaxed">
-              Discover relevant roles from multiple sources, analyze job descriptions with AI, and find the best matches for your skills.
-            </p>
-          </div>
-        </div>
-
-        {/* Motivational Quote */}
-        <div className="hidden lg:flex items-start gap-3 max-w-xs p-4 rounded-xl bg-card border border-border/50">
-          <Quote className="h-8 w-8 text-primary/30 shrink-0 mt-0.5" />
-          <div>
-            <p className="text-sm font-medium text-foreground leading-snug">
-              Better opportunities for engineers, powered by AI.
+            <p className="mt-1 max-w-xl text-xs sm:text-sm text-muted-foreground leading-relaxed">
+              Discover engineering roles, analyze requirements with AI, and track applications in real time.
             </p>
           </div>
         </div>
@@ -674,8 +664,8 @@ export default function JobsPage() {
         <select
           value={categoryFilter}
           onChange={(e) => { setCategoryFilter(e.target.value); fetchJobs(sourceFilter, search, e.target.value, experienceFilter, workTypeFilter, locationFilter); }}
-          className={`h-9 min-w-[130px] bg-card border text-xs rounded-lg px-3 focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer transition-colors appearance-none pr-7 ${
-            categoryFilter !== 'all' ? 'border-primary/60 text-primary font-medium' : 'border-border/60 text-foreground hover:border-primary/40'
+          className={`h-9 min-w-[130px] bg-card border text-xs rounded-lg px-3 focus:outline-none focus:ring-1 focus:ring-white/40 cursor-pointer transition-colors appearance-none pr-7 ${
+            categoryFilter !== 'all' ? 'border-white/40 text-white font-medium bg-white/[0.04]' : 'border-border/60 text-foreground hover:border-white/20'
           }`}
           style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2712%27 height=%2712%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23888%27 stroke-width=%272%27%3E%3Cpath d=%27M6 9l6 6 6-6%27/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center' }}
         >
@@ -697,8 +687,8 @@ export default function JobsPage() {
         <select
           value={experienceFilter}
           onChange={(e) => { setExperienceFilter(e.target.value); fetchJobs(sourceFilter, search, categoryFilter, e.target.value, workTypeFilter, locationFilter); }}
-          className={`h-9 min-w-[140px] bg-card border text-xs rounded-lg px-3 focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer transition-colors appearance-none pr-7 ${
-            experienceFilter !== 'all' ? 'border-primary/60 text-primary font-medium' : 'border-border/60 text-foreground hover:border-primary/40'
+          className={`h-9 min-w-[140px] bg-card border text-xs rounded-lg px-3 focus:outline-none focus:ring-1 focus:ring-white/40 cursor-pointer transition-colors appearance-none pr-7 ${
+            experienceFilter !== 'all' ? 'border-white/40 text-white font-medium bg-white/[0.04]' : 'border-border/60 text-foreground hover:border-white/20'
           }`}
           style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2712%27 height=%2712%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23888%27 stroke-width=%272%27%3E%3Cpath d=%27M6 9l6 6 6-6%27/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center' }}
         >
@@ -713,8 +703,8 @@ export default function JobsPage() {
         <select
           value={workTypeFilter}
           onChange={(e) => { const v = e.target.value as 'all' | 'remote' | 'onsite'; setWorkTypeFilter(v); fetchJobs(sourceFilter, search, categoryFilter, experienceFilter, v, locationFilter); }}
-          className={`h-9 min-w-[120px] bg-card border text-xs rounded-lg px-3 focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer transition-colors appearance-none pr-7 ${
-            workTypeFilter !== 'all' ? 'border-primary/60 text-primary font-medium' : 'border-border/60 text-foreground hover:border-primary/40'
+          className={`h-9 min-w-[120px] bg-card border text-xs rounded-lg px-3 focus:outline-none focus:ring-1 focus:ring-white/40 cursor-pointer transition-colors appearance-none pr-7 ${
+            workTypeFilter !== 'all' ? 'border-white/40 text-white font-medium bg-white/[0.04]' : 'border-border/60 text-foreground hover:border-white/20'
           }`}
           style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2712%27 height=%2712%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23888%27 stroke-width=%272%27%3E%3Cpath d=%27M6 9l6 6 6-6%27/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center' }}
         >
@@ -727,8 +717,8 @@ export default function JobsPage() {
         <select
           value={locationFilter}
           onChange={(e) => { setLocationFilter(e.target.value); fetchJobs(sourceFilter, search, categoryFilter, experienceFilter, workTypeFilter, e.target.value); }}
-          className={`h-9 min-w-[120px] bg-card border text-xs rounded-lg px-3 focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer transition-colors appearance-none pr-7 ${
-            locationFilter !== 'all' ? 'border-primary/60 text-primary font-medium' : 'border-border/60 text-foreground hover:border-primary/40'
+          className={`h-9 min-w-[120px] bg-card border text-xs rounded-lg px-3 focus:outline-none focus:ring-1 focus:ring-white/40 cursor-pointer transition-colors appearance-none pr-7 ${
+            locationFilter !== 'all' ? 'border-white/40 text-white font-medium bg-white/[0.04]' : 'border-border/60 text-foreground hover:border-white/20'
           }`}
           style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2712%27 height=%2712%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23888%27 stroke-width=%272%27%3E%3Cpath d=%27M6 9l6 6 6-6%27/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center' }}
         >
@@ -742,8 +732,8 @@ export default function JobsPage() {
         <select
           value={salaryFilter}
           onChange={(e) => setSalaryFilter(e.target.value)}
-          className={`h-9 min-w-[155px] bg-card border text-xs rounded-lg px-3 focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer transition-colors appearance-none pr-7 ${
-            salaryFilter !== 'all' ? 'border-primary/60 text-primary font-medium' : 'border-border/60 text-foreground hover:border-primary/40'
+          className={`h-9 min-w-[155px] bg-card border text-xs rounded-lg px-3 focus:outline-none focus:ring-1 focus:ring-white/40 cursor-pointer transition-colors appearance-none pr-7 ${
+            salaryFilter !== 'all' ? 'border-white/40 text-white font-medium bg-white/[0.04]' : 'border-border/60 text-foreground hover:border-white/20'
           }`}
           style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2712%27 height=%2712%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23888%27 stroke-width=%272%27%3E%3Cpath d=%27M6 9l6 6 6-6%27/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 8px center' }}
         >
@@ -782,7 +772,7 @@ export default function JobsPage() {
             setSearchSavedToast(true);
             setTimeout(() => setSearchSavedToast(false), 3000);
           }}
-          className="h-9 text-xs border-primary/40 text-primary hover:bg-primary/10"
+          className="h-9 text-xs border-border/80 text-foreground hover:bg-white/5"
         >
           <Bookmark className="w-3.5 h-3.5 mr-1.5" /> Save Search
         </Button>

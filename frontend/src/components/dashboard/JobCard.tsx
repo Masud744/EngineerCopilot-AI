@@ -129,11 +129,11 @@ export function JobCard({
 
             <div className="flex flex-wrap items-center text-xs text-muted-foreground gap-3 select-text">
               <span className="flex items-center gap-1 text-foreground/90 font-medium">
-                <Building2 className="w-3.5 h-3.5 text-primary/70" />
+                <Building2 className="w-3.5 h-3.5 text-zinc-400" strokeWidth={1.75} />
                 {job.company}
               </span>
               <span className="flex items-center gap-1">
-                <MapPin className="w-3.5 h-3.5 text-muted-foreground/80" />
+                <MapPin className="w-3.5 h-3.5 text-muted-foreground/80" strokeWidth={1.75} />
                 {job.location || 'Remote'}
               </span>
             </div>
@@ -142,21 +142,19 @@ export function JobCard({
           {/* Match Score or Source Badge */}
           {hasValidMatchScore ? (
             <span
-              className={`flex-shrink-0 font-semibold text-[11px] rounded-full px-2.5 py-0.5 ${
+              className={`flex-shrink-0 font-semibold text-[11px] rounded-full px-2.5 py-0.5 border ${
                 job.match_score >= 70
-                  ? 'text-emerald-400 bg-emerald-500/12'
-                  : job.match_score >= 40
-                  ? 'text-amber-400 bg-amber-500/12'
-                  : 'text-muted-foreground bg-muted/40'
+                  ? 'text-white bg-white/10 border-white/20'
+                  : 'text-zinc-300 bg-white/[0.04] border-white/10'
               }`}
             >
               {job.match_score}% Match
             </span>
           ) : (
             <span
-              className={`flex-shrink-0 text-[10px] font-semibold tracking-wider uppercase rounded-full px-2.5 py-0.5 flex items-center gap-1 bg-muted/40 text-muted-foreground`}
+              className={`flex-shrink-0 text-[10px] font-semibold tracking-wider uppercase rounded-full px-2.5 py-0.5 flex items-center gap-1 bg-white/[0.04] border border-white/10 text-zinc-300`}
             >
-              {isGovt && <Landmark className="w-3 h-3" />}
+              {isGovt && <Landmark className="w-3 h-3 text-zinc-300" strokeWidth={1.75} />}
               {sourceInfo.label}
             </span>
           )}
@@ -166,8 +164,8 @@ export function JobCard({
       <CardContent className="pb-4 flex-grow select-text">
         <div className="space-y-4">
           <div className="flex items-center justify-between text-xs text-muted-foreground select-text">
-            <span className="flex items-center gap-1 font-medium text-emerald-400">
-              <DollarSign className="w-3.5 h-3.5" />
+            <span className="flex items-center gap-1 font-medium text-zinc-200 font-mono">
+              <DollarSign className="w-3.5 h-3.5 text-zinc-400" strokeWidth={1.75} />
               {job.salary_min
                 ? `${job.salary_currency || '$'}${job.salary_min.toLocaleString()} - ${
                     job.salary_max ? job.salary_max.toLocaleString() : '+'
@@ -176,22 +174,22 @@ export function JobCard({
             </span>
             {job.posted_date && (
               <span className="flex items-center gap-1">
-                <CalendarDays className="w-3.5 h-3.5 text-muted-foreground/70" />
+                <CalendarDays className="w-3.5 h-3.5 text-muted-foreground/70" strokeWidth={1.75} />
                 {formatDate(job.posted_date)}
               </span>
             )}
           </div>
 
-          {/* Balanced, Clean Tag Row (Budget: Max 3 tags, 10-15% tint, no border) */}
+          {/* Balanced, Clean Tag Row (Taito.ai monochrome pills) */}
           <div className="flex flex-wrap items-center gap-1.5 select-text">
             {showRemote && (
-              <span className="rounded-full bg-sky-500/12 px-2.5 py-0.5 text-[10px] font-medium text-sky-400">
+              <span className="rounded-full bg-white/[0.05] border border-white/10 px-2.5 py-0.5 text-[10px] font-medium text-zinc-300">
                 Remote
               </span>
             )}
 
             {showCategory && primaryCategory && (
-              <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] font-medium text-primary">
+              <span className="rounded-full bg-white/10 border border-white/20 px-2.5 py-0.5 text-[10px] font-medium text-white">
                 {getCategoryLabel(primaryCategory.category)}
               </span>
             )}
@@ -199,7 +197,7 @@ export function JobCard({
             {visibleSkills.map((skill: string) => (
               <span
                 key={skill}
-                className="rounded-full bg-muted/50 px-2 py-0.5 text-[10px] font-mono text-muted-foreground select-text"
+                className="rounded-full bg-white/[0.04] border border-white/5 px-2 py-0.5 text-[10px] font-mono text-zinc-400 select-text"
               >
                 {skill}
               </span>
@@ -217,7 +215,7 @@ export function JobCard({
       <div className="mt-auto pt-3 pb-3 px-6 border-t border-border/40 flex items-center gap-2">
         <Link
           href={`/dashboard/jobs/${job.id}`}
-          className="flex items-center justify-center flex-1 h-9 rounded-lg border border-border bg-card text-foreground text-xs font-medium hover:bg-muted transition-colors"
+          className="flex items-center justify-center flex-1 h-9 rounded-lg border border-white/15 bg-white/[0.03] text-foreground text-xs font-medium hover:bg-white/10 transition-colors"
         >
           View & Match
         </Link>
@@ -227,11 +225,11 @@ export function JobCard({
             href={job.apply_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center h-9 px-3.5 rounded-lg text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-xs"
+            className="flex items-center justify-center h-9 px-3.5 rounded-lg text-xs font-semibold bg-white text-zinc-950 hover:bg-zinc-200 transition-colors shadow-xs"
             title="Open application link in new tab"
           >
             {isGovt ? 'Circular' : 'Apply'}{' '}
-            <ExternalLink className="w-3 h-3 ml-1.5" />
+            <ExternalLink className="w-3 h-3 ml-1.5" strokeWidth={1.75} />
           </a>
         )}
 
@@ -241,9 +239,9 @@ export function JobCard({
             size="icon"
             onClick={handleSaveClick}
             title={isSaved ? 'Unsave job' : 'Save job'}
-            className="h-9 w-9 flex-shrink-0 border-border text-muted-foreground hover:text-primary"
+            className="h-9 w-9 flex-shrink-0 border-white/15 text-zinc-400 hover:text-white hover:bg-white/5"
           >
-            <Bookmark className={`w-3.5 h-3.5 ${isSaved ? 'fill-current text-primary' : ''}`} />
+            <Bookmark className={`w-3.5 h-3.5 ${isSaved ? 'fill-white text-white' : ''}`} strokeWidth={1.75} />
           </Button>
         )}
       </div>

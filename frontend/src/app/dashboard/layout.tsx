@@ -74,14 +74,14 @@ export default function DashboardLayout({
       {/* Logo */}
       <div className={`flex h-[72px] items-center border-b border-border/60 ${isMobileDrawer ? 'px-5' : 'px-3 lg:px-5 justify-center lg:justify-start'}`}>
         <Link href="/" className="flex items-center gap-2.5" title="EngineerCopilot">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-primary/60 bg-primary/10">
-            <Cpu className="h-5 w-5 text-primary" />
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/20 bg-white/10">
+            <Cpu className="h-5 w-5 text-white" strokeWidth={1.75} />
           </span>
           <span className={isMobileDrawer ? 'block' : 'hidden lg:block'}>
-            <span className="block text-[15px] font-bold tracking-tight">
-              Engineer<span className="text-primary">Copilot</span>
+            <span className="block text-[15px] font-bold tracking-tight text-white">
+              Engineer<span className="text-zinc-400 font-normal">Copilot</span>
             </span>
-            <span className="block text-[10px] text-muted-foreground leading-tight">
+            <span className="block text-[10px] text-zinc-500 leading-tight">
               Find, Prepare, Apply, Grow.
             </span>
           </span>
@@ -108,11 +108,11 @@ export default function DashboardLayout({
                     : 'px-2 lg:px-3 justify-center lg:justify-start'
                 } ${
                   isActive
-                    ? 'bg-primary/10 text-primary border-l-2 border-primary'
-                    : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground border-l-2 border-transparent'
+                    ? 'bg-white/10 text-white border-l-2 border-white font-semibold'
+                    : 'text-zinc-400 hover:bg-white/[0.04] hover:text-white border-l-2 border-transparent'
                 }`}
               >
-                <item.icon className={`h-[18px] w-[18px] shrink-0 ${isActive ? 'text-primary' : ''}`} />
+                <item.icon className={`h-[18px] w-[18px] shrink-0 ${isActive ? 'text-white' : 'text-zinc-400'}`} strokeWidth={1.75} />
                 <span className={isMobileDrawer ? 'inline' : 'hidden lg:inline'}>
                   {item.name}
                 </span>
@@ -126,10 +126,10 @@ export default function DashboardLayout({
       <div className={`border-t border-border/50 mt-auto ${isMobileDrawer ? 'p-3' : 'p-2 lg:p-3'}`}>
         <div className={`flex items-center gap-3 ${isMobileDrawer ? 'px-2 py-2' : 'px-1 lg:px-2 py-2 justify-center lg:justify-start'}`}>
           <div
-            className="h-9 w-9 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center shrink-0"
+            className="h-9 w-9 rounded-full bg-white/10 border border-white/20 flex items-center justify-center shrink-0"
             title={userName || 'User'}
           >
-            <span className="text-sm font-bold text-primary">
+            <span className="text-sm font-semibold text-white">
               {(userName || 'U').charAt(0).toUpperCase()}
             </span>
           </div>
@@ -148,7 +148,7 @@ export default function DashboardLayout({
             }`}
             title="Log out"
           >
-            <LogOut className="h-4 w-4" />
+            <LogOut className="h-4 w-4" strokeWidth={1.75} />
           </button>
         </div>
       </div>

@@ -6,37 +6,37 @@
 
 @layer base {
   :root {
-    /* ── Surfaces ─────────────────────────────────── */
-    --background: 228 14% 4%;       /* #0A0B0F */
-    --foreground: 220 14% 96%;      /* #F3F4F6 */
+    /* ── Surfaces (Taito.ai Deep Obsidian & Clean Charcoal) ── */
+    --background: 240 10% 4%;       /* #09090b - pure minimalist obsidian */
+    --foreground: 0 0% 98%;         /* #fafafa - crisp high-contrast white */
 
-    --card: 225 16% 9%;             /* #12141B */
-    --card-foreground: 220 14% 96%;
+    --card: 240 10% 6.5%;          /* #111115 - elevated card surface */
+    --card-foreground: 0 0% 98%;
 
-    --popover: 226 14% 11%;         /* #171A22 */
-    --popover-foreground: 220 14% 96%;
+    --popover: 240 10% 8.5%;        /* #15161a */
+    --popover-foreground: 0 0% 98%;
 
-    /* ── Brand Accent — ONE color for primary actions ── */
-    --primary: 174 71% 50%;         /* #2DD4BF teal */
-    --primary-foreground: 228 14% 4%;
+    /* ── Brand Accent — Pure Black & White (Taito.ai) ── */
+    --primary: 0 0% 98%;           /* #fafafa - crisp white primary */
+    --primary-foreground: 240 10% 4%; /* #09090b - deep black text on primary */
 
-    --secondary: 222 14% 13%;       /* #1C1F28 */
-    --secondary-foreground: 220 14% 96%;
+    --secondary: 240 5% 14%;       /* #232328 */
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 222 14% 13%;
-    --muted-foreground: 218 11% 55%;  /* #818A9C */
+    --muted: 240 5% 12%;           /* #1d1e22 */
+    --muted-foreground: 240 5% 65%; /* #a1a1aa - clean neutral zinc */
 
-    --accent: 222 14% 13%;
-    --accent-foreground: 220 14% 96%;
+    --accent: 240 5% 14%;
+    --accent-foreground: 0 0% 98%;
 
     --destructive: 0 72% 51%;       /* #EF4444 */
-    --destructive-foreground: 220 14% 96%;
+    --destructive-foreground: 0 0% 98%;
 
     /* ── Borders & Inputs ─────────────────────────── */
-    --border: 225 11% 17%;          /* #23262F */
-    --border-strong: 224 10% 22%;   /* #2E323C */
-    --input: 225 11% 17%;
-    --ring: 174 71% 50%;
+    --border: 240 5% 16%;          /* #26272e - subtle crisp border */
+    --border-strong: 240 5% 26%;   /* #40414b */
+    --input: 240 5% 16%;
+    --ring: 0 0% 98%;
 
     --radius: 0.75rem;              /* 12px card radius globally */
   }
@@ -67,17 +67,17 @@
     color-scheme: dark;
   }
   select option {
-    background-color: hsl(225 16% 9%);
-    color: hsl(220 14% 96%);
+    background-color: hsl(240 10% 7%);
+    color: hsl(0 0% 98%);
   }
   ::selection {
-    background-color: hsl(var(--primary) / 0.25);
+    background-color: hsl(0 0% 100% / 0.2);
     color: hsl(var(--foreground));
   }
 
   /* Improved focus styles for accessibility */
   :focus-visible {
-    @apply outline-none ring-2 ring-primary/50 ring-offset-2 ring-offset-background;
+    @apply outline-none ring-2 ring-white/30 ring-offset-2 ring-offset-background;
   }
 }
 

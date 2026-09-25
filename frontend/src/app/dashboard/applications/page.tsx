@@ -43,70 +43,70 @@ const KANBAN_COLUMNS = [
   {
     key: 'saved',
     label: 'Saved',
-    color: 'text-muted-foreground',
-    bg: 'bg-muted/30',
-    border: 'border-border',
-    dot: 'bg-muted-foreground',
+    color: 'text-zinc-400',
+    bg: 'bg-white/[0.02]',
+    border: 'border-white/10',
+    dot: 'bg-zinc-500',
     icon: Bookmark,
     desc: 'Roles bookmarked for review',
   },
   {
     key: 'applied',
     label: 'Applied',
-    color: 'text-blue-400',
-    bg: 'bg-blue-500/8',
-    border: 'border-blue-500/20',
-    dot: 'bg-blue-400',
+    color: 'text-zinc-300',
+    bg: 'bg-white/[0.03]',
+    border: 'border-white/10',
+    dot: 'bg-zinc-400',
     icon: Clock,
     desc: 'Application submitted',
   },
   {
     key: 'assessment',
     label: 'Assessment',
-    color: 'text-violet-400',
-    bg: 'bg-violet-500/8',
-    border: 'border-violet-500/20',
-    dot: 'bg-violet-400',
+    color: 'text-zinc-200',
+    bg: 'bg-white/[0.03]',
+    border: 'border-white/10',
+    dot: 'bg-zinc-300',
     icon: FileText,
     desc: 'Take-home / Online test',
   },
   {
     key: 'interview',
     label: 'Interview',
-    color: 'text-amber-400',
-    bg: 'bg-amber-500/8',
-    border: 'border-amber-500/20',
-    dot: 'bg-amber-400',
+    color: 'text-zinc-100',
+    bg: 'bg-white/[0.04]',
+    border: 'border-white/15',
+    dot: 'bg-zinc-200',
     icon: Calendar,
     desc: 'Technical / Screen rounds',
   },
   {
     key: 'final_interview',
     label: 'Final Round',
-    color: 'text-amber-400',
-    bg: 'bg-amber-500/8',
-    border: 'border-amber-500/20',
-    dot: 'bg-amber-400',
+    color: 'text-white',
+    bg: 'bg-white/[0.05]',
+    border: 'border-white/20',
+    dot: 'bg-white',
     icon: TrendingUp,
     desc: 'Executive / Leadership fit',
   },
   {
     key: 'offer',
     label: 'Offer',
-    color: 'text-emerald-400',
-    bg: 'bg-emerald-500/8',
-    border: 'border-emerald-500/20',
-    dot: 'bg-emerald-400',
+    color: 'text-white',
+    bg: 'bg-white/[0.06]',
+    border: 'border-white/25',
+    dot: 'bg-white shadow-[0_0_8px_rgba(255,255,255,0.7)]',
     icon: CheckCircle2,
     desc: 'Written offer received',
   },
   {
     key: 'rejected',
     label: 'Archived',
-    color: 'text-red-400/70',
-    bg: 'bg-red-500/5',
-    border: 'border-red-500/15',
-    dot: 'bg-red-400/60',
+    color: 'text-zinc-500',
+    bg: 'bg-white/[0.01]',
+    border: 'border-white/5',
+    dot: 'bg-zinc-600',
     icon: XCircle,
     desc: 'Rejected or passed',
   },
@@ -533,63 +533,65 @@ export default function ApplicationsKanbanPage() {
         </div>
       </div>
 
-      {/* ── Secondary Bar: Status Stage Pills Filter ─────────── */}
-      <div className="flex items-center justify-between gap-2 shrink-0 py-1 border-y border-border/40 text-xs">
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-          <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mr-1">
-            Stage:
-          </span>
-
-          <button
-            onClick={() => setStatusFilter('all')}
-            className={`px-2.5 py-1 rounded-full text-xs transition-all font-medium flex items-center gap-1.5 ${
-              statusFilter === 'all'
-                ? 'bg-primary/20 text-primary border border-primary/40 font-semibold'
-                : 'text-muted-foreground hover:text-foreground hover:bg-muted/40 border border-transparent'
-            }`}
-          >
-            All Stages
-            <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-muted/60 text-foreground font-mono">
-              {apps.length}
+      {/* ── Secondary Bar: Status Stage Pills Filter (Only in Table/List view to eliminate Kanban redundancy) ── */}
+      {viewMode === 'list' && (
+        <div className="flex items-center justify-between gap-2 shrink-0 py-1.5 border-y border-border/40 text-xs">
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+            <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mr-1">
+              Stage:
             </span>
-          </button>
 
-          {KANBAN_COLUMNS.map(col => {
-            const count = (stats as any)?.[col.key] || 0;
-            const isSelected = statusFilter === col.key;
-            return (
-              <button
-                key={col.key}
-                onClick={() => setStatusFilter(isSelected ? 'all' : col.key)}
-                className={`px-2.5 py-1 rounded-full text-xs transition-all font-medium flex items-center gap-1.5 ${
-                  isSelected
-                    ? `${col.bg} ${col.color} border ${col.border} font-semibold shadow-xs`
-                    : 'text-muted-foreground hover:text-foreground hover:bg-muted/30 border border-transparent'
-                }`}
-              >
-                <span className={`w-1.5 h-1.5 rounded-full ${col.dot}`} />
-                {col.label}
-                <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-muted/50 text-foreground font-mono">
-                  {count}
-                </span>
-              </button>
-            );
-          })}
-        </div>
+            <button
+              onClick={() => setStatusFilter('all')}
+              className={`px-2.5 py-1 rounded-full text-xs transition-all font-medium flex items-center gap-1.5 cursor-pointer ${
+                statusFilter === 'all'
+                  ? 'bg-white text-zinc-950 font-semibold shadow-xs'
+                  : 'text-zinc-400 hover:text-white hover:bg-white/5 border border-transparent'
+              }`}
+            >
+              All Stages
+              <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-white/10 text-white font-mono">
+                {apps.length}
+              </span>
+            </button>
 
-        {/* View Toggle / Quick Filter */}
-        <div className="hidden lg:flex items-center gap-2 text-xs text-muted-foreground">
-          <label className="flex items-center gap-1.5 cursor-pointer hover:text-foreground select-none">
-            <input
-              type="checkbox"
-              checked={showArchivedColumn}
-              onChange={e => setShowArchivedColumn(e.target.checked)}
-              className="rounded border-border text-primary focus:ring-primary w-3.5 h-3.5"
-            />
-            <span>Include Archived</span>
-          </label>
+            {KANBAN_COLUMNS.map(col => {
+              const count = (stats as any)?.[col.key] || 0;
+              const isSelected = statusFilter === col.key;
+              return (
+                <button
+                  key={col.key}
+                  onClick={() => setStatusFilter(isSelected ? 'all' : col.key)}
+                  className={`px-2.5 py-1 rounded-full text-xs transition-all font-medium flex items-center gap-1.5 cursor-pointer ${
+                    isSelected
+                      ? 'bg-white text-zinc-950 font-semibold shadow-xs'
+                      : 'text-zinc-400 hover:text-white hover:bg-white/5 border border-transparent'
+                  }`}
+                >
+                  <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-zinc-900' : col.dot}`} />
+                  {col.label}
+                  <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-white/10 text-zinc-300 font-mono">
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* View Toggle / Quick Filter */}
+          <div className="hidden lg:flex items-center gap-2 text-xs text-muted-foreground">
+            <label className="flex items-center gap-1.5 cursor-pointer hover:text-foreground select-none">
+              <input
+                type="checkbox"
+                checked={showArchivedColumn}
+                onChange={e => setShowArchivedColumn(e.target.checked)}
+                className="rounded border-border text-white focus:ring-white w-3.5 h-3.5"
+              />
+              <span>Include Archived</span>
+            </label>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* ── Empty State ─────────────────────────────────────── */}
       {apps.length === 0 && (
@@ -727,8 +729,8 @@ export default function ApplicationsKanbanPage() {
                                 </span>
                               )}
                               {app.job_salary && (
-                                <span className="flex items-center gap-0.5 font-medium text-emerald-400">
-                                  <Banknote className="w-2.5 h-2.5 shrink-0" />
+                                <span className="flex items-center gap-0.5 font-medium text-zinc-300 font-mono">
+                                  <Banknote className="w-2.5 h-2.5 shrink-0 text-zinc-400" />
                                   {app.job_salary}
                                 </span>
                               )}
@@ -870,8 +872,8 @@ export default function ApplicationsKanbanPage() {
                         </span>
                       )}
                       {app.job_salary && (
-                        <span className="flex items-center gap-1 font-medium text-emerald-400">
-                          <Banknote className="w-3 h-3" />
+                        <span className="flex items-center gap-1 font-medium text-zinc-300 font-mono">
+                          <Banknote className="w-3 h-3 text-zinc-400" />
                           {app.job_salary}
                         </span>
                       )}
@@ -987,7 +989,7 @@ export default function ApplicationsKanbanPage() {
                       <p className="text-xs text-muted-foreground mt-0.5 flex flex-wrap items-center gap-x-2">
                         <span className="font-medium text-foreground/90">{app.job_company}</span>
                         {app.job_location && <span>· {app.job_location}</span>}
-                        {app.job_salary && <span className="text-emerald-400 font-medium">· {app.job_salary}</span>}
+                        {app.job_salary && <span className="text-zinc-300 font-medium font-mono">· {app.job_salary}</span>}
                         {days !== null && <span>· {days}d ago</span>}
                       </p>
                       {app.notes && (

@@ -20,6 +20,8 @@ import {
   Compass,
   Target,
   RefreshCw,
+  Building2,
+  Globe,
 } from 'lucide-react'
 import { api } from '@/lib/api'
 import { createClient } from '@/lib/supabase/client'
@@ -274,19 +276,19 @@ export default function DashboardPage() {
         
         {/* Metric 1 */}
         <Link href="/dashboard/applications" className="group">
-          <Card className="border border-border bg-card hover:border-[hsl(var(--border-strong))] transition-all p-3 group-hover:bg-muted/20">
+          <Card className="border border-border/70 bg-card hover:border-white/30 transition-all p-3.5 group-hover:bg-white/[0.02]">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Active Pipeline</span>
-              <div className="h-6 w-6 rounded-md bg-muted flex items-center justify-center">
-                <Briefcase className="h-3 w-3 text-muted-foreground" />
+              <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Active Pipeline</span>
+              <div className="h-6 w-6 rounded-md bg-white/[0.04] border border-white/10 flex items-center justify-center">
+                <Briefcase className="h-3 w-3 text-zinc-400" strokeWidth={1.5} />
               </div>
             </div>
-            <div className="mt-1.5 flex items-baseline justify-between">
-              <span className="text-2xl font-semibold font-mono tracking-tight text-foreground">
+            <div className="mt-2 flex items-baseline justify-between">
+              <span className="text-2xl font-semibold font-mono tracking-tight text-white">
                 {totals.activeApplications}
               </span>
-              <span className="text-[11px] text-muted-foreground font-medium flex items-center gap-0.5 group-hover:text-primary group-hover:translate-x-0.5 transition-all">
-                View <ArrowRight className="h-3 w-3" />
+              <span className="text-[11px] text-zinc-500 font-medium">
+                in tracker
               </span>
             </div>
           </Card>
@@ -294,19 +296,19 @@ export default function DashboardPage() {
 
         {/* Metric 2 */}
         <Link href="/dashboard/applications" className="group">
-          <Card className="border border-border bg-card hover:border-[hsl(var(--border-strong))] transition-all p-3 group-hover:bg-muted/20">
+          <Card className="border border-border/70 bg-card hover:border-white/30 transition-all p-3.5 group-hover:bg-white/[0.02]">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Interviews & Tests</span>
-              <div className="h-6 w-6 rounded-md bg-muted flex items-center justify-center">
-                <Activity className="h-3 w-3 text-muted-foreground" />
+              <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Interviews & Tests</span>
+              <div className="h-6 w-6 rounded-md bg-white/[0.04] border border-white/10 flex items-center justify-center">
+                <Activity className="h-3 w-3 text-zinc-400" strokeWidth={1.5} />
               </div>
             </div>
-            <div className="mt-1.5 flex items-baseline justify-between">
-              <span className="text-2xl font-semibold font-mono tracking-tight text-foreground">
+            <div className="mt-2 flex items-baseline justify-between">
+              <span className="text-2xl font-semibold font-mono tracking-tight text-white">
                 {totals.interviews}
               </span>
-              <span className="text-[11px] text-muted-foreground font-medium flex items-center gap-0.5 group-hover:text-primary group-hover:translate-x-0.5 transition-all">
-                Rounds <ArrowRight className="h-3 w-3" />
+              <span className="text-[11px] text-zinc-500 font-medium">
+                active rounds
               </span>
             </div>
           </Card>
@@ -314,19 +316,19 @@ export default function DashboardPage() {
 
         {/* Metric 3 */}
         <Link href="/dashboard/resume" className="group">
-          <Card className="border border-border bg-card hover:border-[hsl(var(--border-strong))] transition-all p-3 group-hover:bg-muted/20">
+          <Card className="border border-border/70 bg-card hover:border-white/30 transition-all p-3.5 group-hover:bg-white/[0.02]">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Tailored Resumes</span>
-              <div className="h-6 w-6 rounded-md bg-muted flex items-center justify-center">
-                <FileText className="h-3 w-3 text-muted-foreground" />
+              <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Tailored Resumes</span>
+              <div className="h-6 w-6 rounded-md bg-white/[0.04] border border-white/10 flex items-center justify-center">
+                <FileText className="h-3 w-3 text-zinc-400" strokeWidth={1.5} />
               </div>
             </div>
-            <div className="mt-1.5 flex items-baseline justify-between">
-              <span className="text-2xl font-semibold font-mono tracking-tight text-foreground">
+            <div className="mt-2 flex items-baseline justify-between">
+              <span className="text-2xl font-semibold font-mono tracking-tight text-white">
                 {generatedResumes.length}
               </span>
-              <span className="text-[11px] text-muted-foreground font-medium flex items-center gap-0.5 group-hover:text-primary group-hover:translate-x-0.5 transition-all">
-                Studio <ArrowRight className="h-3 w-3" />
+              <span className="text-[11px] text-zinc-500 font-medium">
+                profiles stored
               </span>
             </div>
           </Card>
@@ -334,19 +336,19 @@ export default function DashboardPage() {
 
         {/* Metric 4 */}
         <Link href="/dashboard/resume" className="group">
-          <Card className="border border-border bg-card hover:border-[hsl(var(--border-strong))] transition-all p-3 group-hover:bg-muted/20">
+          <Card className="border border-border/70 bg-card hover:border-white/30 transition-all p-3.5 group-hover:bg-white/[0.02]">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Target ATS Index</span>
-              <div className="h-6 w-6 rounded-md bg-muted flex items-center justify-center">
-                <TrendingUp className="h-3 w-3 text-muted-foreground" />
+              <span className="text-[11px] font-medium text-zinc-400 uppercase tracking-wider">Target ATS Index</span>
+              <div className="h-6 w-6 rounded-md bg-white/[0.04] border border-white/10 flex items-center justify-center">
+                <TrendingUp className="h-3 w-3 text-zinc-400" strokeWidth={1.5} />
               </div>
             </div>
-            <div className="mt-1.5 flex items-baseline justify-between">
-              <span className="text-2xl font-semibold font-mono tracking-tight text-foreground">
-                {matchAvg !== null ? `${matchAvg}%` : hasMasterResume ? '85%' : '0%'}
+            <div className="mt-2 flex items-baseline justify-between">
+              <span className="text-2xl font-semibold font-mono tracking-tight text-white">
+                {matchAvg !== null ? `${matchAvg}%` : hasMasterResume ? '85%' : 'Calibrate'}
               </span>
-              <span className="text-[11px] text-muted-foreground font-medium flex items-center gap-0.5 group-hover:text-primary group-hover:translate-x-0.5 transition-all">
-                Scanner <ArrowRight className="h-3 w-3" />
+              <span className="text-[11px] text-zinc-500 font-medium">
+                match score
               </span>
             </div>
           </Card>
@@ -363,62 +365,62 @@ export default function DashboardPage() {
           {/* Card Header & Fast Filter Tabs */}
           <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-border/40 shrink-0">
             <div className="flex items-center gap-2">
-              <Compass className="h-4 w-4 text-primary" />
+              <Compass className="h-4 w-4 text-white" strokeWidth={1.5} />
               <h2 className="text-sm font-bold text-foreground">Recommended Opportunities</h2>
-              <span className="rounded-full bg-primary/10 border border-primary/20 px-2 py-0.2 text-[10px] font-mono text-primary font-semibold">
+              <span className="rounded-full bg-white/10 border border-white/20 px-2 py-0.2 text-[10px] font-mono text-zinc-300 font-semibold">
                 {displayedJobs.length} live
               </span>
             </div>
 
-            {/* Quick Segment Filter */}
-            <div className="flex items-center gap-1 bg-muted/40 p-0.5 rounded-lg border border-border/50 text-[11px]">
+            {/* Quick Segment Filter - Clean SVG Icons without Emojis */}
+            <div className="flex items-center gap-1 bg-white/[0.04] p-0.5 rounded-lg border border-white/10 text-[11px]">
               <button
                 onClick={() => handleCategoryChange('all')}
-                className={`px-2.5 py-1 rounded-md font-medium transition-all ${
+                className={`px-2.5 py-1 rounded-md font-medium transition-all cursor-pointer ${
                   activeCategory === 'all'
-                    ? 'bg-card text-foreground shadow-xs font-semibold'
-                    : 'text-muted-foreground hover:text-foreground'
+                    ? 'bg-white text-zinc-950 shadow-xs font-semibold'
+                    : 'text-zinc-400 hover:text-white'
                 }`}
               >
                 All
               </button>
               <button
                 onClick={() => handleCategoryChange('bd')}
-                className={`px-2.5 py-1 rounded-md font-medium transition-all ${
+                className={`px-2.5 py-1 rounded-md font-medium transition-all flex items-center gap-1 cursor-pointer ${
                   activeCategory === 'bd'
-                    ? 'bg-card text-foreground shadow-xs font-semibold'
-                    : 'text-muted-foreground hover:text-foreground'
+                    ? 'bg-white text-zinc-950 shadow-xs font-semibold'
+                    : 'text-zinc-400 hover:text-white'
                 }`}
               >
-                🇧🇩 BD Tech
+                <Building2 className="w-3 h-3" strokeWidth={1.5} /> BD Tech
               </button>
               <button
                 onClick={() => handleCategoryChange('remote')}
-                className={`px-2.5 py-1 rounded-md font-medium transition-all ${
+                className={`px-2.5 py-1 rounded-md font-medium transition-all flex items-center gap-1 cursor-pointer ${
                   activeCategory === 'remote'
-                    ? 'bg-card text-foreground shadow-xs font-semibold'
-                    : 'text-muted-foreground hover:text-foreground'
+                    ? 'bg-white text-zinc-950 shadow-xs font-semibold'
+                    : 'text-zinc-400 hover:text-white'
                 }`}
               >
-                🌐 Remote
+                <Globe className="w-3 h-3" strokeWidth={1.5} /> Remote
               </button>
               <button
                 onClick={() => handleCategoryChange('govt')}
-                className={`px-2.5 py-1 rounded-md font-medium transition-all ${
+                className={`px-2.5 py-1 rounded-md font-medium transition-all flex items-center gap-1 cursor-pointer ${
                   activeCategory === 'govt'
-                    ? 'bg-card text-foreground shadow-xs font-semibold'
-                    : 'text-muted-foreground hover:text-foreground'
+                    ? 'bg-white text-zinc-950 shadow-xs font-semibold'
+                    : 'text-zinc-400 hover:text-white'
                 }`}
               >
-                🏛️ BD Govt
+                <Landmark className="w-3 h-3" strokeWidth={1.5} /> BD Govt
               </button>
             </div>
 
             <Link
               href="/dashboard/jobs"
-              className="text-xs text-primary hover:underline font-semibold inline-flex items-center gap-1"
+              className="text-xs text-zinc-400 hover:text-white hover:underline font-medium inline-flex items-center gap-1"
             >
-              All Jobs <ChevronRight className="h-3 w-3" />
+              All Jobs <ChevronRight className="h-3 w-3" strokeWidth={1.5} />
             </Link>
           </div>
 
@@ -426,7 +428,7 @@ export default function DashboardPage() {
           <div className="flex-1 min-h-0 overflow-y-auto space-y-2 pt-2.5 pr-1">
             {categoryLoading ? (
               <div className="flex items-center justify-center h-32 gap-2 text-xs text-muted-foreground">
-                <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                <Loader2 className="w-4 h-4 animate-spin text-white" />
                 Loading opportunities...
               </div>
             ) : displayedJobs.length === 0 ? (
@@ -434,7 +436,7 @@ export default function DashboardPage() {
                 <Briefcase className="h-8 w-8 text-muted-foreground opacity-30 mb-2" />
                 <p className="text-xs text-muted-foreground">No roles matching this category yet.</p>
                 <Link href="/dashboard/jobs" className="mt-2">
-                  <Button size="sm" variant="outline" className="h-7 text-xs">Browse All Jobs</Button>
+                  <Button size="sm" variant="outline" className="h-7 text-xs border-white/20 text-zinc-200 hover:bg-white/5">Browse All Jobs</Button>
                 </Link>
               </div>
             ) : (
@@ -449,14 +451,14 @@ export default function DashboardPage() {
                   <Link
                     key={j.id}
                     href={`/dashboard/jobs?job=${j.id}`}
-                    className="block rounded-lg border border-border/50 bg-background/50 hover:bg-muted/40 hover:border-primary/50 transition-all p-2.5 group cursor-pointer"
+                    className="block rounded-lg border border-border/50 bg-background/50 hover:bg-white/[0.03] hover:border-white/25 transition-all p-2.5 group cursor-pointer"
                   >
                     <div className="flex items-center gap-3">
                       <CompanyLogo company={cleanCompany} size="sm" />
 
                       <div className="min-w-0 flex-1">
                         <div className="flex items-baseline justify-between gap-2">
-                          <h3 className="text-[13px] font-bold text-foreground group-hover:text-primary transition-colors truncate">
+                          <h3 className="text-[13px] font-bold text-foreground group-hover:text-white transition-colors truncate">
                             {cleanTitle}
                           </h3>
                           <span className="shrink-0 text-[10px] text-muted-foreground font-mono">
@@ -478,7 +480,7 @@ export default function DashboardPage() {
                             </>
                           )}
                           {isGovt && (
-                            <span className="inline-flex items-center gap-0.5 text-emerald-400 font-semibold text-[11px]">
+                            <span className="inline-flex items-center gap-0.5 text-zinc-300 font-semibold text-[11px]">
                               <Landmark className="h-2.5 w-2.5" /> BD Govt
                             </span>
                           )}
@@ -488,8 +490,9 @@ export default function DashboardPage() {
                         <div className="mt-1.5 flex items-center justify-between gap-2">
                           <div className="flex flex-wrap items-center gap-1">
                             {j.salary_min && (
-                              <span className="rounded bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 text-[10px] text-emerald-400 font-semibold font-mono">
-                                {j.salary_currency || '$'}{Number(j.salary_min).toLocaleString()}
+                              <span className="rounded bg-white/10 border border-white/20 px-1.5 py-0.5 text-[10px] text-zinc-200 font-semibold font-mono">
+                                {j.salary_currency === '৳' ? 'BDT ' : (j.salary_currency || '$')}
+                                {Number(j.salary_min).toLocaleString()}
                                 {j.salary_max ? `–${Number(j.salary_max).toLocaleString()}` : '+'}
                                 {j.salary_currency === '৳' ? '/mo' : ''}
                               </span>
@@ -497,7 +500,7 @@ export default function DashboardPage() {
                             {skills.slice(0, 3).map((skill) => (
                               <span
                                 key={skill}
-                                className="rounded border border-border/60 bg-muted/40 px-1.5 py-0.2 text-[10px] text-muted-foreground font-mono"
+                                className="rounded border border-white/10 bg-white/[0.04] px-1.5 py-0.2 text-[10px] text-zinc-300 font-mono"
                               >
                                 {skill}
                               </span>
@@ -509,7 +512,7 @@ export default function DashboardPage() {
                             )}
                           </div>
 
-                          <span className="shrink-0 text-[11px] text-primary font-medium opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5">
+                          <span className="shrink-0 text-[11px] text-zinc-400 group-hover:text-white font-medium opacity-0 group-hover:opacity-100 transition-all flex items-center gap-0.5">
                             Details <ChevronRight className="h-3 w-3" />
                           </span>
                         </div>
@@ -529,20 +532,20 @@ export default function DashboardPage() {
           <div className="border border-border/60 bg-card rounded-xl p-3.5 shadow-sm flex flex-col flex-1 min-h-0">
             <div className="flex items-center justify-between pb-2 border-b border-border/40 shrink-0">
               <div className="flex items-center gap-2">
-                <Layers className="h-4 w-4 text-primary" />
+                <Layers className="h-4 w-4 text-white" strokeWidth={1.75} />
                 <h3 className="text-sm font-bold text-foreground">Pipeline Funnel</h3>
               </div>
-              <Link href="/dashboard/applications" className="text-xs text-primary hover:underline font-semibold flex items-center gap-0.5">
+              <Link href="/dashboard/applications" className="text-xs text-zinc-400 hover:text-white hover:underline font-medium flex items-center gap-0.5">
                 Kanban <ArrowRight className="h-3 w-3" />
               </Link>
             </div>
 
             <div className="flex-1 min-h-0 flex flex-col justify-around py-2 space-y-2">
               {[
-                { label: 'Applied', val: stats?.applied || 0, bar: 'bg-blue-500' },
-                { label: 'Technical Assessment', val: stats?.assessment || 0, bar: 'bg-violet-500' },
-                { label: 'Interview Rounds', val: (stats?.interview || 0) + (stats?.final_interview || 0), bar: 'bg-amber-500' },
-                { label: 'Offers Extended', val: stats?.offer || 0, bar: 'bg-emerald-500' },
+                { label: 'Applied', val: stats?.applied || 0, bar: 'bg-zinc-600' },
+                { label: 'Technical Assessment', val: stats?.assessment || 0, bar: 'bg-zinc-400' },
+                { label: 'Interview Rounds', val: (stats?.interview || 0) + (stats?.final_interview || 0), bar: 'bg-zinc-200' },
+                { label: 'Offers Extended', val: stats?.offer || 0, bar: 'bg-white shadow-[0_0_8px_rgba(255,255,255,0.4)]' },
               ].map((row) => {
                 const pct = totalInPipeline > 0 ? Math.round((row.val / totalInPipeline) * 100) : 0
                 return (
@@ -553,7 +556,7 @@ export default function DashboardPage() {
                         {row.val} ({pct}%)
                       </span>
                     </div>
-                    <div className="h-1.5 w-full bg-muted/60 rounded-full overflow-hidden">
+                    <div className="h-1.5 w-full bg-white/[0.06] rounded-full overflow-hidden">
                       <div
                         className={`h-full ${row.bar} transition-all duration-500 rounded-full`}
                         style={{ width: `${Math.max(pct, row.val > 0 ? 10 : 0)}%` }}
@@ -566,7 +569,7 @@ export default function DashboardPage() {
 
             <div className="pt-2 border-t border-border/40 shrink-0">
               <Link href="/dashboard/applications">
-                <Button variant="outline" size="sm" className="w-full h-7 text-xs border-border/60 hover:bg-muted/50 font-medium">
+                <Button variant="outline" size="sm" className="w-full h-7 text-xs border-white/15 text-zinc-200 hover:bg-white/5 font-medium">
                   Manage Pipeline Board
                 </Button>
               </Link>
@@ -577,13 +580,13 @@ export default function DashboardPage() {
           <div className="border border-border/60 bg-card rounded-xl p-3.5 shadow-sm flex flex-col justify-between shrink-0 gap-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-muted-foreground" />
+                <Sparkles className="h-4 w-4 text-zinc-400" strokeWidth={1.75} />
                 <h3 className="text-sm font-semibold text-foreground">ATS Career Hub</h3>
               </div>
               <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold border ${
                 hasMasterResume
-                  ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
-                  : 'bg-amber-500/10 border-amber-500/20 text-amber-400'
+                  ? 'bg-white/10 border-white/20 text-white'
+                  : 'bg-white/5 border-white/10 text-zinc-400'
               }`}>
                 {hasMasterResume ? 'Profile Active' : 'Resume Required'}
               </span>
@@ -591,25 +594,25 @@ export default function DashboardPage() {
 
             <div className="grid grid-cols-2 gap-2">
               <Link href="/dashboard/resume">
-                <Button variant="outline" size="sm" className="w-full h-8 text-xs border-border/60 hover:bg-muted/50 font-medium justify-center">
-                  <FileText className="h-3 w-3 mr-1 text-primary" />
+                <Button variant="outline" size="sm" className="w-full h-8 text-xs border-white/15 text-zinc-200 hover:bg-white/5 font-medium justify-center">
+                  <FileText className="h-3 w-3 mr-1 text-zinc-400" strokeWidth={1.75} />
                   Resume Studio
                 </Button>
               </Link>
               <Link href="/dashboard/saved-jobs">
-                <Button variant="outline" size="sm" className="w-full h-8 text-xs border-border/60 hover:bg-muted/50 font-medium justify-center">
-                  <Bookmark className="h-3 w-3 mr-1 text-primary" />
+                <Button variant="outline" size="sm" className="w-full h-8 text-xs border-white/15 text-zinc-200 hover:bg-white/5 font-medium justify-center">
+                  <Bookmark className="h-3 w-3 mr-1 text-zinc-400" strokeWidth={1.75} />
                   Saved ({savedJobsCount})
                 </Button>
               </Link>
             </div>
 
-            <div className="rounded-lg bg-muted/30 border border-border/50 p-2 flex items-center justify-between text-[11px] text-muted-foreground">
+            <div className="rounded-lg bg-white/[0.03] border border-white/10 p-2 flex items-center justify-between text-[11px] text-muted-foreground">
               <span className="flex items-center gap-1.5 font-medium text-foreground/80">
-                <Target className="h-3.5 w-3.5 text-primary" />
+                <Target className="h-3.5 w-3.5 text-zinc-300" strokeWidth={1.75} />
                 1-Click ATS Matcher
               </span>
-              <span className="text-emerald-400 font-semibold font-mono">Available</span>
+              <span className="text-white font-semibold font-mono">Available</span>
             </div>
           </div>
 

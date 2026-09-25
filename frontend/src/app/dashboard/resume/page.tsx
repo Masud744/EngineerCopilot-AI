@@ -504,13 +504,63 @@ export default function ResumeStudioPage() {
                   </CardHeader>
                   <CardContent>
                     {parsed?.skills && parsed.skills.length > 0 ? (
-                      <div className="flex flex-wrap gap-1.5">
-                        {parsed.skills.map((skill, i) => (
-                          <Badge key={i} variant="outline" className="text-xs bg-muted/40">
-                            {skill}
-                          </Badge>
-                        ))}
-                      </div>
+                      (() => {
+                        const groups: { name: string; skills: string[] }[] = [
+                          {
+                            name: 'Languages & Core',
+                            skills: parsed.skills.filter(s => {
+                              const l = s.toLowerCase();
+                              return ['c', 'c++', 'python', 'typescript', 'javascript', 'sql', 'bash', 'go', 'rust', 'html', 'css'].some(k => l === k || l.startsWith(k + ' ') || l.startsWith(k + '/'));
+                            })
+                          },
+                          {
+                            name: 'Embedded, IoT & Hardware',
+                            skills: parsed.skills.filter(s => {
+                              const l = s.toLowerCase();
+                              return ['esp', 'arduino', 'raspberry', 'rtos', 'lora', 'mqtt', 'uart', 'spi', 'i2c', 'wire', 'sensor', 'motor', 'tinyml', 'hardware', 'eeprom', 'nvs', 'ota', 'isr', 'logic', 'serial'].some(k => l.includes(k));
+                            })
+                          },
+                          {
+                            name: 'AI, ML & Frameworks',
+                            skills: parsed.skills.filter(s => {
+                              const l = s.toLowerCase();
+                              return ['ai', 'ml', 'pytorch', 'tensorflow', 'scikit', 'opencv', 'yolo', 'onnx', 'mediapipe', 'llm', 'react', 'fastapi', 'tailwind', 'vite', 'chart'].some(k => l.includes(k));
+                            })
+                          },
+                          {
+                            name: 'Cloud, Systems & Tools',
+                            skills: parsed.skills.filter(s => {
+                              const l = s.toLowerCase();
+                              const matchedOther = ['c', 'c++', 'python', 'typescript', 'javascript', 'sql', 'bash', 'go', 'rust', 'html', 'css'].some(k => l === k || l.startsWith(k + ' ') || l.startsWith(k + '/'))
+                                || ['esp', 'arduino', 'raspberry', 'rtos', 'lora', 'mqtt', 'uart', 'spi', 'i2c', 'wire', 'sensor', 'motor', 'tinyml', 'hardware', 'eeprom', 'nvs', 'ota', 'isr', 'logic', 'serial'].some(k => l.includes(k))
+                                || ['ai', 'ml', 'pytorch', 'tensorflow', 'scikit', 'opencv', 'yolo', 'onnx', 'mediapipe', 'llm', 'react', 'fastapi', 'tailwind', 'vite', 'chart'].some(k => l.includes(k));
+                              return !matchedOther;
+                            })
+                          }
+                        ].filter(g => g.skills.length > 0);
+
+                        return (
+                          <div className="space-y-4">
+                            {groups.map(group => (
+                              <div key={group.name} className="space-y-1.5">
+                                <span className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider block">
+                                  {group.name} ({group.skills.length})
+                                </span>
+                                <div className="flex flex-wrap gap-1.5">
+                                  {group.skills.map((skill, i) => (
+                                    <span
+                                      key={i}
+                                      className="rounded-md border border-white/10 bg-white/[0.04] px-2 py-0.5 text-xs text-zinc-200 font-mono"
+                                    >
+                                      {skill}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        );
+                      })()
                     ) : (
                       <p className="text-xs text-muted-foreground italic">No skills extracted.</p>
                     )}

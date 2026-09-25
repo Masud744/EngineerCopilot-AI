@@ -27,13 +27,13 @@ export function sanitizeHtml(dirty: string): string {
  * Format a date string into a human-readable relative time.
  */
 export function formatPostedDate(dateValue?: string): string {
-  if (!dateValue) return 'Recently posted';
+  if (!dateValue) return 'Recent';
   const days = Math.floor((Date.now() - new Date(dateValue).getTime()) / 86400000);
   if (!Number.isFinite(days) || days <= 0) return 'Today';
-  if (days === 1) return '1 day ago';
-  if (days < 7) return `${days} days ago`;
-  if (days < 30) return `${Math.floor(days / 7)} week${Math.floor(days / 7) > 1 ? 's' : ''} ago`;
-  return new Date(dateValue).toLocaleDateString();
+  if (days === 1) return 'Yesterday';
+  if (days < 7) return `${days}d ago`;
+  if (days < 30) return `${Math.floor(days / 7)}w ago`;
+  return new Date(dateValue).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
 /**

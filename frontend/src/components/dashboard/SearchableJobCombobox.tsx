@@ -101,9 +101,9 @@ export function SearchableJobCombobox({
       >
         {selectedJob ? (
           <div className="flex items-center gap-2 min-w-0 flex-1">
-            <span className="text-primary font-semibold flex-shrink-0">
+            <span className="text-zinc-300 font-semibold flex-shrink-0">
               {selectedJob.source === 'BD Govt Jobs' ? (
-                <Landmark className="w-3.5 h-3.5 text-emerald-400" />
+                <Landmark className="w-3.5 h-3.5 text-zinc-300" />
               ) : (
                 <Briefcase className="w-3.5 h-3.5" />
               )}
@@ -184,14 +184,14 @@ export function SearchableJobCombobox({
 
             {/* Quick Filter Sub-tabs */}
             <div className="flex items-center gap-1 text-[11px] overflow-x-auto pb-0.5 scrollbar-none">
-              <span className="text-muted-foreground text-[10px] uppercase font-bold mr-1">Filter:</span>
+              <span className="text-zinc-500 text-[10px] uppercase font-bold mr-1">Filter:</span>
               <button
                 type="button"
                 onClick={() => setSourceFilter('all')}
                 className={`px-2 py-0.5 rounded text-[10px] font-medium transition-colors cursor-pointer ${
                   sourceFilter === 'all'
-                    ? 'bg-primary text-primary-foreground font-semibold'
-                    : 'bg-muted/40 hover:bg-muted text-muted-foreground'
+                    ? 'bg-white text-zinc-950 font-semibold'
+                    : 'bg-white/[0.04] hover:bg-white/10 text-zinc-400 hover:text-white'
                 }`}
               >
                 All ({jobs.length})
@@ -201,8 +201,8 @@ export function SearchableJobCombobox({
                 onClick={() => setSourceFilter('govt')}
                 className={`px-2 py-0.5 rounded text-[10px] font-medium transition-colors flex items-center gap-1 cursor-pointer ${
                   sourceFilter === 'govt'
-                    ? 'bg-emerald-600 text-white font-semibold'
-                    : 'bg-muted/40 hover:bg-muted text-emerald-400'
+                    ? 'bg-white text-zinc-950 font-semibold'
+                    : 'bg-white/[0.04] hover:bg-white/10 text-zinc-400 hover:text-white'
                 }`}
               >
                 <Landmark className="w-3 h-3" /> Govt
@@ -212,8 +212,8 @@ export function SearchableJobCombobox({
                 onClick={() => setSourceFilter('bd')}
                 className={`px-2 py-0.5 rounded text-[10px] font-medium transition-colors cursor-pointer ${
                   sourceFilter === 'bd'
-                    ? 'bg-blue-600 text-white font-semibold'
-                    : 'bg-muted/40 hover:bg-muted text-blue-400'
+                    ? 'bg-white text-zinc-950 font-semibold'
+                    : 'bg-white/[0.04] hover:bg-white/10 text-zinc-400 hover:text-white'
                 }`}
               >
                 BD Tech
@@ -223,8 +223,8 @@ export function SearchableJobCombobox({
                 onClick={() => setSourceFilter('remote')}
                 className={`px-2 py-0.5 rounded text-[10px] font-medium transition-colors flex items-center gap-1 cursor-pointer ${
                   sourceFilter === 'remote'
-                    ? 'bg-sky-600 text-white font-semibold'
-                    : 'bg-muted/40 hover:bg-muted text-sky-400'
+                    ? 'bg-white text-zinc-950 font-semibold'
+                    : 'bg-white/[0.04] hover:bg-white/10 text-zinc-400 hover:text-white'
                 }`}
               >
                 <Globe className="w-3 h-3" /> Remote
@@ -248,8 +248,8 @@ export function SearchableJobCombobox({
                     }}
                     className={`p-2 rounded-lg cursor-pointer transition-colors flex items-start justify-between gap-2 text-left ${
                       isSelected
-                        ? 'bg-primary/15 border border-primary/30 text-primary'
-                        : 'hover:bg-muted/60 text-foreground'
+                        ? 'bg-white/10 border border-white/20 text-white'
+                        : 'hover:bg-white/[0.04] text-foreground'
                     }`}
                   >
                     <div className="min-w-0 flex-1 space-y-0.5">
@@ -278,7 +278,7 @@ export function SearchableJobCombobox({
                       >
                         {sourceBadge.label}
                       </Badge>
-                      {isSelected && <Check className="w-3.5 h-3.5 text-primary flex-shrink-0" />}
+                      {isSelected && <Check className="w-3.5 h-3.5 text-white flex-shrink-0" />}
                     </div>
                   </div>
                 );

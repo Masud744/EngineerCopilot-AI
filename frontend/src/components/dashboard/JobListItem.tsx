@@ -34,8 +34,8 @@ export function JobListItem({
     <div
       className={`flex items-start gap-3 px-4 py-3.5 transition-colors cursor-pointer border-l-2 ${
         isActive
-          ? 'border-l-primary bg-primary/[0.06]'
-          : 'border-l-transparent hover:bg-muted/30'
+          ? 'border-l-white bg-white/[0.05]'
+          : 'border-l-transparent hover:bg-white/[0.02]'
       }`}
     >
       <button
@@ -105,14 +105,14 @@ export function JobListItem({
         type="button"
         variant="ghost"
         size="icon"
-        className="h-8 w-8 shrink-0 text-muted-foreground hover:text-primary"
+        className="h-8 w-8 shrink-0 text-zinc-500 hover:text-white"
         title={isSaved ? 'Remove saved job' : 'Save job'}
         onClick={(e) => {
           e.stopPropagation();
           onSaveToggle(job.id);
         }}
       >
-        <Bookmark className={`h-4 w-4 ${isSaved ? 'fill-current text-primary' : ''}`} />
+        <Bookmark className={`h-4 w-4 ${isSaved ? 'fill-white text-white' : ''}`} strokeWidth={1.75} />
       </Button>
     </div>
   );
