@@ -21,20 +21,30 @@ import {
   Copy,
   Check,
   Sparkles,
-  XCircle,
   FileText,
   Loader2,
+  Landmark,
+  Bookmark,
 } from 'lucide-react';
+import {
+  getCategoryLabel,
+  getCategoryBadgeClass,
+  getSourceBadge,
+  cleanJobSkills,
+} from '@/lib/constants/job-taxonomy';
+import { sanitizeHtml, getScoreColor, getCompanyLogoUrl, formatPostedDate } from '@/lib/utils';
+import type { Job, MatchScore } from '@/types/job';
 
 export default function JobDetailsPage() {
   const params = useParams();
   const router = useRouter();
-  const [job, setJob] = useState<any>(null);
-  const [matchData, setMatchData] = useState<any>(null);
+  const [job, setJob] = useState<Job | null>(null);
+  const [matchData, setMatchData] = useState<MatchScore | null>(null);
   const [loading, setLoading] = useState(true);
   const [matchLoading, setMatchLoading] = useState(false);
   const [error, setError] = useState('');
   const [copiedTitle, setCopiedTitle] = useState(false);
+  const [imgError, setImgError] = useState(false);
 
   const [tracking, setTracking] = useState(false);
   const [trackMsg, setTrackMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -49,8 +59,8 @@ export default function JobDetailsPage() {
         text: `Job ${status === 'applied' ? 'marked as Applied' : 'saved to pipeline'}! Redirecting...`,
       });
       setTimeout(() => router.push('/dashboard/applications'), 1200);
-    } catch (err: any) {
-      const msg = err?.message || 'Failed to track application.';
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Failed to track application.';
       setTrackMsg({
         type: 'error',
         text: msg.includes('already') ? 'Already tracked! Check your Applications page.' : msg,
@@ -75,8 +85,7 @@ export default function JobDetailsPage() {
         setLoading(true);
         setError('');
 
-        // 1. Fetch public job details FIRST
-        const jobRes = await api.get<any>(`/jobs/${params.id}`);
+        const jobRes = await api.get<Job>(`/jobs/${params.id}`);
         if (!isMounted) return;
         if (!jobRes || !jobRes.id) {
           setError('Job not found.');
@@ -86,32 +95,29 @@ export default function JobDetailsPage() {
         setJob(jobRes);
         setLoading(false);
 
-        // 2. Fetch match score gracefully in background
+        // Fetch match score in background
         setMatchLoading(true);
         try {
-          const matchRes = await api.post<any>(`/jobs/${params.id}/match`);
+          const matchRes = await api.post<{ match: MatchScore }>(`/jobs/${params.id}/match`);
           if (isMounted && matchRes) {
-            setMatchData(matchRes.match || matchRes);
+            setMatchData(matchRes.match || (matchRes as unknown as MatchScore));
           }
         } catch (matchErr) {
           console.warn('Match calculation skipped or failed:', matchErr);
         } finally {
           if (isMounted) setMatchLoading(false);
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (!isMounted) return;
+        const msg = err instanceof Error ? err.message : 'Failed to load job details.';
         console.error('Failed to load job details:', err);
-        setError(err?.message || 'Failed to load job details.');
+        setError(msg);
         setLoading(false);
       }
     };
 
-    if (params.id) {
-      fetchJobDetails();
-    }
-    return () => {
-      isMounted = false;
-    };
+    if (params.id) fetchJobDetails();
+    return () => { isMounted = false; };
   }, [params.id]);
 
   if (loading) {
@@ -144,11 +150,8 @@ export default function JobDetailsPage() {
     );
   }
 
-  const getScoreColor = (score: number) => {
-    if (score >= 80) return 'text-emerald-500';
-    if (score >= 50) return 'text-amber-500';
-    return 'text-red-500';
-  };
+  const cleanSkills = cleanJobSkills(job.required_skills, job.title, job.categories);
+  const logoUrl = getCompanyLogoUrl(job.company);
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto py-8 select-text">
@@ -168,122 +171,142 @@ export default function JobDetailsPage() {
           <Card className="select-text">
             <CardHeader className="pb-4">
               <div className="flex justify-between items-start gap-4">
-                <div className="space-y-2 flex-1">
-                  <div className="flex items-center gap-2">
-                    <CardTitle className="text-2xl md:text-3xl font-bold tracking-tight select-text">
-                      {job.title}
-                    </CardTitle>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleCopyTitle}
-                      title="Copy Job Title"
-                      className="h-8 px-2 text-muted-foreground hover:text-foreground"
-                    >
-                      {copiedTitle ? (
-                        <Check className="w-4 h-4 text-emerald-500" />
-                      ) : (
-                        <Copy className="w-4 h-4" />
-                      )}
-                    </Button>
+                <div className="flex items-start gap-4 flex-1">
+                  {/* Company Logo */}
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl border border-border/60 bg-secondary/60 overflow-hidden">
+                    {logoUrl && !imgError ? (
+                      <img
+                        src={logoUrl}
+                        alt={job.company}
+                        className="h-full w-full object-contain p-2"
+                        onError={() => setImgError(true)}
+                        loading="lazy"
+                      />
+                    ) : (
+                      <span className="text-xl font-bold text-primary/80">
+                        {(job.company || job.title || 'J').charAt(0).toUpperCase()}
+                      </span>
+                    )}
                   </div>
 
-                  <div className="flex flex-wrap items-center text-sm text-muted-foreground gap-4 mt-2 select-text">
-                    <span className="flex items-center gap-1.5 font-medium text-foreground">
-                      <Building2 className="w-4 h-4 text-primary" /> {job.company}
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <MapPin className="w-4 h-4" /> {job.location || 'Remote'}
-                    </span>
-                    {job.salary_min && (
-                      <span className="flex items-center gap-1.5 text-emerald-500 font-medium">
-                        <DollarSign className="w-4 h-4" />
-                        {job.salary_currency || '$'}
-                        {job.salary_min.toLocaleString()} -{' '}
-                        {job.salary_max ? job.salary_max.toLocaleString() : '+'}
+                  <div className="space-y-2 flex-1">
+                    <div className="flex items-center gap-2">
+                      <CardTitle className="text-2xl md:text-3xl font-bold tracking-tight select-text">
+                        {job.title}
+                      </CardTitle>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleCopyTitle}
+                        title="Copy Job Title"
+                        className="h-8 px-2 text-muted-foreground hover:text-foreground"
+                      >
+                        {copiedTitle ? (
+                          <Check className="w-4 h-4 text-emerald-500" />
+                        ) : (
+                          <Copy className="w-4 h-4" />
+                        )}
+                      </Button>
+                    </div>
+
+                    <div className="flex flex-wrap items-center text-sm text-muted-foreground gap-4 mt-2 select-text">
+                      <span className="flex items-center gap-1.5 font-medium text-foreground">
+                        <Building2 className="w-4 h-4 text-primary" /> {job.company}
                       </span>
-                    )}
-                    {job.posted_date && (
                       <span className="flex items-center gap-1.5">
-                        <CalendarDays className="w-4 h-4" />
-                        {new Date(job.posted_date).toLocaleDateString()}
+                        <MapPin className="w-4 h-4" /> {job.location || 'Remote'}
                       </span>
-                    )}
+                      {job.salary_min && (
+                        <span className="flex items-center gap-1.5 text-emerald-500 font-medium">
+                          <DollarSign className="w-4 h-4" />
+                          {job.salary_currency || '$'}
+                          {job.salary_min.toLocaleString()} –{' '}
+                          {job.salary_max ? job.salary_max.toLocaleString() : '+'}
+                        </span>
+                      )}
+                      {job.posted_date && (
+                        <span className="flex items-center gap-1.5">
+                          <CalendarDays className="w-4 h-4" />
+                          {formatPostedDate(job.posted_date)}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
 
               <div className="flex flex-wrap gap-2 mt-4">
                 {job.is_remote && (
-                  <Badge variant="secondary" className="bg-sky-500/10 text-sky-400 border-sky-500/20">
+                  <Badge variant="secondary" className="bg-sky-500/10 text-sky-400 border border-sky-500/20 text-xs">
                     Remote
                   </Badge>
                 )}
                 {job.categories &&
-                  job.categories.map((c: any) => (
+                  job.categories
+                    .filter((c) => (c.confidence ?? 0) >= 0.3)
+                    .slice(0, 3)
+                    .map((c) => (
+                      <Badge
+                        key={c.category}
+                        variant="secondary"
+                        className={`text-xs font-medium border ${getCategoryBadgeClass(c.category)}`}
+                      >
+                        {getCategoryLabel(c.category)}
+                      </Badge>
+                    ))}
+                {(() => {
+                  const srcBadge = getSourceBadge(job.source);
+                  return (
                     <Badge
-                      key={c.category}
-                      variant="secondary"
-                      className="bg-primary/10 text-primary border-primary/20"
+                      variant="outline"
+                      className={`capitalize font-medium flex items-center gap-1 ${srcBadge.className}`}
                     >
-                      {c.category.replace('_', ' ').toUpperCase()}
+                      {job.source === 'BD Govt Jobs' && <Landmark className="w-3 h-3" />}
+                      {srcBadge.label}
                     </Badge>
-                  ))}
-                <Badge
-                  variant="outline"
-                  className={`capitalize font-medium ${
-                    job.source === 'BD Govt Jobs'
-                      ? 'border-emerald-500/40 text-emerald-400 bg-emerald-500/10'
-                      : job.source === 'Bdjobs'
-                      ? 'border-orange-500/40 text-orange-400 bg-orange-500/10'
-                      : job.source === 'Jobicy'
-                      ? 'border-cyan-500/40 text-cyan-400 bg-cyan-500/10'
-                      : 'text-muted-foreground'
-                  }`}
-                >
-                  {job.source === 'BD Govt Jobs' ? '🏛️ BD Govt Jobs' : `Source: ${job.source}`}
-                </Badge>
+                  );
+                })()}
               </div>
             </CardHeader>
           </Card>
 
-          {/* Government Circular Alert Banner */}
+          {/* Government Circular Alert */}
           {job.source === 'BD Govt Jobs' && (
             <div className="p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 flex items-start gap-3">
-              <span className="text-xl">🏛️</span>
+              <Landmark className="w-5 h-5 text-emerald-400 flex-shrink-0 mt-0.5" />
               <div className="space-y-1">
                 <h4 className="font-semibold text-sm text-emerald-200">
-                  গণপ্রজাতন্ত্রী বাংলাদেশ সরকার — সরকারি নিয়োগ বিজ্ঞপ্তি
+                  গণপ্রজাতন্ত্রী বাংলাদেশ সরকার — সরকারি নিয়োগ বিজ্ঞপ্তি
                 </h4>
                 <p className="text-xs text-emerald-300/80 leading-relaxed">
-                  এটি বাংলাদেশ সরকারের মন্ত্রণালয়, অধিদপ্তর, স্বায়ত্তশাসিত বা সরকারি প্রতিষ্ঠানের নিয়োগ সার্কুলার। নিয়োগের শর্তাবলী, শিক্ষাগত যোগ্যতা, বয়সসীমা ও নির্দেশনাবলী দেখতে নিচে অথবা সাইডবারের লিংকে ক্লিক করে মূল সার্কুলার ও Teletalk পোর্টালে যান।
+                  এটি বাংলাদেশ সরকারের মন্ত্রণালয়, অধিদপ্তর, স্বায়ত্তশাসিত বা সরকারি প্রতিষ্ঠানের নিয়োগ সার্কুলার। নিয়োগের শর্তাবলী, শিক্ষাগত যোগ্যতা, বয়সসীমা ও নির্দেশনাবলী দেখতে নিচে অথবা সাইডবারের লিংকে ক্লিক করে মূল সার্কুলার ও Teletalk পোর্টালে যান।
                 </p>
               </div>
             </div>
           )}
 
-          {/* Description Card */}
+          {/* Description Card — XSS-safe with DOMPurify */}
           <Card className="select-text">
             <CardHeader>
               <CardTitle className="text-lg">Job Description</CardTitle>
             </CardHeader>
             <CardContent>
               <div
-                className="prose prose-sm dark:prose-invert max-w-none space-y-4 text-muted-foreground leading-relaxed select-text"
-                dangerouslySetInnerHTML={{ __html: (job.description || 'No description provided.').replace(/\n/g, '<br/>') }}
+                className="prose prose-sm dark:prose-invert max-w-none space-y-4 text-muted-foreground leading-relaxed select-text [&_strong]:text-foreground [&_h3]:text-foreground"
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(job.description || 'No description provided.') }}
               />
             </CardContent>
           </Card>
 
           {/* Required Skills */}
-          {job.required_skills && job.required_skills.length > 0 && (
+          {cleanSkills.length > 0 && (
             <Card className="select-text">
               <CardHeader>
-                <CardTitle className="text-lg">Required Skills / Keywords</CardTitle>
+                <CardTitle className="text-lg">Required Technical Skills & Competencies</CardTitle>
               </CardHeader>
               <CardContent className="flex flex-wrap gap-2">
-                {job.required_skills.map((skill: string) => (
-                  <Badge key={skill} variant="outline" className="text-sm py-1 font-mono select-text">
+                {cleanSkills.map((skill) => (
+                  <Badge key={skill} variant="outline" className="text-xs py-1 px-2.5 font-mono select-text bg-muted/30 border-border/70 hover:border-primary/50 transition-colors">
                     {skill}
                   </Badge>
                 ))}
@@ -324,33 +347,21 @@ export default function JobDetailsPage() {
 
                 {/* Score Breakdown */}
                 <div className="space-y-3 text-xs">
-                  <div>
-                    <div className="flex justify-between mb-1">
-                      <span className="font-medium text-foreground">Skills Match</span>
-                      <span className="font-bold">{matchData.skill_match || 0}%</span>
+                  {[
+                    { label: 'Skills Match', value: matchData.skill_match || 0 },
+                    { label: 'Projects & Experience', value: matchData.project_match || 0 },
+                    { label: 'Location Fit', value: matchData.location_match || 0 },
+                  ].map((item) => (
+                    <div key={item.label}>
+                      <div className="flex justify-between mb-1">
+                        <span className="font-medium text-foreground">{item.label}</span>
+                        <span className="font-bold">{item.value}%</span>
+                      </div>
+                      <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+                        <div className="h-full bg-primary transition-all duration-500" style={{ width: `${item.value}%` }} />
+                      </div>
                     </div>
-                    <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-                      <div className="h-full bg-primary" style={{ width: `${matchData.skill_match || 0}%` }} />
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex justify-between mb-1">
-                      <span className="font-medium text-foreground">Projects & Experience</span>
-                      <span className="font-bold">{matchData.project_match || 0}%</span>
-                    </div>
-                    <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-                      <div className="h-full bg-primary" style={{ width: `${matchData.project_match || 0}%` }} />
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex justify-between mb-1">
-                      <span className="font-medium text-foreground">Location Fit</span>
-                      <span className="font-bold">{matchData.location_match || 0}%</span>
-                    </div>
-                    <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-                      <div className="h-full bg-primary" style={{ width: `${matchData.location_match || 0}%` }} />
-                    </div>
-                  </div>
+                  ))}
                 </div>
 
                 {/* Matching Skills */}
@@ -358,15 +369,11 @@ export default function JobDetailsPage() {
                   <div className="space-y-2 pt-2 border-t border-border/50">
                     <span className="text-xs font-semibold flex items-center gap-1.5 text-emerald-400">
                       <CheckCircle2 className="w-3.5 h-3.5" />
-                      Matching Candidate Skills ({matchData.matching_skills.length})
+                      Matching Skills ({matchData.matching_skills.length})
                     </span>
                     <div className="flex flex-wrap gap-1.5">
-                      {matchData.matching_skills.map((s: string) => (
-                        <Badge
-                          key={s}
-                          variant="secondary"
-                          className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[11px]"
-                        >
+                      {matchData.matching_skills.map((s) => (
+                        <Badge key={s} variant="secondary" className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[11px]">
                           {s}
                         </Badge>
                       ))}
@@ -379,15 +386,11 @@ export default function JobDetailsPage() {
                   <div className="space-y-2 pt-2 border-t border-border/50">
                     <span className="text-xs font-semibold flex items-center gap-1.5 text-amber-400">
                       <AlertTriangle className="w-3.5 h-3.5" />
-                      Missing Skills to Highlight ({matchData.missing_skills.length})
+                      Missing Skills ({matchData.missing_skills.length})
                     </span>
                     <div className="flex flex-wrap gap-1.5">
-                      {matchData.missing_skills.map((s: string) => (
-                        <Badge
-                          key={s}
-                          variant="secondary"
-                          className="bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[11px]"
-                        >
+                      {matchData.missing_skills.map((s) => (
+                        <Badge key={s} variant="secondary" className="bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[11px]">
                           + {s}
                         </Badge>
                       ))}
@@ -403,7 +406,7 @@ export default function JobDetailsPage() {
                       AI Match Insights
                     </h4>
                     <ul className="space-y-1.5">
-                      {matchData.explanation.map((exp: string, i: number) => (
+                      {matchData.explanation.map((exp, i) => (
                         <li key={i} className="text-xs flex items-start gap-2 text-muted-foreground">
                           <CheckCircle2 className={`w-3.5 h-3.5 mt-0.5 flex-shrink-0 ${getScoreColor(matchData.overall_score || 0)}`} />
                           <span className="leading-tight">{exp}</span>
@@ -413,7 +416,7 @@ export default function JobDetailsPage() {
                   </div>
                 )}
 
-                {/* Tailor Resume link */}
+                {/* Tailor Resume */}
                 <div className="pt-2 border-t border-border/50">
                   <Link href="/dashboard/resume" className="block">
                     <Button variant="outline" size="sm" className="w-full text-xs">
@@ -437,7 +440,7 @@ export default function JobDetailsPage() {
               </CardContent>
             )}
 
-            {/* Action Buttons: Always available regardless of match status */}
+            {/* Action Buttons */}
             <CardContent className="pt-0 space-y-3">
               {trackMsg && (
                 <div
@@ -458,14 +461,16 @@ export default function JobDetailsPage() {
                   onClick={() => handleTrackApplication('saved')}
                   disabled={tracking}
                 >
-                  {tracking ? 'Saving...' : '📌 Save to Board'}
+                  <Bookmark className="w-3.5 h-3.5 mr-1.5" />
+                  {tracking ? 'Saving...' : 'Save to Board'}
                 </Button>
                 <Button
                   className="flex-1 text-xs bg-primary text-primary-foreground"
                   onClick={() => handleTrackApplication('applied')}
                   disabled={tracking}
                 >
-                  {tracking ? 'Tracking...' : '✅ Mark Applied'}
+                  <Check className="w-3.5 h-3.5 mr-1.5" />
+                  {tracking ? 'Tracking...' : 'Mark Applied'}
                 </Button>
               </div>
 

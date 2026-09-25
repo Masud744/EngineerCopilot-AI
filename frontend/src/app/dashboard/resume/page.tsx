@@ -23,8 +23,39 @@ import {
   Wand2,
   Search,
 } from 'lucide-react';
+import { SearchableJobCombobox } from '@/components/dashboard/SearchableJobCombobox';
 import type { MasterResumeData, BulletEnhanceResponse } from '@/types/application';
 import type { CustomJobAnalyzeResponse } from '@/types/job';
+
+const ROLE_PRESETS = [
+  'Senior Backend Engineer',
+  'Full Stack Developer',
+  'DevOps & Cloud Engineer',
+  'AI / Machine Learning Engineer',
+  'Embedded Systems & IoT Engineer',
+  'Data Engineer / ETL',
+  'Frontend / React Engineer',
+  'System Architect',
+  'Cybersecurity Specialist',
+  'IT Officer / Assistant Engineer (Govt/Bank)',
+];
+
+const SKILL_SUGGESTIONS = [
+  'Python',
+  'FastAPI',
+  'Docker',
+  'Kubernetes',
+  'PostgreSQL',
+  'Redis',
+  'AWS',
+  'React',
+  'Next.js',
+  'Kafka',
+  'Microservices',
+  'CI/CD Pipelines',
+  'System Design',
+  'GraphQL',
+];
 
 type ActiveTab = 'overview' | 'scanner' | 'bullet_optimizer';
 
@@ -77,16 +108,34 @@ export default function ResumeStudioPage() {
 
   const fetchAvailableJobs = async () => {
     try {
-      const data = await api.get('/jobs?limit=50');
+      const data = await api.get('/jobs?limit=120');
       setJobs(
         (data?.items || []).map((j: any) => ({
           id: j.id,
           title: j.title,
           company: j.company,
+          location: j.location,
+          source: j.source,
+          is_remote: j.is_remote,
+          job_categories: j.job_categories,
+          required_skills: j.required_skills,
         }))
       );
     } catch {
       /* ignore */
+    }
+  };
+
+  const handleAppendSkill = (skill: string) => {
+    const trimmed = skill.trim();
+    if (!trimmed) return;
+    const currentList = targetKeywords
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    if (!currentList.some((s) => s.toLowerCase() === trimmed.toLowerCase())) {
+      const nextList = [...currentList, trimmed];
+      setTargetKeywords(nextList.join(', '));
     }
   };
 
@@ -600,18 +649,12 @@ export default function ResumeStudioPage() {
                   <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">
                     Choose Target Job
                   </label>
-                  <select
-                    value={selectedJobId}
-                    onChange={(e) => setSelectedJobId(e.target.value)}
-                    className="w-full bg-background border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
-                  >
-                    <option value="">-- Select a job to evaluate --</option>
-                    {jobs.map((j) => (
-                      <option key={j.id} value={j.id}>
-                        {j.title} {j.company ? `(${j.company})` : ''}
-                      </option>
-                    ))}
-                  </select>
+                  <SearchableJobCombobox
+                    jobs={jobs}
+                    selectedJobId={selectedJobId}
+                    onSelect={(jobId) => setSelectedJobId(jobId)}
+                    placeholder="Search active roles by keyword, company, or source..."
+                  />
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -713,27 +756,27 @@ export default function ResumeStudioPage() {
                   </div>
                 </div>
 
-                {/* Keyword Gaps Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                {/* Keyword Gaps Grid (Neutral Dark Aesthetic) */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                   {/* Matched Keywords */}
-                  <div className="space-y-3 p-4 rounded-xl bg-emerald-950/20 border border-emerald-800/40">
-                    <h4 className="text-sm font-bold text-emerald-400 flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4" />
+                  <div className="space-y-3 p-4 rounded-xl border border-border/60 bg-muted/20">
+                    <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                       Matching Keywords in Your Resume ({scanResult.matching_skills?.length || 0})
                     </h4>
-                    <p className="text-xs text-emerald-400/80">
+                    <p className="text-xs text-muted-foreground">
                       These requirements are already recognized in your profile. Keep them prominent.
                     </p>
                     <div className="flex flex-wrap gap-1.5 pt-1">
                       {scanResult.matching_skills && scanResult.matching_skills.length > 0 ? (
                         scanResult.matching_skills.map((skill, i) => (
-                          <Badge
+                          <span
                             key={i}
-                            variant="outline"
-                            className="text-xs border-emerald-600/60 bg-emerald-900/30 text-emerald-200"
+                            className="inline-flex items-center gap-1 rounded-md border border-border/60 bg-card px-2.5 py-1 text-xs font-mono text-foreground font-medium"
                           >
-                            ✓ {skill}
-                          </Badge>
+                            <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                            {skill}
+                          </span>
                         ))
                       ) : (
                         <p className="text-xs text-muted-foreground italic">No direct keyword overlap found.</p>
@@ -742,24 +785,23 @@ export default function ResumeStudioPage() {
                   </div>
 
                   {/* Missing Keywords (The Gap) */}
-                  <div className="space-y-3 p-4 rounded-xl bg-amber-950/20 border border-amber-800/40">
-                    <h4 className="text-sm font-bold text-amber-400 flex items-center gap-2">
-                      <AlertTriangle className="w-4 h-4" />
+                  <div className="space-y-3 p-4 rounded-xl border border-border/60 bg-muted/20">
+                    <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                      <AlertTriangle className="w-4 h-4 text-amber-400" />
                       Missing Keywords to Add (The Gap) ({scanResult.missing_skills?.length || 0})
                     </h4>
-                    <p className="text-xs text-amber-400/80">
+                    <p className="text-xs text-muted-foreground">
                       Recruiters and ATS filters look for these terms. Add relevant ones to your resume.
                     </p>
                     <div className="flex flex-wrap gap-1.5 pt-1">
                       {scanResult.missing_skills && scanResult.missing_skills.length > 0 ? (
                         scanResult.missing_skills.map((skill, i) => (
-                          <Badge
+                          <span
                             key={i}
-                            variant="outline"
-                            className="text-xs border-amber-600/60 bg-amber-900/30 text-amber-200"
+                            className="inline-flex items-center gap-1 rounded-md border border-border/60 bg-card px-2.5 py-1 text-xs font-mono text-muted-foreground font-medium"
                           >
                             + {skill}
-                          </Badge>
+                          </span>
                         ))
                       ) : (
                         <p className="text-xs text-emerald-400 italic font-medium">
@@ -822,25 +864,87 @@ export default function ResumeStudioPage() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">
-                    Target Role (optional)
-                  </label>
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Target Role (optional)
+                    </label>
+                    <select
+                      value=""
+                      onChange={(e) => {
+                        if (e.target.value) setTargetRole(e.target.value);
+                      }}
+                      className="text-[11px] bg-background border border-border rounded-md px-2 py-0.5 text-muted-foreground hover:text-foreground hover:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer transition-colors appearance-none"
+                      style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2712%27 height=%2712%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23888%27 stroke-width=%272%27%3E%3Cpath d=%27M6 9l6 6 6-6%27/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 6px center', paddingRight: '20px' }}
+                    >
+                      <option value="">Quick Select Role...</option>
+                      {ROLE_PRESETS.map((role) => (
+                        <option key={role} value={role}>
+                          {role}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                   <Input
                     placeholder="e.g. Senior Backend Engineer"
                     value={targetRole}
                     onChange={(e) => setTargetRole(e.target.value)}
                   />
                 </div>
-                <div>
-                  <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block mb-1.5">
-                    Skills to Infuse (comma separated, optional)
-                  </label>
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      Skills to Infuse (optional)
+                    </label>
+                    <select
+                      value=""
+                      onChange={(e) => {
+                        if (e.target.value) {
+                          handleAppendSkill(e.target.value);
+                        }
+                      }}
+                      className="text-[11px] bg-background border border-border rounded-md px-2 py-0.5 text-muted-foreground hover:text-foreground hover:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer transition-colors appearance-none"
+                      style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2712%27 height=%2712%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23888%27 stroke-width=%272%27%3E%3Cpath d=%27M6 9l6 6 6-6%27/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 6px center', paddingRight: '20px' }}
+                    >
+                      <option value="">Add Skill from list...</option>
+                      {SKILL_SUGGESTIONS.map((skill) => (
+                        <option key={skill} value={skill}>
+                          + {skill}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                   <Input
                     placeholder="e.g. FastAPI, PostgreSQL, Redis, Kubernetes"
                     value={targetKeywords}
                     onChange={(e) => setTargetKeywords(e.target.value)}
                   />
+                  {/* Quick-tap skill badges */}
+                  <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                    <span className="text-[10px] text-muted-foreground font-semibold uppercase mr-0.5">Quick add:</span>
+                    {SKILL_SUGGESTIONS.slice(0, 7).map((skill) => {
+                      const isAdded = targetKeywords
+                        .toLowerCase()
+                        .split(',')
+                        .map((s) => s.trim())
+                        .includes(skill.toLowerCase());
+                      return (
+                        <button
+                          key={skill}
+                          type="button"
+                          onClick={() => handleAppendSkill(skill)}
+                          disabled={isAdded}
+                          className={`text-[10px] px-2 py-0.5 rounded-full border transition-all ${
+                            isAdded
+                              ? 'bg-primary/20 border-primary/40 text-primary opacity-60 cursor-default'
+                              : 'bg-muted/40 hover:bg-primary/10 hover:border-primary/50 text-muted-foreground hover:text-foreground'
+                          }`}
+                        >
+                          {isAdded ? `✓ ${skill}` : `+ ${skill}`}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
 

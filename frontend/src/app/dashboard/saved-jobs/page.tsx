@@ -86,7 +86,7 @@ export default function SavedJobsPage() {
             <Card key={item.id} className="flex flex-col hover:shadow-md transition-shadow">
               <CardHeader className="pb-3">
                 <div className="space-y-1">
-                  <a href={`/dashboard/jobs/${item.job_id}`} className="block">
+                  <a href={`/dashboard/jobs?job=${item.job_id}`} className="block">
                     <h3 className="font-semibold text-lg leading-tight hover:text-primary transition-colors cursor-pointer">
                       {item.job_title || 'Untitled Job'}
                     </h3>

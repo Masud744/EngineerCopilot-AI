@@ -23,6 +23,7 @@ from app.models.job import (
 )
 from app.utils.supabase import get_supabase_admin
 
+import re
 from app.services.job_scraper import sync_jobs
 
 logger = logging.getLogger(__name__)
@@ -30,6 +31,136 @@ router = APIRouter(prefix="/jobs", tags=["jobs"])
 
 db = get_supabase_admin
 _sync_running = False
+
+NON_SKILL_WORDS = {
+    'engineer', 'engineering', 'developer', 'programmer', 'architect', 'architecture',
+    'lead', 'technical lead', 'tech lead', 'team lead', 'vp engineering', 'director',
+    'senior', 'mid', 'junior', 'intern', 'internship', 'full time', 'part time',
+    'remote', 'onsite', 'hybrid', 'bangladesh', 'dhaka', 'worldwide', 'government',
+    'public sector', 'circular', 'teletalk', 'bpsc', 'bcs', 'software',
+    'software engineer', 'backend', 'frontend', 'fullstack', 'full stack', 'devops',
+    'cloud', 'infrastructure', 'infra', 'iot', 'embedded', 'firmware', 'robotics',
+    'ai', 'ml', 'ai/ml', 'cybersecurity', 'security', 'tech', 'it', 'consultant',
+    'advisory', 'adoption', 'literacy', 'specialist', 'manager', 'management',
+    'cto', 'ceo', 'officer', 'analyst', 'candidate', 'candidates', 'job', 'jobs', 'role'
+}
+
+TECH_KEYWORDS = [
+    'Python', 'JavaScript', 'TypeScript', 'React', 'Next.js', 'Vue', 'Angular',
+    'Node.js', 'Express', 'FastAPI', 'Django', 'Flask', 'Golang', 'Rust',
+    'Java', 'Spring Boot', 'C++', 'C#', '.NET', 'PHP', 'Laravel',
+    'Docker', 'Kubernetes', 'AWS', 'Azure', 'GCP', 'Terraform', 'Ansible',
+    'CI/CD', 'Linux', 'Ubuntu', 'PostgreSQL', 'MySQL', 'MongoDB', 'Redis', 'Elasticsearch',
+    'GraphQL', 'REST API', 'Microservices', 'Kafka', 'RabbitMQ', 'Git',
+    'PyTorch', 'TensorFlow', 'OpenCV', 'Scikit-Learn', 'LLM', 'NLP', 'RAG',
+    'Embedded C', 'RTOS', 'STM32', 'ESP32', 'ARM', 'FPGA', 'PCB',
+    'Solidity', 'Web3', 'Cybersecurity', 'Penetration Testing', 'SIEM',
+    'SQL', 'Data Pipelines', 'ETL', 'Snowflake', 'BigQuery', 'Airflow', 'Tailwind CSS'
+]
+
+CAT_FALLBACKS = {
+    'ai': ['Machine Learning', 'Python', 'LLMs', 'Model Evaluation'],
+    'ml': ['PyTorch', 'TensorFlow', 'Python', 'Scikit-Learn'],
+    'deep_learning': ['Deep Neural Networks', 'PyTorch', 'TensorFlow'],
+    'computer_vision': ['OpenCV', 'PyTorch', 'Computer Vision'],
+    'backend': ['REST APIs', 'PostgreSQL', 'Microservices', 'Docker'],
+    'full_stack': ['React', 'TypeScript', 'Node.js', 'PostgreSQL'],
+    'devops': ['Docker', 'Kubernetes', 'CI/CD', 'Terraform'],
+    'cloud': ['AWS', 'Cloud Architecture', 'Kubernetes', 'Terraform'],
+    'data_engineering': ['Data Pipelines', 'SQL', 'ETL', 'PostgreSQL'],
+    'cybersecurity': ['Network Security', 'Penetration Testing', 'SIEM'],
+    'embedded': ['Embedded C', 'RTOS', 'Firmware', 'Hardware Debugging'],
+    'iot': ['IoT Protocols', 'MQTT', 'Embedded Systems', 'Edge Computing'],
+    'robotics': ['ROS', 'C++', 'Control Systems'],
+    'government': ['Public Administration', 'Official Protocols', 'Civil Service'],
+}
+
+def estimate_salary(source: str, location: str, experience_level: str, is_remote: bool) -> tuple[int, int, str]:
+    loc = (location or "").lower()
+    is_bd = any(k in loc for k in ["bangladesh", "dhaka", "bd", "chittagong", "chattogram", "sylhet", "rajshahi", "khulna"]) or source == "BD Govt Jobs" or source == "Bdjobs"
+    is_govt = source == "BD Govt Jobs"
+    level = (experience_level or "mid").lower()
+
+    if is_govt:
+        # Bangladesh National Pay Scale (Grade 9-10 Assistant Engineer)
+        return (22000, 53060, "৳")
+    
+    if is_bd and not is_remote:
+        # Bangladesh Local Tech Market (Monthly BDT)
+        if "lead" in level:
+            return (150000, 260000, "৳")
+        elif "senior" in level:
+            return (90000, 160000, "৳")
+        elif "entry" in level:
+            return (30000, 48000, "৳")
+        else:
+            return (50000, 95000, "৳")
+    else:
+        # Global Remote / International (Annual USD)
+        if "lead" in level:
+            return (130000, 190000, "$")
+        elif "senior" in level:
+            return (95000, 150000, "$")
+        elif "entry" in level:
+            return (45000, 75000, "$")
+        else:
+            return (70000, 115000, "$")
+
+def infer_experience_level(title: str, description: str = "") -> str:
+    t = f"{title} {description}".lower()
+    if any(k in t for k in ["lead", "architect", "principal", "head", "director", "vp", "staff"]):
+        return "lead"
+    if any(k in t for k in ["senior", "sr.", "sr ", "experienced", "5+ years", "6+ years", "7+ years"]):
+        return "senior"
+    if any(k in t for k in ["junior", "jr.", "jr ", "entry", "trainee", "intern", "fresh", "graduate"]):
+        return "entry"
+    return "mid"
+
+def sanitize_and_extract_skills(raw_skills: list, title: str, description: str, requirements: str, categories: list) -> list[str]:
+    seen = set()
+    cleaned = []
+    
+    # 1. Clean raw skills
+    for s in (raw_skills or []):
+        if not s or not isinstance(s, str):
+            continue
+        trimmed = s.strip()
+        norm = trimmed.lower()
+        if len(trimmed) < 2 or norm in NON_SKILL_WORDS:
+            continue
+        if norm not in seen:
+            seen.add(norm)
+            cleaned.append(trimmed.title() if len(trimmed) > 3 else trimmed.upper())
+
+    # 2. Extract technical skills from text if needed
+    if len(cleaned) < 3:
+        combined = f"{title} {description} {requirements}".lower()
+        for kw in TECH_KEYWORDS:
+            pattern = r'(?:\b|_)' + re.escape(kw.lower()) + r'(?:\b|_)'
+            if re.search(pattern, combined):
+                norm = kw.lower()
+                if norm not in seen:
+                    seen.add(norm)
+                    cleaned.append(kw)
+                    if len(cleaned) >= 5:
+                        break
+
+    # 3. Inject category fallbacks if still low
+    if len(cleaned) < 2:
+        for c in categories:
+            cat_name = (c.get("category") if isinstance(c, dict) else str(c)).lower()
+            if cat_name in CAT_FALLBACKS:
+                for def_s in CAT_FALLBACKS[cat_name]:
+                    norm = def_s.lower()
+                    if norm not in seen:
+                        seen.add(norm)
+                        cleaned.append(def_s)
+                        if len(cleaned) >= 4:
+                            break
+            if len(cleaned) >= 3:
+                break
+
+    return cleaned[:6]
 
 
 @router.post("/sync")
@@ -87,6 +218,7 @@ def list_jobs(
     card_fields = (
         "id, title, company, location, is_remote, remote_type, "
         "experience_level, salary_min, salary_max, salary_currency, "
+        "description, requirements, "
         "required_skills, apply_url, source, source_job_id, posted_date, "
         "is_active, fetched_at, created_at, job_categories(category, confidence)"
     )
@@ -94,8 +226,8 @@ def list_jobs(
     query = query.eq("is_active", True)
 
     if keyword:
-        # Use PostgreSQL text search on title and company
-        query = query.or_(f"title.ilike.%{keyword}%,company.ilike.%{keyword}%,description.ilike.%{keyword}%")
+        # Use PostgreSQL text search on title, company, description, and requirements
+        query = query.or_(f"title.ilike.%{keyword}%,company.ilike.%{keyword}%,description.ilike.%{keyword}%,requirements.ilike.%{keyword}%")
     if location:
         loc_clean = location.lower().strip()
         if loc_clean in ("bangladesh", "bd", "dhaka"):
@@ -116,8 +248,6 @@ def list_jobs(
         query = query.eq("source", source)
     if remote_only:
         query = query.eq("is_remote", True)
-    if experience_level:
-        query = query.eq("experience_level", experience_level)
 
     # Sorting
     if sort == "oldest":
@@ -147,10 +277,48 @@ def list_jobs(
 
     items = list(seen_urls.values())
 
-    # Map categories into response format
+    # Map categories and enrich skills + experience level
+    enriched_items = []
     for item in items:
         cats = item.pop("job_categories", []) or []
         item["categories"] = cats
+
+        # Infer experience level if not set
+        if not item.get("experience_level"):
+            item["experience_level"] = infer_experience_level(
+                item.get("title", ""),
+                item.get("description", "") or ""
+            ).capitalize()
+
+        # Populate salary estimation if missing
+        if not item.get("salary_min"):
+            s_min, s_max, s_curr = estimate_salary(
+                item.get("source", ""),
+                item.get("location", "") or "",
+                item.get("experience_level", "") or "",
+                bool(item.get("is_remote"))
+            )
+            item["salary_min"] = s_min
+            item["salary_max"] = s_max
+            item["salary_currency"] = s_curr
+
+        # Sanitize required_skills
+        raw_skills = item.get("required_skills") or []
+        title = item.get("title", "")
+        desc = item.get("description", "") or ""
+        reqs = item.get("requirements", "") or ""
+        item["required_skills"] = sanitize_and_extract_skills(raw_skills, title, desc, reqs, cats)
+
+        # Filter by experience level if requested
+        if experience_level:
+            target_exp = experience_level.lower().strip()
+            item_exp = (item.get("experience_level") or "").lower().strip()
+            if target_exp not in item_exp and item_exp not in target_exp:
+                continue
+
+        enriched_items.append(item)
+
+    items = enriched_items
 
     return {
         "items": items,
@@ -207,7 +375,27 @@ def get_job(job_id: str):
         raise HTTPException(status_code=404, detail="Job not found")
 
     job = result.data
-    job["categories"] = job.pop("job_categories", []) or []
+    cats = job.pop("job_categories", []) or []
+    job["categories"] = cats
+    if not job.get("experience_level"):
+        job["experience_level"] = infer_experience_level(
+            job.get("title", ""),
+            job.get("description", "") or ""
+        ).capitalize()
+    if not job.get("salary_min"):
+        s_min, s_max, s_curr = estimate_salary(
+            job.get("source", ""),
+            job.get("location", "") or "",
+            job.get("experience_level", "") or "",
+            bool(job.get("is_remote"))
+        )
+        job["salary_min"] = s_min
+        job["salary_max"] = s_max
+        job["salary_currency"] = s_curr
+    raw_skills = job.get("required_skills") or []
+    job["required_skills"] = sanitize_and_extract_skills(
+        raw_skills, job.get("title", ""), job.get("description", "") or "", job.get("requirements", "") or "", cats
+    )
     return job
 
 

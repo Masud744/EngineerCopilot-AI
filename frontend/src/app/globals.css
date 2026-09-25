@@ -2,35 +2,37 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
 @layer base {
   :root {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 216 20% 10%;
+    --foreground: 210 30% 96%;
 
-    --card: 222.2 84% 4.9%;
+    --card: 215 22% 12%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 222.2 84% 4.9%;
+    --popover: 215 22% 12%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 191.6 91.4% 36.5%;
+    --primary: 187 90% 42%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 217.2 32.6% 17.5%;
+    --secondary: 215 23% 17%;
     --secondary-foreground: 210 40% 98%;
 
-    --muted: 217.2 32.6% 17.5%;
+    --muted: 215 23% 17%;
     --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 217.2 32.6% 17.5%;
+    --accent: 215 23% 17%;
     --accent-foreground: 210 40% 98%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 191.6 91.4% 36.5%;
+    --border: 215 20% 22%;
+    --input: 215 20% 22%;
+    --ring: 187 90% 42%;
 
     --radius: 0.5rem;
   }
@@ -40,15 +42,33 @@
   * {
     @apply border-border;
   }
+  html {
+    color-scheme: dark;
+  }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     font-feature-settings: "rlig" 1, "calt" 1;
     user-select: text;
     -webkit-user-select: text;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  select {
+    color-scheme: dark;
+  }
+  select option {
+    background-color: hsl(215 22% 12%);
+    color: hsl(210 40% 98%);
   }
   ::selection {
-    background-color: hsl(var(--primary) / 0.4);
+    background-color: hsl(var(--primary) / 0.35);
     color: hsl(var(--foreground));
+  }
+
+  /* Improved focus styles for accessibility */
+  :focus-visible {
+    @apply outline-none ring-2 ring-primary/50 ring-offset-2 ring-offset-background;
   }
 }
 
@@ -62,10 +82,10 @@
   }
 }
 
-/* Custom Scrollbar */
+/* Custom Scrollbar — Refined */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -74,9 +94,33 @@
 
 ::-webkit-scrollbar-thumb {
   background: hsl(var(--border));
-  border-radius: 4px;
+  border-radius: 99px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--muted-foreground));
+  background: hsl(var(--muted-foreground) / 0.5);
+}
+
+/* Smooth transitions for interactive elements */
+@layer utilities {
+  .transition-default {
+    @apply transition-all duration-200 ease-out;
+  }
+}
+
+/* Prose overrides for job descriptions */
+.prose-invert strong {
+  color: hsl(var(--foreground));
+}
+.prose-invert h1,
+.prose-invert h2,
+.prose-invert h3,
+.prose-invert h4 {
+  color: hsl(var(--foreground));
+}
+.prose-invert a {
+  color: hsl(var(--primary));
+}
+.prose-invert li::marker {
+  color: hsl(var(--primary) / 0.5);
 }

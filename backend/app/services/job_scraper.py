@@ -58,6 +58,30 @@ REJECT_TITLE_KEYWORDS = [
     "warehouse", "retail", "cashier",
 ]
 
+# ─── Real Technical Skills Keywords for Extraction ─────────────
+TECHNICAL_SKILLS_KEYWORDS = [
+    "python", "javascript", "typescript", "react", "next.js", "vue", "angular",
+    "node.js", "express", "fastapi", "django", "flask", "golang", "rust",
+    "java", "spring boot", "c++", "c#", ".net", "php", "laravel",
+    "docker", "kubernetes", "aws", "azure", "gcp", "terraform", "ansible",
+    "ci/cd", "linux", "postgresql", "mysql", "mongodb", "redis", "elasticsearch",
+    "graphql", "rest api", "microservices", "kafka", "rabbitmq", "git",
+    "pytorch", "tensorflow", "opencv", "scikit-learn", "llm", "nlp", "rag",
+    "embedded c", "rtos", "stm32", "esp32", "arm", "fpga", "pcb", "iot",
+    "solidity", "web3", "cybersecurity", "penetration testing", "siem"
+]
+
+
+def extract_skills_from_text(text: str) -> list[str]:
+    """Extract real technical skills from text using boundary matching."""
+    text_lower = text.lower()
+    found = []
+    for skill in TECHNICAL_SKILLS_KEYWORDS:
+        pattern = r'(?:\b|_)' + re.escape(skill) + r'(?:\b|_)'
+        if re.search(pattern, text_lower):
+            found.append(skill.title() if len(skill) > 3 else skill.upper())
+    return found[:10]
+
 
 def is_engineering_job(title: str) -> bool:
     """Check if a job title is an engineering/tech role."""
@@ -228,13 +252,8 @@ async def fetch_linkedin_jobs() -> list[dict]:
                                 f"Candidates should have relevant experience in {search['keywords']} and related technologies."
                             )
 
-                            # Minimal required_skills extraction from title/description
-                            text_blob = f"{title} {description}".lower()
-                            # Use engineering title keywords as a lightweight keyword list
-                            required_skills = [
-                                kw for kw in ENGINEERING_TITLE_KEYWORDS
-                                if kw.strip() and (kw.strip().lower() in text_blob)
-                            ]
+                            # Extract authentic technical skills from title and description
+                            required_skills = extract_skills_from_text(f"{title} {description}")
 
                             jobs.append({
                                 "title": title,
