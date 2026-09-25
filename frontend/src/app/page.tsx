@@ -43,7 +43,7 @@ export default function LandingPage() {
               <div className="space-y-2 max-w-3xl">
                 <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
                   Your AI Career Co-pilot for{' '}
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-cyan-400">
+                  <span className="text-white underline decoration-white/30 decoration-2 underline-offset-8">
                     Engineering
                   </span>
                 </h1>
@@ -130,19 +130,19 @@ export default function LandingPage() {
             </div>
             <div className="mx-auto grid max-w-4xl grid-cols-2 gap-4 md:grid-cols-4">
               <div className="flex flex-col items-center justify-center rounded-lg bg-background p-6 shadow-sm text-center border border-border/50">
-                <Cpu className="mb-2 h-8 w-8 text-cyan-500" />
+                <Cpu className="mb-2 h-8 w-8 text-white" strokeWidth={1.5} />
                 <span className="text-sm font-semibold">Embedded & IoT</span>
               </div>
               <div className="flex flex-col items-center justify-center rounded-lg bg-background p-6 shadow-sm text-center border border-border/50">
-                <Bot className="mb-2 h-8 w-8 text-blue-500" />
+                <Bot className="mb-2 h-8 w-8 text-white" strokeWidth={1.5} />
                 <span className="text-sm font-semibold">Robotics</span>
               </div>
               <div className="flex flex-col items-center justify-center rounded-lg bg-background p-6 shadow-sm text-center border border-border/50">
-                <Database className="mb-2 h-8 w-8 text-emerald-500" />
+                <Database className="mb-2 h-8 w-8 text-white" strokeWidth={1.5} />
                 <span className="text-sm font-semibold">AI/ML & Data</span>
               </div>
               <div className="flex flex-col items-center justify-center rounded-lg bg-background p-6 shadow-sm text-center border border-border/50">
-                <Server className="mb-2 h-8 w-8 text-purple-500" />
+                <Server className="mb-2 h-8 w-8 text-white" strokeWidth={1.5} />
                 <span className="text-sm font-semibold">Backend & Cloud</span>
               </div>
             </div>

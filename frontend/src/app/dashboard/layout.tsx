@@ -26,8 +26,7 @@ const SIDEBAR_ITEMS = [
   { name: 'Find Jobs', href: '/dashboard/jobs', icon: Briefcase },
   { name: 'Saved Jobs', href: '/dashboard/saved-jobs', icon: Bookmark },
   { name: 'Applications', href: '/dashboard/applications', icon: FileText },
-  { name: 'Resume', href: '/dashboard/resume', icon: Sparkles },
-  { name: 'Profile', href: '/dashboard/profile', icon: User },
+  { name: 'Resume & Profile', href: '/dashboard/resume', icon: Sparkles },
 ]
 
 export default function DashboardLayout({
@@ -155,14 +154,20 @@ export default function DashboardLayout({
     </div>
   )
 
-  const isFixedViewportPage = pathname === '/dashboard' || pathname === '/dashboard/jobs' || pathname === '/dashboard/applications';
+  const isFixedViewportPage =
+    pathname === '/dashboard' ||
+    pathname === '/dashboard/jobs' ||
+    pathname === '/dashboard/saved-jobs' ||
+    pathname === '/dashboard/applications' ||
+    pathname.startsWith('/dashboard/resume') ||
+    pathname.startsWith('/dashboard/profile');
 
   const MOBILE_TABS = [
     { name: 'Home', href: '/dashboard', icon: Home },
     { name: 'Jobs', href: '/dashboard/jobs', icon: Briefcase },
+    { name: 'Saved', href: '/dashboard/saved-jobs', icon: Bookmark },
     { name: 'Pipeline', href: '/dashboard/applications', icon: FileText },
-    { name: 'Resume', href: '/dashboard/resume', icon: Sparkles },
-    { name: 'Profile', href: '/dashboard/profile', icon: User },
+    { name: 'Studio', href: '/dashboard/resume', icon: Sparkles },
   ]
 
   return (
@@ -222,8 +227,9 @@ export default function DashboardLayout({
               <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-primary" />
             </button>
             <Link
-              href="/dashboard/profile"
+              href="/dashboard/resume"
               className="ml-1 h-8 w-8 rounded-full bg-muted border border-border flex items-center justify-center hover:bg-muted/80 transition-colors"
+              title="Resume & Profile Studio"
             >
               <User className="h-4 w-4 text-muted-foreground" />
             </Link>

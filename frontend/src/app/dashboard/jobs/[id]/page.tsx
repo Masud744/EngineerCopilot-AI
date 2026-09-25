@@ -446,7 +446,7 @@ export default function JobDetailsPage() {
                 <div
                   className={`p-3 rounded-lg text-xs border ${
                     trackMsg.type === 'success'
-                      ? 'bg-emerald-950/30 border-emerald-800 text-emerald-300'
+                      ? 'bg-white/10 border-white/20 text-white'
                       : 'bg-red-950/30 border-red-800 text-red-300'
                   }`}
                 >
@@ -481,7 +481,7 @@ export default function JobDetailsPage() {
                   rel="noopener noreferrer"
                   className={`inline-flex h-9 w-full items-center justify-center rounded-lg px-4 text-xs font-semibold transition-all ${
                     job.source === 'BD Govt Jobs'
-                      ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm'
+                      ? 'bg-white text-black hover:bg-zinc-200 font-medium'
                       : 'border border-primary/30 bg-primary/10 text-primary hover:bg-primary/20'
                   }`}
                 >

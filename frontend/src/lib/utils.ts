@@ -55,9 +55,9 @@ export function getCompanyLogoUrl(company?: string): string | null {
  * Get color class based on match score.
  */
 export function getScoreColor(score: number): string {
-  if (score >= 80) return 'text-emerald-500';
-  if (score >= 50) return 'text-amber-500';
-  return 'text-red-500';
+  if (score >= 80) return 'text-white font-bold';
+  if (score >= 50) return 'text-zinc-300 font-semibold';
+  return 'text-zinc-400';
 }
 
 /**

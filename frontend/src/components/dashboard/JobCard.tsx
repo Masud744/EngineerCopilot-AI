@@ -120,7 +120,7 @@ export function JobCard({
                 title="Copy job title to clipboard"
               >
                 {copied ? (
-                  <Check className="w-3.5 h-3.5 text-emerald-400" />
+                  <Check className="w-3.5 h-3.5 text-white" />
                 ) : (
                   <Copy className="w-3.5 h-3.5" />
                 )}

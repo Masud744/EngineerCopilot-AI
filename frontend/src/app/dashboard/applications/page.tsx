@@ -96,7 +96,7 @@ const KANBAN_COLUMNS = [
     color: 'text-white',
     bg: 'bg-white/[0.06]',
     border: 'border-white/25',
-    dot: 'bg-white shadow-[0_0_8px_rgba(255,255,255,0.7)]',
+    dot: 'bg-white',
     icon: CheckCircle2,
     desc: 'Written offer received',
   },

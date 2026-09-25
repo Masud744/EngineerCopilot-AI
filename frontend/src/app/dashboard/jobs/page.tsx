@@ -825,7 +825,7 @@ export default function JobsPage() {
 
       {/* ── Sync Banner ── */}
       {syncResult && (
-        <div className="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 p-3 rounded-lg text-sm flex items-center justify-between animate-in fade-in">
+        <div className="bg-white/10 border border-white/20 text-white p-3 rounded-lg text-sm flex items-center justify-between animate-in fade-in">
           <div className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4" /><span>{syncResult.message}</span></div>
           <Button variant="ghost" size="sm" onClick={() => setSyncResult(null)} className="h-6 w-6 p-0"><X className="w-3 h-3" /></Button>
         </div>
@@ -838,7 +838,7 @@ export default function JobsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle className="text-lg flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-cyan-500" />
+                  <Sparkles className="h-5 w-5 text-white" />
                   Instant Job Analyzer & ATS Matcher
                 </CardTitle>
                 <CardDescription>
@@ -935,12 +935,8 @@ export default function JobsPage() {
                       <div className="text-2xl font-black text-primary">{analysisResult.match.overall_score}%</div>
                       <div className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Overall Match</div>
                     </div>
-                    <div className={`h-12 w-12 rounded-xl flex items-center justify-center font-bold text-lg border ${
-                      analysisResult.match.overall_score >= 75 ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/30'
-                      : analysisResult.match.overall_score >= 50 ? 'bg-amber-500/10 text-amber-500 border-amber-500/30'
-                      : 'bg-rose-500/10 text-rose-500 border-rose-500/30'
-                    }`}>
-                      <TrendingUp className="h-6 w-6" />
+                    <div className="h-12 w-12 rounded-xl flex items-center justify-center font-bold text-lg border border-white/20 bg-white/10 text-white">
+                      <TrendingUp className="h-6 w-6 text-white" />
                     </div>
                   </div>
                 </div>
@@ -962,13 +958,13 @@ export default function JobsPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="p-4 rounded-xl border border-border/60 bg-muted/20">
                     <span className="text-xs font-semibold text-foreground block mb-2.5 flex items-center gap-1.5">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Matching Skills ({analysisResult.match.matching_skills?.length || 0})
+                      <CheckCircle2 className="w-4 h-4 text-white" /> Matching Skills ({analysisResult.match.matching_skills?.length || 0})
                     </span>
                     <div className="flex flex-wrap gap-1.5">
                       {(analysisResult.match.matching_skills || []).length > 0
                         ? analysisResult.match.matching_skills!.map((skill) => (
                             <span key={skill} className="inline-flex items-center gap-1 rounded-md border border-border/60 bg-card px-2.5 py-1 text-xs font-mono text-foreground font-medium">
-                              <CheckCircle2 className="w-3 h-3 text-emerald-400" /> {skill}
+                              <CheckCircle2 className="w-3 h-3 text-white" /> {skill}
                             </span>
                           ))
                         : <span className="text-xs text-muted-foreground italic">No direct keyword overlap detected.</span>}
@@ -976,7 +972,7 @@ export default function JobsPage() {
                   </div>
                   <div className="p-4 rounded-xl border border-border/60 bg-muted/20">
                     <span className="text-xs font-semibold text-foreground block mb-2.5 flex items-center gap-1.5">
-                      <AlertTriangle className="w-4 h-4 text-amber-400" /> Missing Skills ({analysisResult.match.missing_skills?.length || 0})
+                      <AlertTriangle className="w-4 h-4 text-zinc-400" /> Missing Skills ({analysisResult.match.missing_skills?.length || 0})
                     </span>
                     <div className="flex flex-wrap gap-1.5">
                       {(analysisResult.match.missing_skills || []).length > 0

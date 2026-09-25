@@ -301,7 +301,7 @@ export function JobDetailPanel({
                 {job.experience_level || 'Full-time'}
               </span>
               {job.salary_min && (
-                <span className="inline-flex items-center gap-1 text-emerald-400 font-semibold font-mono">
+                <span className="inline-flex items-center gap-1 text-zinc-200 font-semibold font-mono">
                   {job.salary_currency || '$'}{Number(job.salary_min).toLocaleString()}
                   {job.salary_max
                     ? ` – ${job.salary_currency || '$'}${Number(job.salary_max).toLocaleString()}`
@@ -636,7 +636,7 @@ export function JobDetailPanel({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="p-4 rounded-xl border border-border/60 bg-muted/20">
                     <span className="text-xs font-semibold text-foreground block mb-2.5 flex items-center gap-1.5">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                      <CheckCircle2 className="w-4 h-4 text-white" />
                       Matching Skills ({matchData.matching_skills.length})
                     </span>
                     <div className="flex flex-wrap gap-1.5">
@@ -646,7 +646,7 @@ export function JobDetailPanel({
                             key={s}
                             className="inline-flex items-center gap-1 rounded-md border border-border/60 bg-card px-2.5 py-1 text-xs font-mono text-foreground/90 font-medium"
                           >
-                            <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                            <CheckCircle2 className="w-3 h-3 text-white" />
                             {s}
                           </span>
                         ))
@@ -660,7 +660,7 @@ export function JobDetailPanel({
 
                   <div className="p-4 rounded-xl border border-border/60 bg-muted/20">
                     <span className="text-xs font-semibold text-foreground block mb-2.5 flex items-center gap-1.5">
-                      <AlertTriangle className="w-4 h-4 text-amber-400" />
+                      <AlertTriangle className="w-4 h-4 text-zinc-400" />
                       Missing Skills ({matchData.missing_skills.length})
                     </span>
                     <div className="flex flex-wrap gap-1.5">

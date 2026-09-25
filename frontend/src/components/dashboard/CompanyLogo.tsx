@@ -60,8 +60,8 @@ export function CompanyLogo({ company = '', size = 'md', className = '' }: Compa
 
   if (cleanName.includes('nvidia')) {
     return (
-      <div className={`flex items-center justify-center shrink-0 bg-black border border-emerald-500/40 ${sizeClasses} ${className}`}>
-        <svg className="w-3/5 h-3/5 fill-[#76B900]" viewBox="0 0 24 24">
+      <div className={`flex items-center justify-center shrink-0 bg-black border border-white/20 ${sizeClasses} ${className}`}>
+        <svg className="w-3/5 h-3/5 fill-white" viewBox="0 0 24 24">
           <path d="M7.74 7.21c.88 0 1.63.75 1.63 1.63v7.32c0 .88-.75 1.63-1.63 1.63H4.63C3.75 17.79 3 17.04 3 16.16V8.84c0-.88.75-1.63 1.63-1.63h3.11zm11.63 0c.88 0 1.63.75 1.63 1.63v7.32c0 .88-.75 1.63-1.63 1.63h-3.11c-.88 0-1.63-.75-1.63-1.63V8.84c0-.88.75-1.63 1.63-1.63h3.11zm-5.81 0c.88 0 1.63.75 1.63 1.63v7.32c0 .88-.75 1.63-1.63 1.63h-3.11c-.88 0-1.63-.75-1.63-1.63V8.84c0-.88.75-1.63 1.63-1.63h3.11z"/>
         </svg>
       </div>
@@ -70,7 +70,7 @@ export function CompanyLogo({ company = '', size = 'md', className = '' }: Compa
 
   if (cleanName.includes('canonical') || cleanName.includes('ubuntu')) {
     return (
-      <div className={`flex items-center justify-center shrink-0 bg-[#E95420] text-white ${sizeClasses} ${className}`}>
+      <div className={`flex items-center justify-center shrink-0 bg-white/10 border border-white/20 text-white ${sizeClasses} ${className}`}>
         <svg className="w-3/5 h-3/5 fill-white" viewBox="0 0 24 24">
           <circle cx="12" cy="12" r="10" fill="none" stroke="white" strokeWidth="2.5"/>
           <circle cx="12" cy="5" r="1.8" />
@@ -83,7 +83,7 @@ export function CompanyLogo({ company = '', size = 'md', className = '' }: Compa
 
   if (cleanName.includes('government') || cleanName.includes('bangladesh') || cleanName.includes('govt')) {
     return (
-      <div className={`flex items-center justify-center shrink-0 bg-emerald-950/80 border border-emerald-500/40 text-emerald-400 ${sizeClasses} ${className}`}>
+      <div className={`flex items-center justify-center shrink-0 bg-white/10 border border-white/20 text-white ${sizeClasses} ${className}`}>
         <Landmark className="w-3/5 h-3/5" />
       </div>
     );

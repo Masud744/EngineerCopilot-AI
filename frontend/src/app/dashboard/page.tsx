@@ -545,7 +545,7 @@ export default function DashboardPage() {
                 { label: 'Applied', val: stats?.applied || 0, bar: 'bg-zinc-600' },
                 { label: 'Technical Assessment', val: stats?.assessment || 0, bar: 'bg-zinc-400' },
                 { label: 'Interview Rounds', val: (stats?.interview || 0) + (stats?.final_interview || 0), bar: 'bg-zinc-200' },
-                { label: 'Offers Extended', val: stats?.offer || 0, bar: 'bg-white shadow-[0_0_8px_rgba(255,255,255,0.4)]' },
+                { label: 'Offers Extended', val: stats?.offer || 0, bar: 'bg-white' },
               ].map((row) => {
                 const pct = totalInPipeline > 0 ? Math.round((row.val / totalInPipeline) * 100) : 0
                 return (

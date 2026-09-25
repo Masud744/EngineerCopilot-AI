@@ -64,13 +64,13 @@ export function JobListItem({
               {job.experience_level || 'Full-time'}
             </span>
             {isGovt && (
-              <span className="inline-flex items-center gap-1 text-emerald-400 font-medium">
+              <span className="inline-flex items-center gap-1 text-zinc-300 font-medium">
                 <Landmark className="h-3 w-3" />
                 Govt
               </span>
             )}
             {job.salary_min && (
-              <span className="inline-flex items-center text-emerald-400 font-semibold font-mono">
+              <span className="inline-flex items-center text-zinc-200 font-semibold font-mono">
                 {job.salary_currency || '$'}{Number(job.salary_min).toLocaleString()}
                 {job.salary_max ? `–${Number(job.salary_max).toLocaleString()}` : '+'}
                 {job.salary_currency === '৳' ? '/mo' : ''}
