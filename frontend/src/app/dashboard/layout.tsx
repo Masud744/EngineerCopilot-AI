@@ -143,7 +143,7 @@ export default function DashboardLayout({
     </div>
   )
 
-  const isJobsPage = pathname === '/dashboard/jobs';
+  const isFixedViewportPage = pathname === '/dashboard' || pathname === '/dashboard/jobs';
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-background">
@@ -212,7 +212,7 @@ export default function DashboardLayout({
 
         <main
           className={
-            isJobsPage
+            isFixedViewportPage
               ? 'flex-1 bg-background px-4 py-3 lg:px-6 lg:py-4 overflow-hidden flex flex-col min-h-0'
               : 'flex-1 bg-background p-4 lg:p-6 overflow-y-auto'
           }
