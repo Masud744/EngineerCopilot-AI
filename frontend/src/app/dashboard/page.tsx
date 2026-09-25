@@ -227,16 +227,15 @@ export default function DashboardPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-border/50 shrink-0">
         <div>
           <div className="flex items-center gap-2.5 flex-wrap">
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground flex items-center gap-2">
+            <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground flex items-center gap-2">
               <span>{greeting},</span>
-              <span className="bg-gradient-to-r from-primary via-cyan-400 to-teal-400 bg-clip-text text-transparent">
+              <span className="text-primary">
                 {displayName}
               </span>
-              <span className="inline-block text-2xl">👋</span>
             </h1>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 text-[11px] font-medium text-emerald-400 shadow-xs">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              Copilot Ready
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 border border-primary/20 px-2.5 py-0.5 text-[11px] font-medium text-primary">
+              <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+              Online
             </span>
           </div>
           <p className="mt-1 text-xs sm:text-sm text-muted-foreground flex items-center gap-2 flex-wrap">
@@ -250,44 +249,44 @@ export default function DashboardPage() {
         {/* Primary Shortcuts */}
         <div className="flex items-center gap-2 shrink-0">
           <Link href="/dashboard/jobs">
-            <Button size="sm" className="h-9 gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90 text-xs font-semibold px-3.5 shadow-sm">
+            <Button size="sm" className="h-9 gap-1.5 bg-primary text-primary-foreground hover:bg-primary/90 text-xs font-semibold px-3.5">
               <Briefcase className="h-3.5 w-3.5" />
               Find Jobs
             </Button>
           </Link>
           <Link href="/dashboard/resume">
-            <Button variant="outline" size="sm" className="h-9 gap-1.5 border-border/60 hover:bg-muted/50 text-xs font-medium px-3.5">
-              <Sparkles className="h-3.5 w-3.5 text-primary" />
+            <Button variant="outline" size="sm" className="h-9 gap-1.5 border-border hover:bg-muted/50 text-xs font-medium px-3.5 text-muted-foreground hover:text-foreground">
+              <Sparkles className="h-3.5 w-3.5" />
               Resume Studio
             </Button>
           </Link>
           <Link href="/dashboard/applications">
-            <Button variant="outline" size="sm" className="h-9 gap-1.5 border-border/60 hover:bg-muted/50 text-xs font-medium px-3.5">
-              <Layers className="h-3.5 w-3.5 text-primary" />
-              Kanban
+            <Button variant="outline" size="sm" className="h-9 gap-1.5 border-border hover:bg-muted/50 text-xs font-medium px-3.5 text-muted-foreground hover:text-foreground">
+              <Layers className="h-3.5 w-3.5" />
+              Pipeline
             </Button>
           </Link>
         </div>
       </div>
 
       {/* ── Compact Metric Strip (High-density, low-text) ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 shrink-0">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 shrink-0">
         
         {/* Metric 1 */}
         <Link href="/dashboard/applications" className="group">
-          <Card className="border border-border/60 bg-card hover:border-primary/50 transition-all p-3 shadow-sm group-hover:bg-muted/20">
+          <Card className="border border-border bg-card hover:border-[hsl(var(--border-strong))] transition-all p-3 group-hover:bg-muted/20">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Active Pipeline</span>
-              <div className="h-6 w-6 rounded-md bg-primary/10 border border-primary/20 flex items-center justify-center">
-                <Briefcase className="h-3 w-3 text-primary" />
+              <div className="h-6 w-6 rounded-md bg-muted flex items-center justify-center">
+                <Briefcase className="h-3 w-3 text-muted-foreground" />
               </div>
             </div>
             <div className="mt-1.5 flex items-baseline justify-between">
-              <span className="text-2xl font-black font-mono tracking-tight text-foreground">
+              <span className="text-2xl font-semibold font-mono tracking-tight text-foreground">
                 {totals.activeApplications}
               </span>
-              <span className="text-[11px] text-primary font-medium flex items-center gap-0.5 group-hover:translate-x-0.5 transition-transform">
-                Kanban <ArrowRight className="h-3 w-3" />
+              <span className="text-[11px] text-muted-foreground font-medium flex items-center gap-0.5 group-hover:text-primary group-hover:translate-x-0.5 transition-all">
+                View <ArrowRight className="h-3 w-3" />
               </span>
             </div>
           </Card>
@@ -295,18 +294,18 @@ export default function DashboardPage() {
 
         {/* Metric 2 */}
         <Link href="/dashboard/applications" className="group">
-          <Card className="border border-border/60 bg-card hover:border-emerald-500/50 transition-all p-3 shadow-sm group-hover:bg-muted/20">
+          <Card className="border border-border bg-card hover:border-[hsl(var(--border-strong))] transition-all p-3 group-hover:bg-muted/20">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Interviews & Tests</span>
-              <div className="h-6 w-6 rounded-md bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
-                <Activity className="h-3 w-3 text-emerald-400" />
+              <div className="h-6 w-6 rounded-md bg-muted flex items-center justify-center">
+                <Activity className="h-3 w-3 text-muted-foreground" />
               </div>
             </div>
             <div className="mt-1.5 flex items-baseline justify-between">
-              <span className="text-2xl font-black font-mono tracking-tight text-foreground">
+              <span className="text-2xl font-semibold font-mono tracking-tight text-foreground">
                 {totals.interviews}
               </span>
-              <span className="text-[11px] text-emerald-400 font-medium flex items-center gap-0.5 group-hover:translate-x-0.5 transition-transform">
+              <span className="text-[11px] text-muted-foreground font-medium flex items-center gap-0.5 group-hover:text-primary group-hover:translate-x-0.5 transition-all">
                 Rounds <ArrowRight className="h-3 w-3" />
               </span>
             </div>
@@ -315,18 +314,18 @@ export default function DashboardPage() {
 
         {/* Metric 3 */}
         <Link href="/dashboard/resume" className="group">
-          <Card className="border border-border/60 bg-card hover:border-cyan-500/50 transition-all p-3 shadow-sm group-hover:bg-muted/20">
+          <Card className="border border-border bg-card hover:border-[hsl(var(--border-strong))] transition-all p-3 group-hover:bg-muted/20">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Tailored Resumes</span>
-              <div className="h-6 w-6 rounded-md bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
-                <FileText className="h-3 w-3 text-cyan-400" />
+              <div className="h-6 w-6 rounded-md bg-muted flex items-center justify-center">
+                <FileText className="h-3 w-3 text-muted-foreground" />
               </div>
             </div>
             <div className="mt-1.5 flex items-baseline justify-between">
-              <span className="text-2xl font-black font-mono tracking-tight text-foreground">
+              <span className="text-2xl font-semibold font-mono tracking-tight text-foreground">
                 {generatedResumes.length}
               </span>
-              <span className="text-[11px] text-cyan-400 font-medium flex items-center gap-0.5 group-hover:translate-x-0.5 transition-transform">
+              <span className="text-[11px] text-muted-foreground font-medium flex items-center gap-0.5 group-hover:text-primary group-hover:translate-x-0.5 transition-all">
                 Studio <ArrowRight className="h-3 w-3" />
               </span>
             </div>
@@ -335,18 +334,18 @@ export default function DashboardPage() {
 
         {/* Metric 4 */}
         <Link href="/dashboard/resume" className="group">
-          <Card className="border border-border/60 bg-card hover:border-purple-500/50 transition-all p-3 shadow-sm group-hover:bg-muted/20">
+          <Card className="border border-border bg-card hover:border-[hsl(var(--border-strong))] transition-all p-3 group-hover:bg-muted/20">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Target ATS Index</span>
-              <div className="h-6 w-6 rounded-md bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
-                <TrendingUp className="h-3 w-3 text-purple-400" />
+              <div className="h-6 w-6 rounded-md bg-muted flex items-center justify-center">
+                <TrendingUp className="h-3 w-3 text-muted-foreground" />
               </div>
             </div>
             <div className="mt-1.5 flex items-baseline justify-between">
-              <span className="text-2xl font-black font-mono tracking-tight text-foreground">
+              <span className="text-2xl font-semibold font-mono tracking-tight text-foreground">
                 {matchAvg !== null ? `${matchAvg}%` : hasMasterResume ? '85%' : '0%'}
               </span>
-              <span className="text-[11px] text-purple-400 font-medium flex items-center gap-0.5 group-hover:translate-x-0.5 transition-transform">
+              <span className="text-[11px] text-muted-foreground font-medium flex items-center gap-0.5 group-hover:text-primary group-hover:translate-x-0.5 transition-all">
                 Scanner <ArrowRight className="h-3 w-3" />
               </span>
             </div>
@@ -540,8 +539,8 @@ export default function DashboardPage() {
 
             <div className="flex-1 min-h-0 flex flex-col justify-around py-2 space-y-2">
               {[
-                { label: 'Applied', val: stats?.applied || 0, bar: 'bg-primary' },
-                { label: 'Technical Assessment', val: stats?.assessment || 0, bar: 'bg-cyan-500' },
+                { label: 'Applied', val: stats?.applied || 0, bar: 'bg-blue-500' },
+                { label: 'Technical Assessment', val: stats?.assessment || 0, bar: 'bg-violet-500' },
                 { label: 'Interview Rounds', val: (stats?.interview || 0) + (stats?.final_interview || 0), bar: 'bg-amber-500' },
                 { label: 'Offers Extended', val: stats?.offer || 0, bar: 'bg-emerald-500' },
               ].map((row) => {
@@ -578,8 +577,8 @@ export default function DashboardPage() {
           <div className="border border-border/60 bg-card rounded-xl p-3.5 shadow-sm flex flex-col justify-between shrink-0 gap-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-cyan-400" />
-                <h3 className="text-sm font-bold text-foreground">ATS Career Hub</h3>
+                <Sparkles className="h-4 w-4 text-muted-foreground" />
+                <h3 className="text-sm font-semibold text-foreground">ATS Career Hub</h3>
               </div>
               <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold border ${
                 hasMasterResume

@@ -69,15 +69,15 @@ export default function DashboardLayout({
     return SIDEBAR_ITEMS.find((item) => item.href === pathname)?.name || 'Dashboard'
   }
 
-  const Sidebar = () => (
+  const Sidebar = ({ isMobileDrawer = false }: { isMobileDrawer?: boolean }) => (
     <div className="flex h-full flex-col bg-card border-r border-border/50" suppressHydrationWarning>
       {/* Logo */}
-      <div className="flex h-[72px] items-center px-5 border-b border-border/60">
-        <Link href="/" className="flex items-center gap-2.5">
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-primary/60 bg-primary/10">
+      <div className={`flex h-[72px] items-center border-b border-border/60 ${isMobileDrawer ? 'px-5' : 'px-3 lg:px-5 justify-center lg:justify-start'}`}>
+        <Link href="/" className="flex items-center gap-2.5" title="EngineerCopilot">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-primary/60 bg-primary/10">
             <Cpu className="h-5 w-5 text-primary" />
           </span>
-          <span>
+          <span className={isMobileDrawer ? 'block' : 'hidden lg:block'}>
             <span className="block text-[15px] font-bold tracking-tight">
               Engineer<span className="text-primary">Copilot</span>
             </span>
@@ -90,7 +90,7 @@ export default function DashboardLayout({
 
       {/* Navigation */}
       <div className="flex-1 overflow-auto py-3">
-        <nav className="grid items-start px-3 space-y-0.5">
+        <nav className={`grid items-start space-y-0.5 ${isMobileDrawer ? 'px-3' : 'px-2 lg:px-3'}`}>
           {SIDEBAR_ITEMS.map((item) => {
             const isActive =
               item.href === '/dashboard'
@@ -100,15 +100,22 @@ export default function DashboardLayout({
               <Link
                 key={item.name}
                 href={item.href}
+                title={item.name}
                 onClick={() => setIsMobileOpen(false)}
-                className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] font-medium transition-all ${
+                className={`flex items-center gap-3 rounded-lg py-2.5 text-[13px] font-medium transition-all ${
+                  isMobileDrawer
+                    ? 'px-3'
+                    : 'px-2 lg:px-3 justify-center lg:justify-start'
+                } ${
                   isActive
                     ? 'bg-primary/10 text-primary border-l-2 border-primary'
                     : 'text-muted-foreground hover:bg-muted/60 hover:text-foreground border-l-2 border-transparent'
                 }`}
               >
-                <item.icon className={`h-[18px] w-[18px] ${isActive ? 'text-primary' : ''}`} />
-                {item.name}
+                <item.icon className={`h-[18px] w-[18px] shrink-0 ${isActive ? 'text-primary' : ''}`} />
+                <span className={isMobileDrawer ? 'inline' : 'hidden lg:inline'}>
+                  {item.name}
+                </span>
               </Link>
             )
           })}
@@ -116,14 +123,17 @@ export default function DashboardLayout({
       </div>
 
       {/* User Profile + Logout */}
-      <div className="border-t border-border/50 p-3 mt-auto">
-        <div className="flex items-center gap-3 px-2 py-2">
-          <div className="h-9 w-9 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center flex-shrink-0">
+      <div className={`border-t border-border/50 mt-auto ${isMobileDrawer ? 'p-3' : 'p-2 lg:p-3'}`}>
+        <div className={`flex items-center gap-3 ${isMobileDrawer ? 'px-2 py-2' : 'px-1 lg:px-2 py-2 justify-center lg:justify-start'}`}>
+          <div
+            className="h-9 w-9 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center shrink-0"
+            title={userName || 'User'}
+          >
             <span className="text-sm font-bold text-primary">
               {(userName || 'U').charAt(0).toUpperCase()}
             </span>
           </div>
-          <div className="flex-1 min-w-0">
+          <div className={isMobileDrawer ? 'flex-1 min-w-0' : 'hidden lg:block flex-1 min-w-0'}>
             <p className="text-[13px] font-semibold text-foreground truncate">
               {userName || 'User'}
             </p>
@@ -133,7 +143,9 @@ export default function DashboardLayout({
           </div>
           <button
             onClick={handleLogout}
-            className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+            className={`p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors ${
+              isMobileDrawer ? 'block' : 'hidden lg:block'
+            }`}
             title="Log out"
           >
             <LogOut className="h-4 w-4" />
@@ -144,6 +156,14 @@ export default function DashboardLayout({
   )
 
   const isFixedViewportPage = pathname === '/dashboard' || pathname === '/dashboard/jobs' || pathname === '/dashboard/applications';
+
+  const MOBILE_TABS = [
+    { name: 'Home', href: '/dashboard', icon: Home },
+    { name: 'Jobs', href: '/dashboard/jobs', icon: Briefcase },
+    { name: 'Pipeline', href: '/dashboard/applications', icon: FileText },
+    { name: 'Resume', href: '/dashboard/resume', icon: Sparkles },
+    { name: 'Profile', href: '/dashboard/profile', icon: User },
+  ]
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-background">
@@ -165,20 +185,20 @@ export default function DashboardLayout({
             >
               <X className="h-4 w-4" />
             </Button>
-            <Sidebar />
+            <Sidebar isMobileDrawer={true} />
           </div>
         </div>
       )}
 
-      {/* Desktop Sidebar */}
-      <div className="hidden border-r border-border/60 bg-card md:block md:w-[240px] md:fixed md:inset-y-0 md:h-screen">
-        <Sidebar />
+      {/* Desktop / Tablet Rail Sidebar */}
+      <div className="hidden border-r border-border bg-card md:block md:w-[68px] lg:w-[240px] md:fixed md:inset-y-0 md:h-screen transition-all duration-200">
+        <Sidebar isMobileDrawer={false} />
       </div>
 
       {/* Main Content Wrapper */}
-      <div className="flex flex-col md:pl-[240px] flex-1 h-screen overflow-hidden">
+      <div className="flex flex-col md:pl-[68px] lg:pl-[240px] flex-1 h-screen overflow-hidden transition-all duration-200">
         {/* Top Header */}
-        <header className="flex h-14 shrink-0 items-center gap-4 border-b border-border/40 bg-background/95 px-4 lg:px-6 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-40">
+        <header className="flex h-14 shrink-0 items-center gap-4 border-b border-border bg-background/95 px-4 lg:px-6 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-40">
           <Button
             variant="ghost"
             size="icon"
@@ -203,9 +223,9 @@ export default function DashboardLayout({
             </button>
             <Link
               href="/dashboard/profile"
-              className="ml-1 h-8 w-8 rounded-full bg-primary/15 border border-primary/25 flex items-center justify-center hover:bg-primary/25 transition-colors"
+              className="ml-1 h-8 w-8 rounded-full bg-muted border border-border flex items-center justify-center hover:bg-muted/80 transition-colors"
             >
-              <User className="h-4 w-4 text-primary" />
+              <User className="h-4 w-4 text-muted-foreground" />
             </Link>
           </div>
         </header>
@@ -213,13 +233,33 @@ export default function DashboardLayout({
         <main
           className={
             isFixedViewportPage
-              ? 'flex-1 bg-background px-4 py-3 lg:px-6 lg:py-4 overflow-hidden flex flex-col min-h-0'
-              : 'flex-1 bg-background p-4 lg:p-6 overflow-y-auto'
+              ? 'flex-1 bg-background px-4 py-3 lg:px-6 lg:py-4 overflow-hidden flex flex-col min-h-0 pb-16 md:pb-4'
+              : 'flex-1 bg-background p-4 lg:p-6 overflow-y-auto pb-20 md:pb-6'
           }
         >
           {children}
         </main>
       </div>
+
+      {/* ── Mobile Bottom Tab Bar ── */}
+      <nav className="mobile-tab-bar">
+        {MOBILE_TABS.map((tab) => {
+          const isActive =
+            tab.href === '/dashboard'
+              ? pathname === '/dashboard'
+              : pathname === tab.href || pathname.startsWith(`${tab.href}/`)
+          return (
+            <Link
+              key={tab.name}
+              href={tab.href}
+              className={`mobile-tab-item ${isActive ? 'active' : ''}`}
+            >
+              <tab.icon className="h-5 w-5" />
+              <span className="mobile-tab-label">{tab.name}</span>
+            </Link>
+          )
+        })}
+      </nav>
     </div>
   )
 }

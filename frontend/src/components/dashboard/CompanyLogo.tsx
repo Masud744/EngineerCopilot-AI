@@ -16,9 +16,9 @@ export function CompanyLogo({ company = '', size = 'md', className = '' }: Compa
   const initial = (company || 'J').charAt(0).toUpperCase();
 
   const sizeClasses = {
-    sm: 'h-9 w-9 rounded-lg text-sm',
-    md: 'h-11 w-11 rounded-xl text-base',
-    lg: 'h-14 w-14 rounded-xl text-xl',
+    sm: 'h-8 w-8 rounded-lg text-xs',
+    md: 'h-10 w-10 rounded-lg text-sm',
+    lg: 'h-12 w-12 rounded-xl text-lg',
   }[size];
 
   // ── High-Fidelity Vector Brand Logos ──
@@ -105,21 +105,22 @@ export function CompanyLogo({ company = '', size = 'md', className = '' }: Compa
     );
   }
 
-  // ── Vibrant Tech Palette Fallback ──
-  const palettes = [
-    'from-cyan-500/20 to-blue-600/30 border-cyan-500/40 text-cyan-300',
-    'from-emerald-500/20 to-teal-600/30 border-emerald-500/40 text-emerald-300',
-    'from-indigo-500/20 to-purple-600/30 border-indigo-500/40 text-indigo-300',
-    'from-amber-500/20 to-orange-600/30 border-amber-500/40 text-amber-300',
-    'from-rose-500/20 to-pink-600/30 border-rose-500/40 text-rose-300',
-    'from-sky-500/20 to-cyan-600/30 border-sky-500/40 text-sky-300',
+  // ── Constrained 6-color avatar palette (12% bg tint + full text) ──
+  const AVATAR_PALETTES = [
+    'bg-teal-500/12 text-teal-400 border-teal-500/20',
+    'bg-blue-500/12 text-blue-400 border-blue-500/20',
+    'bg-violet-500/12 text-violet-400 border-violet-500/20',
+    'bg-amber-500/12 text-amber-400 border-amber-500/20',
+    'bg-rose-500/12 text-rose-400 border-rose-500/20',
+    'bg-emerald-500/12 text-emerald-400 border-emerald-500/20',
   ];
-  const charCode = (company || 'J').charCodeAt(0) || 0;
-  const palette = palettes[charCode % palettes.length];
+  // Deterministic hash: same company → same color every time
+  const hash = (company || 'J').split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+  const palette = AVATAR_PALETTES[hash % AVATAR_PALETTES.length];
 
   return (
     <div
-      className={`flex items-center justify-center shrink-0 bg-gradient-to-br border font-bold shadow-sm ${palette} ${sizeClasses} ${className}`}
+      className={`flex items-center justify-center shrink-0 border font-semibold ${palette} ${sizeClasses} ${className}`}
     >
       <span>{initial}</span>
     </div>

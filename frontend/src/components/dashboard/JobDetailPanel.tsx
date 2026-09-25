@@ -293,11 +293,11 @@ export function JobDetailPanel({
             {/* Meta Row: Remote, Full-time, Senior, Salary */}
             <div className="mt-2 flex flex-wrap items-center gap-x-3.5 gap-y-1 text-xs text-muted-foreground">
               <span className="inline-flex items-center gap-1">
-                <MapPin className="h-3.5 w-3.5 shrink-0 text-primary/70" />
+                <MapPin className="h-3.5 w-3.5 shrink-0" />
                 {cleanLocation || 'Remote'}
               </span>
               <span className="inline-flex items-center gap-1">
-                <Clock3 className="h-3.5 w-3.5 shrink-0 text-primary/70" />
+                <Clock3 className="h-3.5 w-3.5 shrink-0" />
                 {job.experience_level || 'Full-time'}
               </span>
               {job.salary_min && (
@@ -322,11 +322,7 @@ export function JobDetailPanel({
               href={job.apply_url}
               target="_blank"
               rel="noopener noreferrer"
-              className={`inline-flex h-9 items-center justify-center gap-1.5 rounded-lg px-3 text-xs font-semibold transition-colors ${
-                isGovt
-                  ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
-                  : 'bg-primary text-primary-foreground hover:bg-primary/90'
-              }`}
+              className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg px-3 text-xs font-semibold transition-colors bg-primary text-primary-foreground hover:bg-primary/90"
             >
               Apply <ExternalLink className="h-3.5 w-3.5" />
             </a>
@@ -339,7 +335,7 @@ export function JobDetailPanel({
           {/* Analyze with AI - In-place tab switch & trigger */}
           <Button
             variant="outline"
-            className="h-9 text-xs border-primary/40 text-primary hover:bg-primary/10"
+            className="h-9 text-xs border-border text-muted-foreground hover:text-foreground hover:bg-muted/50"
             onClick={handleAnalyzeClick}
           >
             <Sparkles className="mr-1.5 h-3.5 w-3.5" />
@@ -432,11 +428,11 @@ export function JobDetailPanel({
             {/* Right Sub-pane: Company Quick Facts Card (Context-Aware & Mockup Accurate) */}
             <div className="rounded-xl border border-border/60 bg-muted/20 p-4 space-y-3.5 shrink-0 text-xs">
               <div className="flex items-center gap-2.5 text-muted-foreground">
-                <Users className="h-4 w-4 text-primary shrink-0" />
+                <Users className="h-4 w-4 shrink-0" />
                 <span>{isGovt ? '10,000+ public servants' : '1000+ employees'}</span>
               </div>
               <div className="flex items-center gap-2.5 text-muted-foreground">
-                <DomainIcon className="h-4 w-4 text-primary shrink-0" />
+                <DomainIcon className="h-4 w-4 shrink-0" />
                 <span className="truncate">{primaryDomain}</span>
               </div>
               {companyWebsite && (
@@ -454,30 +450,30 @@ export function JobDetailPanel({
               {isGovt ? (
                 <>
                   <div className="flex items-center gap-2.5 text-muted-foreground">
-                    <Award className="h-4 w-4 text-primary shrink-0" />
+                    <Award className="h-4 w-4 shrink-0" />
                     <span>Pension & Gratuity Scheme</span>
                   </div>
                   <div className="flex items-center gap-2.5 text-muted-foreground">
-                    <ShieldCheck className="h-4 w-4 text-primary shrink-0" />
+                    <ShieldCheck className="h-4 w-4 shrink-0" />
                     <span>Govt Medical & Housing</span>
                   </div>
                   <div className="flex items-center gap-2.5 text-muted-foreground">
-                    <Heart className="h-4 w-4 text-primary shrink-0" />
+                    <Heart className="h-4 w-4 shrink-0" />
                     <span>Gazetted Public Holidays</span>
                   </div>
                 </>
               ) : (
                 <>
                   <div className="flex items-center gap-2.5 text-muted-foreground">
-                    <Award className="h-4 w-4 text-primary shrink-0" />
+                    <Award className="h-4 w-4 shrink-0" />
                     <span>Stock Options / Equity</span>
                   </div>
                   <div className="flex items-center gap-2.5 text-muted-foreground">
-                    <ShieldCheck className="h-4 w-4 text-primary shrink-0" />
+                    <ShieldCheck className="h-4 w-4 shrink-0" />
                     <span>Health, Dental, Vision</span>
                   </div>
                   <div className="flex items-center gap-2.5 text-muted-foreground">
-                    <Heart className="h-4 w-4 text-primary shrink-0" />
+                    <Heart className="h-4 w-4 shrink-0" />
                     <span>Flexible Work Hours</span>
                   </div>
                 </>

@@ -342,37 +342,37 @@ export default function ResumeStudioPage() {
         </div>
       )}
 
-      {/* Tab Navigation */}
-      <div className="flex gap-2 border-b border-border/50">
+      {/* Tab Navigation (Horizontally scrollable pill row on mobile) */}
+      <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-2 border-b border-border/50">
         <button
           onClick={() => setActiveTab('overview')}
-          className={`pb-3 px-4 text-sm font-semibold border-b-2 transition-all flex items-center gap-2 ${
+          className={`shrink-0 min-h-[40px] px-3.5 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all flex items-center gap-2 ${
             activeTab === 'overview'
-              ? 'border-primary text-primary'
-              : 'border-transparent text-muted-foreground hover:text-foreground'
+              ? 'bg-primary/10 text-primary border border-primary/30'
+              : 'text-muted-foreground hover:text-foreground hover:bg-muted/50 border border-transparent'
           }`}
         >
-          <FileText className="w-4 h-4" /> Master Resume Profile
+          <FileText className="w-4 h-4 shrink-0" /> Master Resume Profile
         </button>
         <button
           onClick={() => setActiveTab('scanner')}
-          className={`pb-3 px-4 text-sm font-semibold border-b-2 transition-all flex items-center gap-2 ${
+          className={`shrink-0 min-h-[40px] px-3.5 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all flex items-center gap-2 ${
             activeTab === 'scanner'
-              ? 'border-primary text-primary'
-              : 'border-transparent text-muted-foreground hover:text-foreground'
+              ? 'bg-primary/10 text-primary border border-primary/30'
+              : 'text-muted-foreground hover:text-foreground hover:bg-muted/50 border border-transparent'
           }`}
         >
-          <Search className="w-4 h-4" /> ATS Job Scanner & Gap Analysis
+          <Search className="w-4 h-4 shrink-0" /> ATS Job Scanner
         </button>
         <button
           onClick={() => setActiveTab('bullet_optimizer')}
-          className={`pb-3 px-4 text-sm font-semibold border-b-2 transition-all flex items-center gap-2 ${
+          className={`shrink-0 min-h-[40px] px-3.5 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all flex items-center gap-2 ${
             activeTab === 'bullet_optimizer'
-              ? 'border-primary text-primary'
-              : 'border-transparent text-muted-foreground hover:text-foreground'
+              ? 'bg-primary/10 text-primary border border-primary/30'
+              : 'text-muted-foreground hover:text-foreground hover:bg-muted/50 border border-transparent'
           }`}
         >
-          <Wand2 className="w-4 h-4" /> Google XYZ Bullet Enhancer
+          <Wand2 className="w-4 h-4 shrink-0" /> Bullet Enhancer
         </button>
       </div>
 

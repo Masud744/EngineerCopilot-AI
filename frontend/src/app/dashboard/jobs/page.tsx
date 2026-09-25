@@ -17,6 +17,8 @@ import {
   AlertTriangle,
   X,
   ArrowRight,
+  ArrowLeft,
+  SlidersHorizontal,
   TrendingUp,
   BookmarkCheck,
   Bookmark,
@@ -82,6 +84,8 @@ export default function JobsPage() {
   // ── Selection ──
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [showMobileDetail, setShowMobileDetail] = useState(false);
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
 
   // ── Analyzer ──
   const [showAnalyzer, setShowAnalyzer] = useState(false);
@@ -176,6 +180,7 @@ export default function JobsPage() {
   /* ──────────────────────────────────────────── */
   const handleSelectJob = (id: string) => {
     setSelectedJobId(id);
+    setShowMobileDetail(true);
     if (typeof window !== 'undefined') {
       const url = new URL(window.location.href);
       url.searchParams.set('job', id);
@@ -390,6 +395,13 @@ export default function JobsPage() {
   };
 
   const hasActiveFilters = categoryFilter !== 'all' || experienceFilter !== 'all' || workTypeFilter !== 'all' || locationFilter !== 'all' || salaryFilter !== 'all' || search;
+  const activeFiltersCount = [
+    categoryFilter !== 'all',
+    experienceFilter !== 'all',
+    workTypeFilter !== 'all',
+    locationFilter !== 'all',
+    salaryFilter !== 'all',
+  ].filter(Boolean).length;
 
   /* ──────────────────────────────────────────── */
   /*  Render                                      */
@@ -449,14 +461,215 @@ export default function JobsPage() {
         <Button
           type="button"
           onClick={triggerSearch}
-          className="absolute right-0 top-0 h-11 min-w-[100px] rounded-l-none rounded-r-xl"
+          variant="secondary"
+          className="absolute right-0 top-0 h-11 min-w-[90px] rounded-l-none rounded-r-xl text-xs font-semibold text-foreground border-l border-border hover:bg-muted"
         >
           Search
         </Button>
       </div>
 
-      {/* ── Filter Dropdowns ── */}
-      <div className="flex flex-wrap items-center gap-2">
+      {/* ── Mobile Filter Trigger (< md) ── */}
+      <div className="flex md:hidden items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowMobileFilters(true)}
+            className={`h-9 text-xs border ${
+              activeFiltersCount > 0 ? 'border-primary/60 text-primary bg-primary/10' : 'border-border/60 text-foreground'
+            }`}
+          >
+            <SlidersHorizontal className="w-3.5 h-3.5 mr-1.5" />
+            Filters {activeFiltersCount > 0 && `(${activeFiltersCount})`}
+          </Button>
+
+          {hasActiveFilters && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleFilterReset}
+              className="h-9 text-xs text-muted-foreground hover:text-foreground px-2"
+            >
+              <RotateCcw className="w-3 h-3 mr-1" /> Reset
+            </Button>
+          )}
+        </div>
+
+        <div className="flex items-center gap-1.5">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setSearchSavedToast(true);
+              setTimeout(() => setSearchSavedToast(false), 3000);
+            }}
+            className="h-9 text-xs border-primary/40 text-primary hover:bg-primary/10 px-2.5"
+            title="Save Search"
+          >
+            <Bookmark className="w-3.5 h-3.5" />
+          </Button>
+
+          <Button
+            onClick={handleSync}
+            disabled={syncing}
+            variant="outline"
+            size="sm"
+            className="h-9 text-xs border-border/60 hover:bg-muted/50 px-2.5"
+            title="Sync Jobs"
+          >
+            {syncing ? (
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
+            ) : (
+              <RefreshCw className="w-3.5 h-3.5" />
+            )}
+          </Button>
+        </div>
+      </div>
+
+      {/* ── Mobile Filter Bottom Sheet Modal ── */}
+      {showMobileFilters && (
+        <div
+          className="fixed inset-0 z-[60] bg-background/80 backdrop-blur-sm md:hidden flex flex-col justify-end pb-14"
+          onClick={() => setShowMobileFilters(false)}
+        >
+          <div
+            className="bg-card border-t border-border rounded-t-2xl p-5 space-y-4 max-h-[85vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-border/60 pb-3">
+              <div className="flex items-center gap-2">
+                <SlidersHorizontal className="w-4 h-4 text-primary" />
+                <h3 className="font-semibold text-sm text-foreground">Filter Jobs</h3>
+                {activeFiltersCount > 0 && (
+                  <span className="text-[10px] rounded-full bg-primary/10 text-primary px-2 py-0.5 font-mono">
+                    {activeFiltersCount} active
+                  </span>
+                )}
+              </div>
+              <button
+                onClick={() => setShowMobileFilters(false)}
+                className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs font-semibold text-muted-foreground block mb-1">Category</label>
+                <select
+                  value={categoryFilter}
+                  onChange={(e) => setCategoryFilter(e.target.value)}
+                  className="w-full h-10 bg-background border border-border rounded-lg px-3 text-xs text-foreground focus:ring-1 focus:ring-primary"
+                >
+                  <option value="all">All Categories</option>
+                  <option value="backend">Backend</option>
+                  <option value="full_stack">Full Stack</option>
+                  <option value="ai">AI & ML</option>
+                  <option value="devops">DevOps</option>
+                  <option value="cloud">Cloud</option>
+                  <option value="data_engineering">Data Engineering</option>
+                  <option value="embedded">Embedded</option>
+                  <option value="iot">IoT</option>
+                  <option value="robotics">Robotics</option>
+                  <option value="cybersecurity">Cybersecurity</option>
+                  <option value="government">Govt Jobs</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-muted-foreground block mb-1">Experience Level</label>
+                <select
+                  value={experienceFilter}
+                  onChange={(e) => setExperienceFilter(e.target.value)}
+                  className="w-full h-10 bg-background border border-border rounded-lg px-3 text-xs text-foreground focus:ring-1 focus:ring-primary"
+                >
+                  <option value="all">All Experience Levels</option>
+                  <option value="entry">Entry / Junior</option>
+                  <option value="mid">Mid Level</option>
+                  <option value="senior">Senior</option>
+                  <option value="lead">Lead / Architect</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-muted-foreground block mb-1">Work Type</label>
+                <select
+                  value={workTypeFilter}
+                  onChange={(e) => setWorkTypeFilter(e.target.value as 'all' | 'remote' | 'onsite')}
+                  className="w-full h-10 bg-background border border-border rounded-lg px-3 text-xs text-foreground focus:ring-1 focus:ring-primary"
+                >
+                  <option value="all">All Work Types</option>
+                  <option value="remote">Remote</option>
+                  <option value="onsite">On-site / Hybrid</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-muted-foreground block mb-1">Location</label>
+                <select
+                  value={locationFilter}
+                  onChange={(e) => setLocationFilter(e.target.value)}
+                  className="w-full h-10 bg-background border border-border rounded-lg px-3 text-xs text-foreground focus:ring-1 focus:ring-primary"
+                >
+                  <option value="all">All Locations</option>
+                  <option value="bd">Bangladesh</option>
+                  <option value="remote">Remote</option>
+                  <option value="govt">Government</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-muted-foreground block mb-1">Salary Range</label>
+                <select
+                  value={salaryFilter}
+                  onChange={(e) => setSalaryFilter(e.target.value)}
+                  className="w-full h-10 bg-background border border-border rounded-lg px-3 text-xs text-foreground focus:ring-1 focus:ring-primary"
+                >
+                  <option value="all">Salary: All Ranges</option>
+                  <optgroup label="🇧🇩 Bangladesh (Monthly BDT)">
+                    <option value="bdt_30k">৳30,000+ / mo (BD)</option>
+                    <option value="bdt_50k">৳50,000+ / mo (BD Mid)</option>
+                    <option value="bdt_90k">৳90,000+ / mo (BD Senior)</option>
+                    <option value="bdt_150k">৳1,50,000+ / mo (BD Lead)</option>
+                    <option value="bdt_govt">Govt Pay Scale (Grade 9-10)</option>
+                  </optgroup>
+                  <optgroup label="🌐 Global / Remote (Annual USD)">
+                    <option value="usd_50k">$50,000+ / yr (Remote)</option>
+                    <option value="usd_80k">$80,000+ / yr (Remote)</option>
+                    <option value="usd_120k">$120,000+ / yr (Remote Senior)</option>
+                  </optgroup>
+                </select>
+              </div>
+            </div>
+
+            <div className="pt-2 flex items-center gap-2">
+              <Button
+                variant="outline"
+                className="flex-1 text-xs min-h-[44px]"
+                onClick={() => {
+                  handleFilterReset();
+                  setShowMobileFilters(false);
+                }}
+              >
+                Reset All
+              </Button>
+              <Button
+                className="flex-1 bg-primary text-primary-foreground text-xs font-semibold min-h-[44px]"
+                onClick={() => {
+                  setShowMobileFilters(false);
+                  fetchJobs(sourceFilter, search, categoryFilter, experienceFilter, workTypeFilter, locationFilter);
+                }}
+              >
+                Apply Filters
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Desktop Filter Dropdowns (>= md) ── */}
+      <div className="hidden md:flex flex-wrap items-center gap-2">
         {/* Category */}
         <select
           value={categoryFilter}
@@ -871,18 +1084,52 @@ export default function JobsPage() {
               </div>
             </section>
 
-            {/* Right: Detail Panel Box (Internal scrolling inside panel) */}
-            {selectedJob && (
-              <JobDetailPanel
-                job={selectedJob}
-                isSaved={savedJobIds.has(selectedJob.id)}
-                filteredJobs={filteredJobs}
-                onSaveToggle={handleSaveToggle}
-                onSelectJob={handleSelectJob}
-                getJobSkills={getJobSkills}
-              />
-            )}
+            {/* Desktop Right: Detail Panel Box (Internal scrolling inside panel) */}
+            <div className="hidden xl:flex flex-col h-full min-h-0 overflow-hidden">
+              {selectedJob ? (
+                <JobDetailPanel
+                  job={selectedJob}
+                  isSaved={savedJobIds.has(selectedJob.id)}
+                  filteredJobs={filteredJobs}
+                  onSaveToggle={handleSaveToggle}
+                  onSelectJob={handleSelectJob}
+                  getJobSkills={getJobSkills}
+                />
+              ) : (
+                <div className="h-full flex items-center justify-center text-xs text-muted-foreground border border-border/60 rounded-xl bg-card">
+                  Select a role to preview full details & match
+                </div>
+              )}
+            </div>
           </div>
+
+          {/* Mobile Full-Screen Slide-over Detail (< xl) */}
+          {showMobileDetail && selectedJob && (
+            <div className="fixed inset-0 z-50 bg-background flex flex-col xl:hidden pb-14">
+              <div className="flex items-center justify-between border-b border-border bg-card px-4 py-2.5 shrink-0">
+                <button
+                  onClick={() => setShowMobileDetail(false)}
+                  className="flex items-center gap-1.5 text-xs font-semibold text-foreground hover:text-primary transition-colors min-h-[44px]"
+                >
+                  <ArrowLeft className="h-4 w-4 text-primary" />
+                  <span>Back to jobs</span>
+                </button>
+                <span className="text-xs text-muted-foreground truncate max-w-[180px]">
+                  {selectedJob.company}
+                </span>
+              </div>
+              <div className="flex-1 min-h-0 overflow-hidden p-2">
+                <JobDetailPanel
+                  job={selectedJob}
+                  isSaved={savedJobIds.has(selectedJob.id)}
+                  filteredJobs={filteredJobs}
+                  onSaveToggle={handleSaveToggle}
+                  onSelectJob={handleSelectJob}
+                  getJobSkills={getJobSkills}
+                />
+              </div>
+            </div>
+          )}
         </>
       ) : (
         <div className="text-center py-20 border-2 border-dashed rounded-xl p-8">

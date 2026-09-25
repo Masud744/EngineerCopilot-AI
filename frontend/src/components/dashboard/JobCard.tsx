@@ -141,26 +141,24 @@ export function JobCard({
 
           {/* Match Score or Source Badge */}
           {hasValidMatchScore ? (
-            <Badge
-              variant="outline"
-              className={`flex-shrink-0 font-bold text-xs ${
+            <span
+              className={`flex-shrink-0 font-semibold text-[11px] rounded-full px-2.5 py-0.5 ${
                 job.match_score >= 70
-                  ? 'border-emerald-500/50 text-emerald-400 bg-emerald-500/10'
+                  ? 'text-emerald-400 bg-emerald-500/12'
                   : job.match_score >= 40
-                  ? 'border-amber-500/50 text-amber-400 bg-amber-500/10'
-                  : 'border-muted text-muted-foreground bg-muted/20'
+                  ? 'text-amber-400 bg-amber-500/12'
+                  : 'text-muted-foreground bg-muted/40'
               }`}
             >
               {job.match_score}% Match
-            </Badge>
+            </span>
           ) : (
-            <Badge
-              variant="outline"
-              className={`flex-shrink-0 text-[10px] tracking-wider uppercase flex items-center gap-1 ${sourceInfo.className}`}
+            <span
+              className={`flex-shrink-0 text-[10px] font-semibold tracking-wider uppercase rounded-full px-2.5 py-0.5 flex items-center gap-1 bg-muted/40 text-muted-foreground`}
             >
               {isGovt && <Landmark className="w-3 h-3" />}
               {sourceInfo.label}
-            </Badge>
+            </span>
           )}
         </div>
       </CardHeader>
@@ -168,8 +166,8 @@ export function JobCard({
       <CardContent className="pb-4 flex-grow select-text">
         <div className="space-y-4">
           <div className="flex items-center justify-between text-xs text-muted-foreground select-text">
-            <span className="flex items-center gap-1 font-medium text-foreground">
-              <DollarSign className="w-3.5 h-3.5 text-emerald-400" />
+            <span className="flex items-center gap-1 font-medium text-emerald-400">
+              <DollarSign className="w-3.5 h-3.5" />
               {job.salary_min
                 ? `${job.salary_currency || '$'}${job.salary_min.toLocaleString()} - ${
                     job.salary_max ? job.salary_max.toLocaleString() : '+'
@@ -184,40 +182,31 @@ export function JobCard({
             )}
           </div>
 
-          {/* Balanced, Clean Tag Row (Budget: Max 3 tags) */}
+          {/* Balanced, Clean Tag Row (Budget: Max 3 tags, 10-15% tint, no border) */}
           <div className="flex flex-wrap items-center gap-1.5 select-text">
             {showRemote && (
-              <Badge
-                variant="secondary"
-                className="bg-sky-500/10 text-sky-400 border border-sky-500/20 text-[11px] font-medium"
-              >
+              <span className="rounded-full bg-sky-500/12 px-2.5 py-0.5 text-[10px] font-medium text-sky-400">
                 Remote
-              </Badge>
+              </span>
             )}
 
             {showCategory && primaryCategory && (
-              <Badge
-                variant="secondary"
-                className={`text-[11px] font-medium border ${getCategoryBadgeClass(
-                  primaryCategory.category
-                )}`}
-              >
+              <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] font-medium text-primary">
                 {getCategoryLabel(primaryCategory.category)}
-              </Badge>
+              </span>
             )}
 
             {visibleSkills.map((skill: string) => (
-              <Badge
+              <span
                 key={skill}
-                variant="outline"
-                className="text-[11px] font-mono text-muted-foreground bg-muted/20 border-border/50 select-text"
+                className="rounded-full bg-muted/50 px-2 py-0.5 text-[10px] font-mono text-muted-foreground select-text"
               >
                 {skill}
-              </Badge>
+              </span>
             ))}
 
             {remainingSkillsCount > 0 && (
-              <span className="text-[11px] text-muted-foreground font-medium pl-1">
+              <span className="text-[10px] text-muted-foreground font-medium pl-1">
                 +{remainingSkillsCount} more
               </span>
             )}
@@ -228,7 +217,7 @@ export function JobCard({
       <div className="mt-auto pt-3 pb-3 px-6 border-t border-border/40 flex items-center gap-2">
         <Link
           href={`/dashboard/jobs/${job.id}`}
-          className="flex items-center justify-center flex-1 h-9 rounded-lg border border-primary/30 bg-primary/10 text-primary text-xs font-medium hover:bg-primary/20 transition-colors"
+          className="flex items-center justify-center flex-1 h-9 rounded-lg border border-border bg-card text-foreground text-xs font-medium hover:bg-muted transition-colors"
         >
           View & Match
         </Link>
@@ -238,27 +227,23 @@ export function JobCard({
             href={job.apply_url}
             target="_blank"
             rel="noopener noreferrer"
-            className={`flex items-center justify-center h-9 px-3.5 rounded-lg text-xs font-medium transition-colors ${
-              isGovt
-                ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm'
-                : 'bg-primary text-primary-foreground hover:bg-primary/90'
-            }`}
+            className="flex items-center justify-center h-9 px-3.5 rounded-lg text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-xs"
             title="Open application link in new tab"
           >
-            {isGovt ? 'Circular / Apply' : 'Apply'}{' '}
+            {isGovt ? 'Circular' : 'Apply'}{' '}
             <ExternalLink className="w-3 h-3 ml-1.5" />
           </a>
         )}
 
         {onSaveToggle && (
           <Button
-            variant={isSaved ? 'default' : 'outline'}
+            variant="outline"
             size="icon"
             onClick={handleSaveClick}
             title={isSaved ? 'Unsave job' : 'Save job'}
-            className="h-9 w-9 flex-shrink-0"
+            className="h-9 w-9 flex-shrink-0 border-border text-muted-foreground hover:text-primary"
           >
-            <Bookmark className={`w-3.5 h-3.5 ${isSaved ? 'fill-current' : ''}`} />
+            <Bookmark className={`w-3.5 h-3.5 ${isSaved ? 'fill-current text-primary' : ''}`} />
           </Button>
         )}
       </div>

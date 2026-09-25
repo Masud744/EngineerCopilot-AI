@@ -81,19 +81,19 @@ export default function SavedJobsPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {saved.map((item) => (
-            <Card key={item.id} className="flex flex-col hover:shadow-md transition-shadow">
-              <CardHeader className="pb-3">
-                <div className="space-y-1">
+            <Card key={item.id} className="flex flex-col rounded-xl border border-border bg-card hover:border-[hsl(var(--border-strong))] hover:-translate-y-0.5 transition-all">
+              <CardHeader className="p-4 pb-2">
+                <div className="space-y-1.5">
                   <a href={`/dashboard/jobs?job=${item.job_id}`} className="block">
-                    <h3 className="font-semibold text-lg leading-tight hover:text-primary transition-colors cursor-pointer">
+                    <h3 className="font-semibold text-base leading-snug hover:text-primary transition-colors cursor-pointer line-clamp-2">
                       {item.job_title || 'Untitled Job'}
                     </h3>
                   </a>
-                  <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <Building2 className="w-3.5 h-3.5" />
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1 font-medium text-foreground/90">
+                      <Building2 className="w-3.5 h-3.5 text-muted-foreground" />
                       {item.job_company || 'Unknown'}
                     </span>
                     {item.job_location && (
@@ -105,28 +105,31 @@ export default function SavedJobsPage() {
                   </div>
                 </div>
                 {item.job_source && (
-                  <Badge variant="outline" className="text-xs w-fit">
-                    {item.job_source}
-                  </Badge>
+                  <div className="pt-2">
+                    <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] font-medium text-primary">
+                      {item.job_source}
+                    </span>
+                  </div>
                 )}
               </CardHeader>
 
-              <CardContent className="pb-4 flex-grow">
-                <p className="text-xs text-muted-foreground">
+              <CardContent className="px-4 py-2 flex-grow">
+                <p className="text-[11px] text-muted-foreground">
                   Saved on {new Date(item.created_at).toLocaleDateString()}
                 </p>
               </CardContent>
 
-              <div className="px-6 pb-4 flex gap-2">
+              <div className="p-4 pt-2 border-t border-border/40 flex items-center gap-2">
                 <a
                   href={`/dashboard/jobs/${item.job_id}`}
-                  className="inline-flex h-8 flex-1 items-center justify-center rounded-lg border border-border bg-background px-3 text-sm font-medium hover:bg-muted transition-colors"
+                  className="inline-flex min-h-[44px] flex-1 items-center justify-center rounded-lg border border-border bg-background px-3 text-xs font-semibold hover:bg-muted transition-colors text-foreground"
                 >
                   View Details
                 </a>
                 <Button
+                  variant="outline"
                   size="icon"
-                  className="h-8 w-8"
+                  className="min-h-[44px] min-w-[44px] border-border text-muted-foreground hover:text-primary"
                   title="Start tracking this application"
                   onClick={() => startTracking(item.job_id)}
                   disabled={tracking === item.job_id}
@@ -140,9 +143,10 @@ export default function SavedJobsPage() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 text-destructive"
+                  className="min-h-[44px] min-w-[44px] text-muted-foreground hover:text-destructive"
                   onClick={() => unsave(item.id)}
                   disabled={removing === item.id}
+                  title="Remove from saved"
                 >
                   {removing === item.id ? (
                     <Loader2 className="w-4 h-4 animate-spin" />

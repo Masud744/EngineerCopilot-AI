@@ -43,10 +43,10 @@ const KANBAN_COLUMNS = [
   {
     key: 'saved',
     label: 'Saved',
-    color: 'text-slate-300',
-    bg: 'bg-slate-500/10',
-    border: 'border-slate-500/25',
-    dot: 'bg-slate-400',
+    color: 'text-muted-foreground',
+    bg: 'bg-muted/30',
+    border: 'border-border',
+    dot: 'bg-muted-foreground',
     icon: Bookmark,
     desc: 'Roles bookmarked for review',
   },
@@ -54,8 +54,8 @@ const KANBAN_COLUMNS = [
     key: 'applied',
     label: 'Applied',
     color: 'text-blue-400',
-    bg: 'bg-blue-500/10',
-    border: 'border-blue-500/25',
+    bg: 'bg-blue-500/8',
+    border: 'border-blue-500/20',
     dot: 'bg-blue-400',
     icon: Clock,
     desc: 'Application submitted',
@@ -64,8 +64,8 @@ const KANBAN_COLUMNS = [
     key: 'assessment',
     label: 'Assessment',
     color: 'text-violet-400',
-    bg: 'bg-violet-500/10',
-    border: 'border-violet-500/25',
+    bg: 'bg-violet-500/8',
+    border: 'border-violet-500/20',
     dot: 'bg-violet-400',
     icon: FileText,
     desc: 'Take-home / Online test',
@@ -74,8 +74,8 @@ const KANBAN_COLUMNS = [
     key: 'interview',
     label: 'Interview',
     color: 'text-amber-400',
-    bg: 'bg-amber-500/10',
-    border: 'border-amber-500/25',
+    bg: 'bg-amber-500/8',
+    border: 'border-amber-500/20',
     dot: 'bg-amber-400',
     icon: Calendar,
     desc: 'Technical / Screen rounds',
@@ -83,10 +83,10 @@ const KANBAN_COLUMNS = [
   {
     key: 'final_interview',
     label: 'Final Round',
-    color: 'text-orange-400',
-    bg: 'bg-orange-500/10',
-    border: 'border-orange-500/25',
-    dot: 'bg-orange-400',
+    color: 'text-amber-400',
+    bg: 'bg-amber-500/8',
+    border: 'border-amber-500/20',
+    dot: 'bg-amber-400',
     icon: TrendingUp,
     desc: 'Executive / Leadership fit',
   },
@@ -94,8 +94,8 @@ const KANBAN_COLUMNS = [
     key: 'offer',
     label: 'Offer',
     color: 'text-emerald-400',
-    bg: 'bg-emerald-500/10',
-    border: 'border-emerald-500/25',
+    bg: 'bg-emerald-500/8',
+    border: 'border-emerald-500/20',
     dot: 'bg-emerald-400',
     icon: CheckCircle2,
     desc: 'Written offer received',
@@ -103,10 +103,10 @@ const KANBAN_COLUMNS = [
   {
     key: 'rejected',
     label: 'Archived',
-    color: 'text-rose-400',
-    bg: 'bg-rose-500/10',
-    border: 'border-rose-500/25',
-    dot: 'bg-rose-400',
+    color: 'text-red-400/70',
+    bg: 'bg-red-500/5',
+    border: 'border-red-500/15',
+    dot: 'bg-red-400/60',
     icon: XCircle,
     desc: 'Rejected or passed',
   },
@@ -631,196 +631,317 @@ export default function ApplicationsKanbanPage() {
 
       {/* ═══ KANBAN BOARD VIEW ═══════════════════════════════ */}
       {apps.length > 0 && viewMode === 'board' && (
-        <div className="flex-1 min-h-0 flex gap-3 overflow-x-auto pb-2 select-none">
-          {visibleColumns.map(col => {
-            const colApps = groupedApps[col.key] || [];
-            const isOver = dragOverCol === col.key;
-            const Icon = col.icon;
+        <>
+          {/* Desktop Multi-Column Horizontal Board */}
+          <div className="hidden md:flex flex-1 min-h-0 gap-3 overflow-x-auto pb-2 select-none">
+            {visibleColumns.map(col => {
+              const colApps = groupedApps[col.key] || [];
+              const isOver = dragOverCol === col.key;
+              const Icon = col.icon;
 
-            return (
-              <div
-                key={col.key}
-                className={`flex-shrink-0 w-[275px] flex flex-col rounded-xl border transition-all duration-150 ${
-                  isOver
-                    ? `${col.border} ${col.bg} ring-2 ring-primary/30 shadow-md`
-                    : 'border-border/50 bg-card/40'
-                }`}
-                onDragOver={e => onDragOver(e, col.key)}
-                onDragLeave={onDragLeave}
-                onDrop={e => onDrop(e, col.key)}
-              >
-                {/* Column Header */}
-                <div className="flex items-center justify-between px-3 py-2.5 border-b border-border/40 shrink-0">
-                  <div className="flex items-center gap-2">
-                    <span className={`w-2 h-2 rounded-full ${col.dot}`} />
-                    <span className="text-xs font-semibold text-foreground tracking-wide">
-                      {col.label}
-                    </span>
-                  </div>
-                  <Badge
-                    variant="outline"
-                    className={`text-[10px] px-1.5 py-0 font-bold border-current/25 ${col.color}`}
-                  >
-                    {colApps.length}
-                  </Badge>
-                </div>
-
-                {/* Column Body: Smooth Scroll Container */}
-                <div className="flex-1 min-h-0 overflow-y-auto p-2 space-y-2.5">
-                  {colApps.length === 0 ? (
-                    <div className="h-28 border border-dashed border-border/40 rounded-lg flex flex-col items-center justify-center text-xs text-muted-foreground/60 italic">
-                      <span>No jobs in {col.label.toLowerCase()}</span>
-                      <span className="text-[10px] opacity-75 mt-0.5">Drag card here to move</span>
+              return (
+                <div
+                  key={col.key}
+                  className={`flex-shrink-0 w-[275px] flex flex-col rounded-xl border transition-all duration-150 ${
+                    isOver
+                      ? `${col.border} ${col.bg} ring-2 ring-primary/30 shadow-md`
+                      : 'border-border/50 bg-card/40'
+                  }`}
+                  onDragOver={e => onDragOver(e, col.key)}
+                  onDragLeave={onDragLeave}
+                  onDrop={e => onDrop(e, col.key)}
+                >
+                  {/* Column Header */}
+                  <div className="flex items-center justify-between px-3 py-2.5 border-b border-border/40 shrink-0">
+                    <div className="flex items-center gap-2">
+                      <span className={`w-2 h-2 rounded-full ${col.dot}`} />
+                      <span className="text-xs font-semibold text-foreground tracking-wide">
+                        {col.label}
+                      </span>
                     </div>
-                  ) : (
-                    colApps.map(app => {
-                      const days = daysSince(app.updated_at || app.applied_date);
-                      const isDragging = draggingId === app.id;
+                    <Badge
+                      variant="outline"
+                      className={`text-[10px] px-1.5 py-0 font-bold border-current/25 ${col.color}`}
+                    >
+                      {colApps.length}
+                    </Badge>
+                  </div>
 
-                      return (
-                        <div
-                          key={app.id}
-                          draggable
-                          onDragStart={e => onDragStart(e, app.id)}
-                          onDragEnd={onDragEnd}
-                          className={`group relative rounded-lg border bg-card/90 p-3 cursor-grab active:cursor-grabbing transition-all duration-150 shadow-xs hover:border-primary/40 hover:shadow-md ${
-                            isDragging ? 'opacity-30 scale-95' : 'opacity-100'
-                          }`}
-                        >
-                          {/* Top Row: Grip, Company, Source Tag */}
-                          <div className="flex items-start justify-between gap-1.5">
-                            <div className="flex items-center gap-1.5 min-w-0">
-                              <GripVertical className="w-3.5 h-3.5 text-muted-foreground/40 shrink-0 group-hover:text-muted-foreground" />
-                              <span className="text-xs font-semibold text-foreground truncate">
-                                {app.job_company || 'Unknown Company'}
-                              </span>
-                            </div>
-                            {app.job_source && (
-                              <span className="text-[9px] uppercase px-1.5 py-0.5 rounded bg-muted/60 text-muted-foreground font-mono shrink-0">
-                                {app.job_source === 'manual_demo' ? 'demo' : app.job_source}
-                              </span>
-                            )}
-                          </div>
+                  {/* Column Body: Smooth Scroll Container */}
+                  <div className="flex-1 min-h-0 overflow-y-auto p-2 space-y-2.5">
+                    {colApps.length === 0 ? (
+                      <div className="h-28 border border-dashed border-border/40 rounded-lg flex flex-col items-center justify-center text-xs text-muted-foreground/60 italic">
+                        <span>No jobs in {col.label.toLowerCase()}</span>
+                        <span className="text-[10px] opacity-75 mt-0.5">Drag card here to move</span>
+                      </div>
+                    ) : (
+                      colApps.map(app => {
+                        const days = daysSince(app.updated_at || app.applied_date);
+                        const isDragging = draggingId === app.id;
 
-                          {/* Role Title */}
-                          <div className="mt-1">
-                            <button
-                              onClick={() => {
-                                setActiveModalApp(app);
-                                setModalNotes(app.notes || '');
-                                setModalStatus(app.status);
-                              }}
-                              className="text-xs font-bold text-foreground text-left hover:text-primary transition-colors line-clamp-2 leading-snug"
-                            >
-                              {app.job_title || 'Untitled Position'}
-                            </button>
-                          </div>
-
-                          {/* Location & Salary */}
-                          <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] text-muted-foreground">
-                            {app.job_location && (
-                              <span className="flex items-center gap-0.5 truncate max-w-[150px]">
-                                <MapPin className="w-2.5 h-2.5 shrink-0" />
-                                {app.job_location}
-                              </span>
-                            )}
-                            {app.job_salary && (
-                              <span className="flex items-center gap-0.5 font-medium text-emerald-400">
-                                <Banknote className="w-2.5 h-2.5 shrink-0" />
-                                {app.job_salary}
-                              </span>
-                            )}
-                          </div>
-
-                          {/* Notes preview teaser */}
-                          {app.notes && (
-                            <div
-                              onClick={() => {
-                                setActiveModalApp(app);
-                                setModalNotes(app.notes || '');
-                                setModalStatus(app.status);
-                              }}
-                              className="mt-2 p-1.5 rounded bg-muted/30 border border-border/30 text-[10px] text-muted-foreground/80 italic line-clamp-2 cursor-pointer hover:bg-muted/50 transition-colors"
-                            >
-                              &ldquo;{app.notes}&rdquo;
-                            </div>
-                          )}
-
-                          {/* Meta Row: Days ago + Quick Status Changer */}
-                          <div className="mt-2.5 pt-2 border-t border-border/40 flex items-center justify-between text-[10px] text-muted-foreground">
-                            <span>
-                              {days !== null ? `${days}d ago` : 'recently'}
-                            </span>
-
-                            {/* Status changer dropdown for quick touch/click */}
-                            <select
-                              value={app.status}
-                              onChange={e => updateStatus(app.id, e.target.value as StatusKey)}
-                              className="text-[10px] bg-muted/50 border border-border/40 rounded px-1.5 py-0.5 text-foreground hover:bg-muted focus:outline-none cursor-pointer"
-                              title="Change stage"
-                            >
-                              {KANBAN_COLUMNS.map(c => (
-                                <option key={c.key} value={c.key}>
-                                  {c.label}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-
-                          {/* Hover action shortcuts */}
-                          <div className="mt-2 flex items-center justify-between gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <div className="flex items-center gap-1">
-                              <Link
-                                href={`/dashboard/resume?jobTitle=${encodeURIComponent(app.job_title || '')}&company=${encodeURIComponent(app.job_company || '')}`}
-                                className="px-1.5 py-0.5 rounded text-[10px] bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 transition-colors flex items-center gap-1"
-                                title="Tailor Resume for this role"
-                              >
-                                <Sparkles className="w-2.5 h-2.5" />
-                                Tailor
-                              </Link>
-                              {app.job_apply_url && !app.job_apply_url.startsWith('manual://') && !app.job_apply_url.startsWith('demo://') && (
-                                <a
-                                  href={app.job_apply_url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted"
-                                  title="Open job posting"
-                                >
-                                  <ArrowUpRight className="w-3 h-3" />
-                                </a>
+                        return (
+                          <div
+                            key={app.id}
+                            draggable
+                            onDragStart={e => onDragStart(e, app.id)}
+                            onDragEnd={onDragEnd}
+                            className={`group relative rounded-lg border bg-card/90 p-3 cursor-grab active:cursor-grabbing transition-all duration-150 shadow-xs hover:border-primary/40 hover:shadow-md ${
+                              isDragging ? 'opacity-30 scale-95' : 'opacity-100'
+                            }`}
+                          >
+                            {/* Top Row: Grip, Company, Source Tag */}
+                            <div className="flex items-start justify-between gap-1.5">
+                              <div className="flex items-center gap-1.5 min-w-0">
+                                <GripVertical className="w-3.5 h-3.5 text-muted-foreground/40 shrink-0 group-hover:text-muted-foreground" />
+                                <span className="text-xs font-semibold text-foreground truncate">
+                                  {app.job_company || 'Unknown Company'}
+                                </span>
+                              </div>
+                              {app.job_source && (
+                                <span className="text-[9px] uppercase px-1.5 py-0.5 rounded bg-muted/60 text-muted-foreground font-mono shrink-0">
+                                  {app.job_source === 'manual_demo' ? 'demo' : app.job_source}
+                                </span>
                               )}
                             </div>
 
-                            <div className="flex items-center gap-1">
+                            {/* Role Title */}
+                            <div className="mt-1">
                               <button
                                 onClick={() => {
                                   setActiveModalApp(app);
                                   setModalNotes(app.notes || '');
                                   setModalStatus(app.status);
                                 }}
-                                className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted"
-                                title="View details & notes"
+                                className="text-xs font-bold text-foreground text-left hover:text-primary transition-colors line-clamp-2 leading-snug"
                               >
-                                <MessageSquare className="w-3 h-3" />
-                              </button>
-                              <button
-                                onClick={() => handleDelete(app.id)}
-                                className="p-1 rounded text-muted-foreground hover:text-rose-400 hover:bg-rose-500/10"
-                                title="Remove application"
-                              >
-                                <Trash2 className="w-3 h-3" />
+                                {app.job_title || 'Untitled Position'}
                               </button>
                             </div>
+
+                            {/* Location & Salary */}
+                            <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] text-muted-foreground">
+                              {app.job_location && (
+                                <span className="flex items-center gap-0.5 truncate max-w-[150px]">
+                                  <MapPin className="w-2.5 h-2.5 shrink-0" />
+                                  {app.job_location}
+                                </span>
+                              )}
+                              {app.job_salary && (
+                                <span className="flex items-center gap-0.5 font-medium text-emerald-400">
+                                  <Banknote className="w-2.5 h-2.5 shrink-0" />
+                                  {app.job_salary}
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Notes preview teaser */}
+                            {app.notes && (
+                              <div
+                                onClick={() => {
+                                  setActiveModalApp(app);
+                                  setModalNotes(app.notes || '');
+                                  setModalStatus(app.status);
+                                }}
+                                className="mt-2 p-1.5 rounded bg-muted/30 border border-border/30 text-[10px] text-muted-foreground/80 italic line-clamp-2 cursor-pointer hover:bg-muted/50 transition-colors"
+                              >
+                                &ldquo;{app.notes}&rdquo;
+                              </div>
+                            )}
+
+                            {/* Meta Row: Days ago + Quick Status Changer */}
+                            <div className="mt-2.5 pt-2 border-t border-border/40 flex items-center justify-between text-[10px] text-muted-foreground">
+                              <span>
+                                {days !== null ? `${days}d ago` : 'recently'}
+                              </span>
+
+                              {/* Status changer dropdown for quick touch/click */}
+                              <select
+                                value={app.status}
+                                onChange={e => updateStatus(app.id, e.target.value as StatusKey)}
+                                className="text-[10px] bg-muted/50 border border-border/40 rounded px-1.5 py-0.5 text-foreground hover:bg-muted focus:outline-none cursor-pointer"
+                                title="Change stage"
+                              >
+                                {KANBAN_COLUMNS.map(c => (
+                                  <option key={c.key} value={c.key}>
+                                    {c.label}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+
+                            {/* Hover action shortcuts */}
+                            <div className="mt-2 flex items-center justify-between gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <div className="flex items-center gap-1">
+                                <Link
+                                  href={`/dashboard/resume?jobTitle=${encodeURIComponent(app.job_title || '')}&company=${encodeURIComponent(app.job_company || '')}`}
+                                  className="px-1.5 py-0.5 rounded text-[10px] bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 transition-colors flex items-center gap-1"
+                                  title="Tailor Resume for this role"
+                                >
+                                  <Sparkles className="w-2.5 h-2.5" />
+                                  Tailor
+                                </Link>
+                                {app.job_apply_url && !app.job_apply_url.startsWith('manual://') && !app.job_apply_url.startsWith('demo://') && (
+                                  <a
+                                    href={app.job_apply_url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted"
+                                    title="Open job posting"
+                                  >
+                                    <ArrowUpRight className="w-3 h-3" />
+                                  </a>
+                                )}
+                              </div>
+
+                              <div className="flex items-center gap-1">
+                                <button
+                                  onClick={() => {
+                                    setActiveModalApp(app);
+                                    setModalNotes(app.notes || '');
+                                    setModalStatus(app.status);
+                                  }}
+                                  className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted"
+                                  title="View details & notes"
+                                >
+                                  <MessageSquare className="w-3 h-3" />
+                                </button>
+                                <button
+                                  onClick={() => handleDelete(app.id)}
+                                  className="p-1 rounded text-muted-foreground hover:text-rose-400 hover:bg-rose-500/10"
+                                  title="Remove application"
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                </button>
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                      );
-                    })
-                  )}
+                        );
+                      })
+                    )}
+                  </div>
                 </div>
+              );
+            })}
+          </div>
+
+          {/* Mobile Single-Column Card List (One-thumb friendly) */}
+          <div className="flex md:hidden flex-1 min-h-0 flex-col overflow-y-auto space-y-2.5 pb-4">
+            {filteredApps.length === 0 ? (
+              <div className="h-40 border border-dashed border-border/50 rounded-xl flex flex-col items-center justify-center p-4 text-center text-xs text-muted-foreground">
+                <span>No applications found in this stage</span>
+                <span className="text-[11px] opacity-75 mt-1">Tap a stage pill above or add a new job</span>
               </div>
-            );
-          })}
-        </div>
+            ) : (
+              filteredApps.map(app => {
+                const col = KANBAN_COLUMNS.find(c => c.key === app.status) || KANBAN_COLUMNS[0];
+                const days = daysSince(app.updated_at || app.applied_date);
+
+                return (
+                  <div
+                    key={app.id}
+                    className="rounded-xl border border-border/60 bg-card p-3.5 space-y-2.5 shadow-xs"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-xs font-semibold text-foreground truncate">
+                        {app.job_company || 'Unknown Company'}
+                      </span>
+                      <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${col.bg} ${col.color}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${col.dot}`} />
+                        {col.label}
+                      </span>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        setActiveModalApp(app);
+                        setModalNotes(app.notes || '');
+                        setModalStatus(app.status);
+                      }}
+                      className="text-sm font-semibold text-foreground text-left hover:text-primary transition-colors line-clamp-2 block w-full"
+                    >
+                      {app.job_title || 'Untitled Position'}
+                    </button>
+
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                      {app.job_location && (
+                        <span className="flex items-center gap-1">
+                          <MapPin className="w-3 h-3" />
+                          {app.job_location}
+                        </span>
+                      )}
+                      {app.job_salary && (
+                        <span className="flex items-center gap-1 font-medium text-emerald-400">
+                          <Banknote className="w-3 h-3" />
+                          {app.job_salary}
+                        </span>
+                      )}
+                      {days !== null && (
+                        <span>{days}d ago</span>
+                      )}
+                    </div>
+
+                    {app.notes && (
+                      <div
+                        onClick={() => {
+                          setActiveModalApp(app);
+                          setModalNotes(app.notes || '');
+                          setModalStatus(app.status);
+                        }}
+                        className="p-2 rounded bg-muted/30 border border-border/30 text-xs text-muted-foreground italic line-clamp-2"
+                      >
+                        &ldquo;{app.notes}&rdquo;
+                      </div>
+                    )}
+
+                    <div className="pt-2 border-t border-border/40 flex items-center justify-between gap-2">
+                      {/* 44px touch target stage select */}
+                      <select
+                        value={app.status}
+                        onChange={e => updateStatus(app.id, e.target.value as StatusKey)}
+                        className="min-h-[40px] text-xs bg-muted/60 border border-border rounded-lg px-2.5 text-foreground cursor-pointer"
+                        title="Change stage"
+                      >
+                        {KANBAN_COLUMNS.map(c => (
+                          <option key={c.key} value={c.key}>
+                            Move to: {c.label}
+                          </option>
+                        ))}
+                      </select>
+
+                      <div className="flex items-center gap-1">
+                        <Link
+                          href={`/dashboard/resume?jobTitle=${encodeURIComponent(app.job_title || '')}&company=${encodeURIComponent(app.job_company || '')}`}
+                          className="min-h-[40px] px-2.5 rounded-lg text-xs bg-primary/10 text-primary border border-primary/30 flex items-center gap-1"
+                        >
+                          <Sparkles className="w-3.5 h-3.5" />
+                          Tailor
+                        </Link>
+                        <button
+                          onClick={() => {
+                            setActiveModalApp(app);
+                            setModalNotes(app.notes || '');
+                            setModalStatus(app.status);
+                          }}
+                          className="min-h-[40px] min-w-[40px] flex items-center justify-center rounded-lg text-muted-foreground hover:bg-muted"
+                          title="Notes"
+                        >
+                          <MessageSquare className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(app.id)}
+                          className="min-h-[40px] min-w-[40px] flex items-center justify-center rounded-lg text-muted-foreground hover:text-rose-400 hover:bg-rose-500/10"
+                          title="Delete"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </>
       )}
 
       {/* ═══ LIST VIEW ═══════════════════════════════════════ */}
