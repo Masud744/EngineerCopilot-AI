@@ -14,11 +14,13 @@ from typing import Optional
 from app.config import get_settings
 from app.ai.base import BaseLLMProvider, LLMResponse
 
+import threading
+
 logger = logging.getLogger(__name__)
 
-# Lazy-initialized singleton with async lock for thread safety
+# Lazy-initialized singleton with thread lock
 _manager: Optional["ProviderManager"] = None
-_manager_lock = asyncio.Lock()
+_manager_lock = threading.Lock()
 
 
 class ProviderManager:
@@ -102,21 +104,7 @@ def get_ai_manager() -> ProviderManager:
     """Get the singleton AI provider manager (thread-safe)."""
     global _manager
     if _manager is None:
-        try:
-            loop = asyncio.get_event_loop()
-            if loop.is_running():
-                future = asyncio.run_coroutine_threadsafe(_ensure_manager(), loop)
-                _manager = future.result(timeout=10)
-            else:
-                _manager = loop.run_until_complete(_ensure_manager())
-        except RuntimeError:
-            _manager = asyncio.run(_ensure_manager())
+        with _manager_lock:
+            if _manager is None:
+                _manager = ProviderManager()
     return _manager
-
-
-async def _ensure_manager() -> ProviderManager:
-    async with _manager_lock:
-        global _manager
-        if _manager is None:
-            _manager = ProviderManager()
-        return _manager

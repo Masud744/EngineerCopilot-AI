@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { Cpu, Loader2 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
@@ -12,7 +11,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { createClient } from '@/lib/supabase/client'
 
 export default function SignupPage() {
-  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -48,12 +46,13 @@ export default function SignupPage() {
   return (
     <div className="container relative min-h-screen flex-col items-center justify-center grid lg:max-w-none lg:grid-cols-2 lg:px-0">
       <div className="relative hidden h-full flex-col bg-muted p-10 text-white lg:flex dark:border-r border-border/50">
-        <div className="absolute inset-0 bg-zinc-950">
-          <div className="absolute inset-0 bg-gradient-to-br from-cyan-900/20 via-primary/5 to-background" />
-        </div>
-        <div className="relative z-20 flex items-center text-lg font-medium">
-          <Cpu className="mr-2 h-6 w-6 text-primary" />
-          EngineerCopilot AI
+        <div className="absolute inset-0 bg-zinc-950" />
+        <div className="relative z-20 flex items-center">
+          <img
+            src="/shombhob-brand-white.png"
+            alt="সম্ভব"
+            className="h-9 w-auto object-contain"
+          />
         </div>
         <div className="relative z-20 mt-auto">
           <blockquote className="space-y-2">
@@ -80,7 +79,7 @@ export default function SignupPage() {
                   </div>
                 )}
                 {success && (
-                  <div className="p-3 text-sm rounded-md bg-emerald-500/15 text-emerald-500 border border-emerald-500/20 text-center">
+                  <div className="p-3 text-sm rounded-md bg-white/10 text-white border border-white/20 text-center">
                     Check your email for the confirmation link to complete registration.
                   </div>
                 )}

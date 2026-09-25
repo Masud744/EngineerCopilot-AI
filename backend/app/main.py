@@ -39,7 +39,7 @@ async def _run_daily_cleanup():
     while True:
         try:
             logger.info("Running scheduled job cleanup (older than %d days)...", 14)
-            cleanup_main()
+            await asyncio.to_thread(cleanup_main)
         except Exception as exc:
             logger.error("Scheduled cleanup failed: %s", exc, exc_info=True)
         await asyncio.sleep(86400)

@@ -22,7 +22,13 @@ VALID_STATUSES = [
 
 
 class ApplicationCreate(BaseModel):
-    job_id: str
+    job_id: Optional[str] = None
+    # For manual / external jobs:
+    title: Optional[str] = None
+    company: Optional[str] = None
+    location: Optional[str] = "Dhaka, Bangladesh"
+    apply_url: Optional[str] = None
+    salary: Optional[str] = None
     status: str = Field(default="saved", pattern=r"^(saved|applied|assessment|interview|final_interview|offer|rejected|withdrawn)$")
     applied_date: Optional[datetime] = None
     notes: Optional[str] = None
@@ -51,6 +57,9 @@ class ApplicationResponse(BaseModel):
     job_title: Optional[str] = None
     job_company: Optional[str] = None
     job_location: Optional[str] = None
+    job_salary: Optional[str] = None
+    job_apply_url: Optional[str] = None
+    job_source: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -131,3 +140,18 @@ class SavedJobResponse(BaseModel):
 
 class JobIdRequest(BaseModel):
     job_id: str
+
+
+# ── Bullet Point Enhancer ───────────────────────────────────
+
+class BulletEnhanceRequest(BaseModel):
+    bullet_point: str
+    target_role: Optional[str] = None
+    target_skills: Optional[list[str]] = Field(default_factory=list)
+
+
+class BulletEnhanceResponse(BaseModel):
+    original_bullet: str
+    optimized_bullet: str
+    impact_explanation: str
+    alternatives: list[str] = Field(default_factory=list)

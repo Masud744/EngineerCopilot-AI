@@ -18,9 +18,19 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "EngineerCopilot AI - Your Engineering Career Assistant",
-  description: "Zero-cost AI-powered engineering career assistant for IoT, Robotics, Embedded, AI/ML, and Full Stack engineers.",
+  title: "সম্ভব — Find opportunities. Build your future.",
+  description: "Find opportunities. Build your future. Career assistant for IoT, Robotics, Embedded, AI/ML, and Software engineers.",
+  icons: {
+    icon: [
+      { url: "/icon.png", type: "image/png" },
+      { url: "/favicon.ico" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/icon.png",
+  },
 };
+
+import { ThemeProvider } from "@/components/theme-provider";
 
 export default function RootLayout({
   children,
@@ -28,11 +38,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn("dark", inter.variable)} suppressHydrationWarning>
+    <html lang="en" className={inter.variable} suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased bg-background text-foreground min-h-screen selection:bg-primary/30`}
       >
-        {children}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

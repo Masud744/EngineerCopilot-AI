@@ -20,7 +20,7 @@ GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 class GroqProvider(BaseLLMProvider):
     """Groq Cloud LLM provider (OpenAI-compatible API)."""
 
-    def __init__(self, api_key: str, model: str = "llama-3.3-70b-versatile"):
+    def __init__(self, api_key: str, model: str = "qwen/qwen3.8-27b"):
         # Free tier: 30 requests per minute = 0.5 req/s
         super().__init__(
             name="groq",

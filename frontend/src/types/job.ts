@@ -30,9 +30,9 @@ export interface Job {
 
 export interface PaginatedJobs {
   items: Job[];
-  total: int;
-  limit: int;
-  offset: int;
+  total: number;
+  limit: number;
+  offset: number;
 }
 
 export interface MatchScore {
@@ -42,9 +42,31 @@ export interface MatchScore {
   education_match: number;
   location_match: number;
   explanation: string[];
+  matching_skills?: string[];
+  missing_skills?: string[];
 }
 
 export interface MatchResponse {
   job: Job;
   match: MatchScore;
+}
+
+export interface CustomJobAnalyzeRequest {
+  title: string;
+  company?: string;
+  description: string;
+  location?: string;
+  apply_url?: string;
+  save_to_jobs?: boolean;
+}
+
+export interface CustomJobAnalyzeResponse {
+  title: string;
+  company: string;
+  location?: string;
+  match: MatchScore;
+  matching_skills?: string[];
+  missing_skills?: string[];
+  job_id?: string;
+  saved_job_id?: string;
 }

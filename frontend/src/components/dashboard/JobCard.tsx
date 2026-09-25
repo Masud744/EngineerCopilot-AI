@@ -1,17 +1,45 @@
 import { useState, useEffect } from 'react';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import Link from 'next/link';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Building2, MapPin, DollarSign, ExternalLink, CalendarDays, Bookmark } from 'lucide-react';
+import {
+  Building2,
+  MapPin,
+  DollarSign,
+  ExternalLink,
+  CalendarDays,
+  Bookmark,
+  Copy,
+  Check,
+  Landmark,
+} from 'lucide-react';
+import {
+  getCategoryLabel,
+  getCategoryBadgeClass,
+  getSourceBadge,
+  cleanJobSkills,
+} from '@/lib/constants/job-taxonomy';
 
-export function JobCard({ job, isSaved, onSaveToggle }: { job: any; isSaved?: boolean; onSaveToggle?: (jobId: string) => void }) {
+export function JobCard({
+  job,
+  isSaved,
+  onSaveToggle,
+}: {
+  job: any;
+  isSaved?: boolean;
+  onSaveToggle?: (jobId: string) => void;
+}) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const check = async () => {
       try {
         const { createClient } = await import('@/lib/supabase/client');
-        const { data: { session } } = await createClient().auth.getSession();
+        const {
+          data: { session },
+        } = await createClient().auth.getSession();
         setIsLoggedIn(!!session);
       } catch {
         setIsLoggedIn(false);
@@ -20,7 +48,8 @@ export function JobCard({ job, isSaved, onSaveToggle }: { job: any; isSaved?: bo
     check();
   }, []);
 
-  const handleSaveClick = () => {
+  const handleSaveClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (!onSaveToggle) return;
     if (!isLoggedIn) {
       window.location.href = '/login';
@@ -29,15 +58,14 @@ export function JobCard({ job, isSaved, onSaveToggle }: { job: any; isSaved?: bo
     onSaveToggle(job.id || job.job_id || '');
   };
 
-  const getCategoryColor = (category: string) => {
-    const colors: Record<string, string> = {
-      iot: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
-      embedded: 'bg-indigo-500/10 text-indigo-500 border-indigo-500/20',
-      ai: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
-      backend: 'bg-orange-500/10 text-orange-500 border-orange-500/20',
-      full_stack: 'bg-purple-500/10 text-purple-500 border-purple-500/20',
-    };
-    return colors[category] || 'bg-primary/10 text-primary border-primary/20';
+  const handleCopyTitle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (job?.title) {
+      navigator.clipboard.writeText(job.title);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -49,106 +77,175 @@ export function JobCard({ job, isSaved, onSaveToggle }: { job: any; isSaved?: bo
 
     if (diffDays === 0) return 'Today';
     if (diffDays === 1) return 'Yesterday';
-    if (diffDays < 30) return `${diffDays} days ago`;
+    if (diffDays < 30) return `${diffDays}d ago`;
     return date.toLocaleDateString();
   };
 
+  const hasValidMatchScore =
+    typeof job.match_score === 'number' &&
+    !isNaN(job.match_score) &&
+    job.match_score > 0;
+
+  const isGovt = job.source === 'BD Govt Jobs';
+  const sourceInfo = getSourceBadge(job.source);
+
+  // Clean and deduplicate skills
+  const cleanedSkills = cleanJobSkills(job.required_skills, job.title, job.categories);
+  const primaryCategory = job.categories?.find((cat: any) => (cat.confidence ?? 0) >= 0.3);
+
+  // Strict badge budget (Maximum 3 pills on the card to maintain pristine hierarchy)
+  const showRemote = Boolean(job.is_remote);
+  const showCategory = Boolean(primaryCategory);
+  const maxSkillPills = Math.max(1, 3 - (showRemote ? 1 : 0) - (showCategory ? 1 : 0));
+  const visibleSkills = cleanedSkills.slice(0, maxSkillPills);
+  const remainingSkillsCount = cleanedSkills.length - visibleSkills.length;
+
   return (
-    <Card className="flex flex-col h-full hover:shadow-md transition-shadow group">
-      <CardHeader className="pb-3">
-        <div className="flex justify-between items-start gap-4">
-          <div className="space-y-1">
-            <a href={`/dashboard/jobs/${job.id}`} className="block">
-              <h3 className="font-semibold text-lg leading-tight hover:text-primary transition-colors cursor-pointer">
+    <Card className="flex flex-col h-full hover:shadow-md transition-shadow group select-text border-border/60 bg-card rounded-xl">
+      <CardHeader className="pb-3 select-text">
+        <div className="flex justify-between items-start gap-3">
+          <div className="space-y-1.5 flex-1 min-w-0">
+            <div className="flex items-center gap-1.5 group/title">
+              <Link
+                href={`/dashboard/jobs/${job.id}`}
+                draggable={false}
+                className="font-semibold text-base leading-snug hover:text-primary transition-colors cursor-pointer select-text line-clamp-2"
+              >
                 {job.title}
-              </h3>
-            </a>
-            <div className="flex items-center text-sm text-muted-foreground gap-3">
-              <span className="flex items-center gap-1">
-                <Building2 className="w-3.5 h-3.5" />
+              </Link>
+              <button
+                type="button"
+                onClick={handleCopyTitle}
+                className="opacity-0 group-hover/title:opacity-100 transition-opacity p-1 text-muted-foreground hover:text-foreground rounded flex-shrink-0"
+                title="Copy job title to clipboard"
+              >
+                {copied ? (
+                  <Check className="w-3.5 h-3.5 text-white" />
+                ) : (
+                  <Copy className="w-3.5 h-3.5" />
+                )}
+              </button>
+            </div>
+
+            <div className="flex flex-wrap items-center text-xs text-muted-foreground gap-3 select-text">
+              <span className="flex items-center gap-1 text-foreground/90 font-medium">
+                <Building2 className="w-3.5 h-3.5 text-zinc-400" strokeWidth={1.75} />
                 {job.company}
               </span>
               <span className="flex items-center gap-1">
-                <MapPin className="w-3.5 h-3.5" />
-                {job.location}
+                <MapPin className="w-3.5 h-3.5 text-muted-foreground/80" strokeWidth={1.75} />
+                {job.location || 'Remote'}
               </span>
             </div>
           </div>
-          {job.match_score !== undefined && (
-            <Badge
-              variant="outline"
-              className={`flex-shrink-0 font-bold ${
-                job.match_score >= 70 ? 'border-emerald-500 text-emerald-500 bg-emerald-500/10' :
-                job.match_score >= 40 ? 'border-amber-500 text-amber-500 bg-amber-500/10' :
-                'border-muted text-muted-foreground bg-muted/20'
+
+          {/* Match Score or Source Badge */}
+          {hasValidMatchScore ? (
+            <span
+              className={`flex-shrink-0 font-semibold text-[11px] rounded-full px-2.5 py-0.5 border ${
+                job.match_score >= 70
+                  ? 'text-foreground bg-primary/10 border-primary/25'
+                  : 'text-muted-foreground bg-muted/60 border-border'
               }`}
             >
               {job.match_score}% Match
-            </Badge>
+            </span>
+          ) : (
+            <span
+              className={`flex-shrink-0 text-[10px] font-semibold tracking-wider uppercase rounded-full px-2.5 py-0.5 flex items-center gap-1 bg-muted/60 border border-border text-foreground`}
+            >
+              {isGovt && <Landmark className="w-3 h-3 text-foreground" strokeWidth={1.75} />}
+              {sourceInfo.label}
+            </span>
           )}
         </div>
       </CardHeader>
 
-      <CardContent className="pb-4 flex-grow">
+      <CardContent className="pb-4 flex-grow select-text">
         <div className="space-y-4">
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span className="flex items-center gap-1 font-medium text-foreground">
-              <DollarSign className="w-3.5 h-3.5 text-green-500" />
-              {job.salary_min ? `${job.salary_currency || '$'}${job.salary_min.toLocaleString()} - ${job.salary_max ? job.salary_max.toLocaleString() : '+'}` : 'Undisclosed'}
+          <div className="flex items-center justify-between text-xs text-muted-foreground select-text">
+            <span className="flex items-center gap-1 font-medium text-foreground font-mono">
+              <DollarSign className="w-3.5 h-3.5 text-muted-foreground" strokeWidth={1.75} />
+              {job.salary_min
+                ? `${job.salary_currency || '$'}${job.salary_min.toLocaleString()} - ${
+                    job.salary_max ? job.salary_max.toLocaleString() : '+'
+                  }`
+                : 'Undisclosed'}
             </span>
-            <span className="flex items-center gap-1">
-              <CalendarDays className="w-3.5 h-3.5" />
-              {formatDate(job.posted_date)}
-            </span>
+            {job.posted_date && (
+              <span className="flex items-center gap-1">
+                <CalendarDays className="w-3.5 h-3.5 text-muted-foreground/70" strokeWidth={1.75} />
+                {formatDate(job.posted_date)}
+              </span>
+            )}
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            {job.is_remote && (
-              <Badge variant="secondary" className="bg-sky-500/10 text-sky-500 border-sky-500/20">Remote</Badge>
+          {/* Balanced, Clean Tag Row (Taito.ai monochrome pills) */}
+          <div className="flex flex-wrap items-center gap-1.5 select-text">
+            {showRemote && (
+              <span className="rounded-full bg-muted/60 border border-border px-2.5 py-0.5 text-[10px] font-medium text-foreground">
+                Remote
+              </span>
             )}
 
-            {job.categories && job.categories.map((cat: any) => (
-              <Badge key={cat.category} variant="secondary" className={getCategoryColor(cat.category)}>
-                {cat.category.replace('_', ' ').toUpperCase()}
-              </Badge>
+            {showCategory && primaryCategory && (
+              <span className="rounded-full bg-muted border border-border px-2.5 py-0.5 text-[10px] font-medium text-foreground">
+                {getCategoryLabel(primaryCategory.category)}
+              </span>
+            )}
+
+            {visibleSkills.map((skill: string) => (
+              <span
+                key={skill}
+                className="rounded-full bg-muted/40 border border-border px-2 py-0.5 text-[10px] font-mono text-muted-foreground select-text"
+              >
+                {skill}
+              </span>
             ))}
 
-            {job.required_skills && job.required_skills.slice(0, 3).map((skill: string) => (
-              <Badge key={skill} variant="outline" className="text-xs font-normal">
-                {skill}
-              </Badge>
-            ))}
-            {job.required_skills && job.required_skills.length > 3 && (
-              <span className="text-xs text-muted-foreground self-center">
-                +{job.required_skills.length - 3} more
+            {remainingSkillsCount > 0 && (
+              <span className="text-[10px] text-muted-foreground font-medium pl-1">
+                +{remainingSkillsCount} more
               </span>
             )}
           </div>
         </div>
       </CardContent>
 
-      <div className="mt-auto pt-4 border-t flex gap-2">
-        <a
-          href={job.apply_url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center justify-center gap-2 flex-1 h-10 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
+      <div className="mt-auto pt-3 pb-3 px-6 border-t border-border/40 flex items-center gap-2">
+        <Link
+          href={`/dashboard/jobs/${job.id}`}
+          className="flex items-center justify-center flex-1 h-9 rounded-lg border border-border bg-muted/40 text-foreground text-xs font-medium hover:bg-muted transition-colors"
         >
-          Apply Now
-          <ExternalLink className="w-3.5 h-3.5" />
-        </a>
+          View & Match
+        </Link>
+
+        {job.apply_url && (
+          <a
+            href={job.apply_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center h-9 px-3.5 rounded-lg text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-xs"
+            title="Open application link in new tab"
+          >
+            {isGovt ? 'Circular' : 'Apply'}{' '}
+            <ExternalLink className="w-3 h-3 ml-1.5" strokeWidth={1.75} />
+          </a>
+        )}
+
         {onSaveToggle && (
           <Button
-            variant={isSaved ? "default" : "outline"}
+            variant="outline"
             size="icon"
             onClick={handleSaveClick}
-            title={isSaved ? "Unsave job" : "Save job"}
-            className="h-10 w-10"
+            title={isSaved ? 'Unsave job' : 'Save job'}
+            className="h-9 w-9 flex-shrink-0 border-border text-muted-foreground hover:text-foreground hover:bg-muted"
           >
-            <Bookmark className={`w-4 h-4 ${isSaved ? 'fill-current' : ''}`} />
+            <Bookmark className={`w-3.5 h-3.5 ${isSaved ? 'fill-primary text-primary' : ''}`} strokeWidth={1.75} />
           </Button>
         )}
       </div>
     </Card>
   );
 }
+

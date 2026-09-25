@@ -26,6 +26,8 @@ Expected JSON format:
   "project_match": <int 0-100>,
   "education_match": <int 0-100>,
   "location_match": <int 0-100>,
+  "matching_skills": ["<string: skill from candidate profile that matches the JD>"],
+  "missing_skills": ["<string: key skill or tool demanded by JD that candidate lacks>"],
   "explanation": [
     "<string: short 1-sentence brutally honest insight about skill overlap (or lack thereof)>",
     "<string: short 1-sentence brutally honest insight about project/experience relevance>",
@@ -119,6 +121,8 @@ DESCRIPTION:
             "project_match": clamp(data.get("project_match"), 50),
             "education_match": clamp(data.get("education_match"), 50),
             "location_match": clamp(data.get("location_match"), 50),
+            "matching_skills": [str(s) for s in data.get("matching_skills", []) if s],
+            "missing_skills": [str(s) for s in data.get("missing_skills", []) if s],
             "explanation": data.get("explanation", ["AI match generated successfully."]),
         }
 
@@ -132,9 +136,14 @@ DESCRIPTION:
         if job_skills_lower:
             overlap = len(candidate_skills_lower & job_skills_lower)
             skill_score = min(int((overlap / len(job_skills_lower)) * 100), 95)
+            matched_skills_list = list(candidate_skills_lower & job_skills_lower)
+            missing_skills_list = list(job_skills_lower - candidate_skills_lower)
         else:
-            hits = sum(1 for s in candidate_skills_lower if s and s in job_text_lower)
-            skill_score = min(hits * 8, 70)
+            hits = [s for s in candidate_skills_lower if s and s in job_text_lower]
+            overlap = len(hits)
+            skill_score = min(overlap * 8, 70)
+            matched_skills_list = hits
+            missing_skills_list = []
 
         proj_hits = 0
         for p in projects:
@@ -161,8 +170,10 @@ DESCRIPTION:
             "project_match": project_score,
             "education_match": 50,
             "location_match": location_score,
+            "matching_skills": matched_skills_list,
+            "missing_skills": missing_skills_list,
             "explanation": [
-                f"Heuristic match: {overlap if job_skills_lower else hits} skill keyword(s) matched in job posting.",
+                f"Heuristic match: {overlap} skill keyword(s) matched in job posting.",
                 f"Project tech overlap: {proj_hits} technology match(es) found in job description.",
                 "Location score estimated from profile city/country vs job location.",
             ],

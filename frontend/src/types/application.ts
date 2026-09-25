@@ -55,3 +55,60 @@ export interface GeneratedCoverLetter {
   ai_model: string;
   created_at: string;
 }
+
+export interface BulletEnhanceRequest {
+  bullet_point: string;
+  target_role?: string;
+  target_skills?: string[];
+}
+
+export interface BulletEnhanceResponse {
+  original_bullet: string;
+  optimized_bullet: string;
+  impact_explanation: string;
+  alternatives: string[];
+}
+
+export interface ResumeItem {
+  id: string;
+  name: string;
+  file_name: string;
+  file_path?: string | null;
+  download_url?: string | null;
+  uploaded_at: string;
+  is_active: boolean;
+  skills_count?: number;
+  roles_count?: number;
+  projects_count?: number;
+}
+
+export interface MasterResumeData {
+  has_resume: boolean;
+  active_resume_id?: string | null;
+  resumes?: ResumeItem[];
+  file_path?: string | null;
+  download_url?: string | null;
+  parsed?: {
+    skills?: string[];
+    experience?: Array<{ title?: string; company?: string; start_date?: string; end_date?: string; description?: string }>;
+    projects?: Array<{ title?: string; description?: string; technologies?: string[] }>;
+    education?: Array<{ degree?: string; institution?: string; field_of_study?: string }>;
+    raw_text?: string;
+  } | null;
+  profile?: {
+    name?: string;
+    email?: string;
+    phone?: string;
+    location?: string;
+    linkedin?: string;
+    github?: string;
+    portfolio?: string;
+    preferred_categories?: string[];
+    preferred_locations?: string[];
+    expected_salary_min?: number;
+    expected_salary_max?: number;
+    salary_currency?: string;
+    employment_type?: string[];
+  };
+  updated_at?: string;
+}
