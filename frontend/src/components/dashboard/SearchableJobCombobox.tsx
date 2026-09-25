@@ -93,7 +93,7 @@ export function SearchableJobCombobox({
   }, [jobs, searchQuery, sourceFilter]);
 
   return (
-    <div ref={containerRef} className={`relative w-full ${className}`}>
+    <div ref={containerRef} className={`relative w-full ${isOpen ? 'z-[60]' : 'z-10'} ${className}`}>
       {/* Trigger Button */}
       <div
         onClick={() => setIsOpen((prev) => !prev)}
@@ -158,7 +158,7 @@ export function SearchableJobCombobox({
 
       {/* Dropdown Menu Popover */}
       {isOpen && (
-        <div className="absolute left-0 right-0 top-full mt-1.5 z-50 bg-popover/95 backdrop-blur-md border border-border/80 shadow-2xl rounded-xl overflow-hidden animate-in fade-in-0 zoom-in-95 duration-150">
+        <div className="absolute left-0 right-0 top-full mt-1.5 z-[70] bg-popover/95 backdrop-blur-md border border-border/80 shadow-2xl rounded-xl overflow-hidden animate-in fade-in-0 zoom-in-95 duration-150">
           {/* Search Box Header */}
           <div className="p-2.5 border-b border-border/50 bg-muted/20 space-y-2">
             <div className="relative">

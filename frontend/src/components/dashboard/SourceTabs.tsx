@@ -54,6 +54,9 @@ export function SourceTabs({ sources, totalCount, activeSource, onSelect }: Sour
   const visibleSources = showAll ? sources : sources.slice(0, MAX_VISIBLE);
   const hasMore = sources.length > MAX_VISIBLE;
 
+  const sumOfSources = sources.reduce((acc, s) => acc + (s.count || 0), 0);
+  const displayTotal = sumOfSources > 0 ? sumOfSources : totalCount;
+
   return (
     <div className="flex flex-wrap items-center gap-1.5">
       {/* All Sources */}
@@ -77,7 +80,7 @@ export function SourceTabs({ sources, totalCount, activeSource, onSelect }: Sour
               : 'bg-muted text-muted-foreground'
           )}
         >
-          {totalCount}
+          {displayTotal}
         </span>
       </button>
 

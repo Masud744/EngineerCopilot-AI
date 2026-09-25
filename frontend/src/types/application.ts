@@ -69,8 +69,23 @@ export interface BulletEnhanceResponse {
   alternatives: string[];
 }
 
+export interface ResumeItem {
+  id: string;
+  name: string;
+  file_name: string;
+  file_path?: string | null;
+  download_url?: string | null;
+  uploaded_at: string;
+  is_active: boolean;
+  skills_count?: number;
+  roles_count?: number;
+  projects_count?: number;
+}
+
 export interface MasterResumeData {
   has_resume: boolean;
+  active_resume_id?: string | null;
+  resumes?: ResumeItem[];
   file_path?: string | null;
   download_url?: string | null;
   parsed?: {
@@ -88,6 +103,12 @@ export interface MasterResumeData {
     linkedin?: string;
     github?: string;
     portfolio?: string;
+    preferred_categories?: string[];
+    preferred_locations?: string[];
+    expected_salary_min?: number;
+    expected_salary_max?: number;
+    salary_currency?: string;
+    employment_type?: string[];
   };
   updated_at?: string;
 }

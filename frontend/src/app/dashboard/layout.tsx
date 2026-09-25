@@ -26,7 +26,7 @@ const SIDEBAR_ITEMS = [
   { name: 'Find Jobs', href: '/dashboard/jobs', icon: Briefcase },
   { name: 'Saved Jobs', href: '/dashboard/saved-jobs', icon: Bookmark },
   { name: 'Applications', href: '/dashboard/applications', icon: FileText },
-  { name: 'Resume & Profile', href: '/dashboard/resume', icon: Sparkles },
+  { name: 'Profile', href: '/dashboard/profile', icon: User },
 ]
 
 export default function DashboardLayout({
@@ -167,7 +167,7 @@ export default function DashboardLayout({
     { name: 'Jobs', href: '/dashboard/jobs', icon: Briefcase },
     { name: 'Saved', href: '/dashboard/saved-jobs', icon: Bookmark },
     { name: 'Pipeline', href: '/dashboard/applications', icon: FileText },
-    { name: 'Studio', href: '/dashboard/resume', icon: Sparkles },
+    { name: 'Profile', href: '/dashboard/profile', icon: User },
   ]
 
   return (
@@ -227,9 +227,9 @@ export default function DashboardLayout({
               <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-primary" />
             </button>
             <Link
-              href="/dashboard/resume"
+              href="/dashboard/profile"
               className="ml-1 h-8 w-8 rounded-full bg-muted border border-border flex items-center justify-center hover:bg-muted/80 transition-colors"
-              title="Resume & Profile Studio"
+              title="Profile"
             >
               <User className="h-4 w-4 text-muted-foreground" />
             </Link>

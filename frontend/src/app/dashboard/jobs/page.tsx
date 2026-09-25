@@ -818,7 +818,9 @@ export default function JobsPage() {
       {/* ── Source Filter Tabs ── */}
       <SourceTabs
         sources={allSources}
-        totalCount={filteredJobs.length}
+        totalCount={
+          allSources.reduce((acc, s) => acc + (s.count || 0), 0) || filteredJobs.length
+        }
         activeSource={sourceFilter}
         onSelect={handleSourceFilter}
       />

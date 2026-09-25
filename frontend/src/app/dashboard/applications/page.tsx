@@ -170,7 +170,7 @@ export default function ApplicationsKanbanPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusKey | 'all'>('all');
   const [viewMode, setViewMode] = useState<'board' | 'list'>('board');
-  const [showArchivedColumn, setShowArchivedColumn] = useState(true);
+  const [showArchivedColumn, setShowArchivedColumn] = useState(false);
 
   // Drag state
   const [draggingId, setDraggingId] = useState<string | null>(null);
@@ -634,8 +634,8 @@ export default function ApplicationsKanbanPage() {
       {/* ═══ KANBAN BOARD VIEW ═══════════════════════════════ */}
       {apps.length > 0 && viewMode === 'board' && (
         <>
-          {/* Desktop Multi-Column Horizontal Board */}
-          <div className="hidden md:flex flex-1 min-h-0 gap-3 overflow-x-auto pb-2 select-none">
+          {/* Desktop Multi-Column Horizontal Board (Fit to Viewport) */}
+          <div className="hidden md:flex flex-1 min-h-0 gap-2.5 overflow-x-auto xl:overflow-hidden pb-1 select-none">
             {visibleColumns.map(col => {
               const colApps = groupedApps[col.key] || [];
               const isOver = dragOverCol === col.key;
@@ -644,7 +644,7 @@ export default function ApplicationsKanbanPage() {
               return (
                 <div
                   key={col.key}
-                  className={`flex-shrink-0 w-[275px] flex flex-col rounded-xl border transition-all duration-150 ${
+                  className={`flex-1 min-w-[170px] xl:min-w-0 flex flex-col rounded-xl border transition-all duration-150 ${
                     isOver
                       ? `${col.border} ${col.bg} ring-2 ring-primary/30 shadow-md`
                       : 'border-border/50 bg-card/40'
