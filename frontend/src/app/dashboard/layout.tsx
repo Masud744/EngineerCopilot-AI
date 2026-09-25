@@ -143,7 +143,7 @@ export default function DashboardLayout({
     </div>
   )
 
-  const isFixedViewportPage = pathname === '/dashboard' || pathname === '/dashboard/jobs';
+  const isFixedViewportPage = pathname === '/dashboard' || pathname === '/dashboard/jobs' || pathname === '/dashboard/applications';
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-background">
